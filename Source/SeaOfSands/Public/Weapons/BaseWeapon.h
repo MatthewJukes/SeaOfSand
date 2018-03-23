@@ -23,6 +23,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
+	virtual void StartFiring();
+	virtual void StopFiring();
 	
 };

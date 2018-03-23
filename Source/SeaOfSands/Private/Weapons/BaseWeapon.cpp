@@ -25,3 +25,11 @@ void ABaseWeapon::Tick(float DeltaTime)
 
 }
 
+void ABaseWeapon::StartFiring()
+{
+}
+
+void ABaseWeapon::StopFiring()
+{
+}
+

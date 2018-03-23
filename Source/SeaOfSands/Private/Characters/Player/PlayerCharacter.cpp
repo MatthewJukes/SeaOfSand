@@ -153,9 +153,9 @@ void APlayerCharacter::JumpAndFlip()
 void APlayerCharacter::SpawnWeapon()
 {
 	FActorSpawnParameters SpawnParams;
-	//CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams);
+	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams);
 
-	//ABasePlayerController* Controller = Cast<ABasePlayerController>(GetController());
+	ABasePlayerController* Controller = Cast<ABasePlayerController>(GetController());
 	//Controller->UpdateCurrentWeapon(CurrentWeapon);
 }
 
@@ -163,7 +163,7 @@ void APlayerCharacter::EquipWeapon()
 {
 	if (CurrentWeapon)
 	{
-		//CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachPoint);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachPoint);
 		bCanFire = true;
 	}
 }
@@ -172,7 +172,7 @@ void APlayerCharacter::HolsterWeapon()
 {
 	if (CurrentWeapon)
 	{
-		//CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, BackHolsterAttachPoint);
+		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, BackHolsterAttachPoint);
 		//CurrentWeapon->StopFiring();
 		bCanFire = false;
 	}
