@@ -13,11 +13,11 @@ class SEAOFSANDS_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 	
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class USpringArmComponent* CameraBoom;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
+	class UCameraComponent* FollowCamera;
 
 public:
 	// Set defaults
@@ -33,6 +33,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);
+
+	ABaseWeapon* CurrentWeapon;
 
 protected:
 	// Called when the game starts or when spawned
@@ -68,8 +70,7 @@ private:
 	// Player weapons
 	void SpawnWeapon();
 	void EquipWeapon();
-	void HolsterWeapon();
-	ABaseWeapon* CurrentWeapon;
+	void HolsterWeapon();	
 
 	// Player firing
 	void AimStart();

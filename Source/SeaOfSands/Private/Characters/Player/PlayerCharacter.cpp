@@ -173,7 +173,7 @@ void APlayerCharacter::HolsterWeapon()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, BackHolsterAttachPoint);
-		//CurrentWeapon->StopFiring();
+		CurrentWeapon->StopFiring();
 		bCanFire = false;
 	}
 }
