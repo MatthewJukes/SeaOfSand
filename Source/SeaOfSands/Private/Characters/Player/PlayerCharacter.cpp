@@ -156,7 +156,7 @@ void APlayerCharacter::SpawnWeapon()
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams);
 
 	ABasePlayerController* Controller = Cast<ABasePlayerController>(GetController());
-	//Controller->UpdateCurrentWeapon(CurrentWeapon);
+	Controller->UpdateCurrentWeapon(CurrentWeapon);
 }
 
 void APlayerCharacter::EquipWeapon()
@@ -173,7 +173,7 @@ void APlayerCharacter::HolsterWeapon()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, BackHolsterAttachPoint);
-		//CurrentWeapon->StopFiring();
+		CurrentWeapon->StopFiring();
 		bCanFire = false;
 	}
 }
