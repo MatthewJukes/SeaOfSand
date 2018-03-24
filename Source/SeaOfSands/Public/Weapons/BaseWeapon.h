@@ -24,6 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void StartFiring();
-	virtual void StopFiring();
-	
+	virtual void StopFiring();	
 };

@@ -20,23 +20,9 @@ public:
 
 	void UpdateCurrentWeapon(ABaseWeapon* NewWeapon);
 	
-<<<<<<< HEAD
-=======
-public:
-	// Called to bind functionality to input
-	virtual void SetupInputComponent() override;
-
-	//void UpdateCurrentWeapon(ABaseWeapon* NewWeapon);
-	
->>>>>>> GitHub/master
 private:
 	void StartFiring();
 	void StopFiring();
 
-<<<<<<< HEAD
 	ABaseWeapon* CurrentWeapon;
 }; 
-=======
-	//ABaseWeapon CurrentWeapon;
-};
->>>>>>> GitHub/master
