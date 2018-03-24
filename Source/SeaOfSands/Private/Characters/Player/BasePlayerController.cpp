@@ -24,8 +24,6 @@ void ABasePlayerController::StartFiring()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StartFiring();
-		FVector HitLocation;
-		GetCrosshairHitLocation(HitLocation);
 	}
 }
 
@@ -62,7 +60,7 @@ bool ABasePlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& 
 bool ABasePlayerController::GetLookVectorHitLocation(FVector& HitLocation, FVector LookDirection) const
 {
 	const FName TraceTag("CrosshairTraceTag");
-	GetWorld()->DebugDrawTraceTag = TraceTag;
+	//GetWorld()->DebugDrawTraceTag = TraceTag;
 
 	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
 	RV_TraceParams.bTraceComplex = true;
@@ -71,8 +69,8 @@ bool ABasePlayerController::GetLookVectorHitLocation(FVector& HitLocation, FVect
 	RV_TraceParams.TraceTag = TraceTag;
 
 	FHitResult RV_Hit;
-	auto StartLocation = PlayerCameraManager->GetCameraLocation();
-	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
+	FVector StartLocation = PlayerCameraManager->GetCameraLocation();
+	FVector EndLocation = StartLocation + (LookDirection * LineTraceRange);
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{
 		// Set hit location

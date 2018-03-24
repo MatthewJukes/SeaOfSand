@@ -29,7 +29,7 @@ void ARifle::FireBullet()
 	if (CheckIfWeaponCanFire(ElaspedTime, LastElaspedTime, FireRate))
 	{
 		FVector MuzzleLocation = Rifle->GetSocketLocation("MuzzleSocket");
-		WeaponAimLocation(MuzzleLocation, MaxRange, BulletSpread);
+		WeaponTrace(MuzzleLocation, MaxRange, BulletSpread);
 		LastElaspedTime = 0.f;
 	}
 }

@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "BaseWeapon.generated.h"
 
+class ABasePlayerController;
+
 UCLASS()
 class SEAOFSANDS_API ABaseWeapon : public AActor
 {
@@ -28,7 +30,11 @@ public:
 
 protected:
 
-	void WeaponAimLocation(FVector MuzzleLocation, float MaxRange, float BulletSpread);
-
 	bool CheckIfWeaponCanFire(float ElaspedTime, float LastElaspedTime, float FireRate) const;
+	bool WeaponTrace(FVector MuzzleLocation, float MaxRange, float BulletSpread) const;
+
+	ABasePlayerController* PlayerController;
+
+private:
+
 };
