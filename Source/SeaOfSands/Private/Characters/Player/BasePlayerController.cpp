@@ -2,15 +2,15 @@
 
 #include "BasePlayerController.h"
 #include "BaseWeapon.h"
-
+#include "Engine/World.h"
 
 void ABasePlayerController::SetupInputComponent()
 {
+	Super::SetupInputComponent();
 	if (InputComponent)
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, this, &ABasePlayerController::StartFiring);
 		InputComponent->BindAction("Fire", IE_Released, this, &ABasePlayerController::StopFiring);
-		UE_LOG(LogTemp, Warning, TEXT("Bound Input"));
 	}
 }
 
@@ -24,6 +24,8 @@ void ABasePlayerController::StartFiring()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StartFiring();
+		FVector HitLocation;
+		GetCrosshairHitLocation(HitLocation);
 	}
 }
 
@@ -34,3 +36,49 @@ void ABasePlayerController::StopFiring()
 		CurrentWeapon->StopFiring();
 	}
 } 
+
+void ABasePlayerController::GetCrosshairHitLocation(FVector& OutHitLocation)
+{
+	// Find the crosshair position in pixel coordinates
+	int32 ViewportSizeX, ViewPortSizeY;
+	GetViewportSize(ViewportSizeX, ViewPortSizeY);
+	FVector2D ScreenLocation = FVector2D(ViewportSizeX * CrossHairXLocation, ViewPortSizeY * CrosshairYLocation);
+
+	// "De-project" the screen position of the crosshair to a world direction
+	FVector LookDirection;
+	if (GetLookDirection(ScreenLocation, LookDirection))
+	{
+		// Line-trace along LookDirection, and see what we hit (up to max range)
+		GetLookVectorHitLocation(OutHitLocation, LookDirection);
+	}
+}
+
+bool ABasePlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
+{
+	FVector CameraWorldLocation; // To be discarded
+	return DeprojectScreenPositionToWorld(ScreenLocation.X,	ScreenLocation.Y, CameraWorldLocation, LookDirection);
+}
+
+bool ABasePlayerController::GetLookVectorHitLocation(FVector& HitLocation, FVector LookDirection) const
+{
+	const FName TraceTag("CrosshairTraceTag");
+	GetWorld()->DebugDrawTraceTag = TraceTag;
+
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bTraceAsyncScene = true;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+	RV_TraceParams.TraceTag = TraceTag;
+
+	FHitResult RV_Hit;
+	auto StartLocation = PlayerCameraManager->GetCameraLocation();
+	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
+	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
+	{
+		// Set hit location
+		HitLocation = RV_Hit.Location;
+		return true;
+	}
+	HitLocation = EndLocation; // Set end location as hit location if nothing hit
+	return false; // Line-trace didn't hit anything
+}

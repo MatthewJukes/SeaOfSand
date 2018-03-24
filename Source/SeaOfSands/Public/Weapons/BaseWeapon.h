@@ -24,5 +24,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void StartFiring();
-	virtual void StopFiring();	
+	virtual void StopFiring();
+
+protected:
+
+	void WeaponAimLocation(FVector MuzzleLocation, float MaxRange, float BulletSpread);
+
+	bool CheckIfWeaponCanFire(float ElaspedTime, float LastElaspedTime, float FireRate) const;
 };

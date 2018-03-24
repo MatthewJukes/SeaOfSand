@@ -23,6 +23,8 @@ public:
 
 	virtual void StartFiring() override;
 	virtual void StopFiring() override;
+
+protected:
 	
 private:
 
@@ -40,5 +42,7 @@ private:
 
 	void FireBullet();
 	
+	float LastElaspedTime = 0.f;
+
 	FTimerHandle FireRateTimerHandle;
 };

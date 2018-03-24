@@ -15,21 +15,23 @@ void ARifle::StartFiring()
 	UE_LOG(LogTemp, Warning, TEXT("Rifle Firing"));
 	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ARifle::FireBullet, FireRate, bIsAutomatic, 0.0f);
 }
+
 void ARifle::StopFiring()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rifle Stopping"));
-	GetWorldTimerManager().GetTimerRemaining(FireRateTimerHandle);
+	LastElaspedTime += GetWorldTimerManager().GetTimerRemaining(FireRateTimerHandle);
 	GetWorldTimerManager().ClearTimer(FireRateTimerHandle);
 }
 
 void ARifle::FireBullet()
 {
 	float ElaspedTime = GetWorldTimerManager().GetTimerElapsed(FireRateTimerHandle);
-	//if (CheckIfWeaponCanFire(ElaspedTime, LastElaspedTime, FireRate))
-	//{
+	if (CheckIfWeaponCanFire(ElaspedTime, LastElaspedTime, FireRate))
+	{
 		FVector MuzzleLocation = Rifle->GetSocketLocation("MuzzleSocket");
-		//WeaponAimLocation(MuzzleLocation, MaxRange, BulletSpread);
-	//}
+		WeaponAimLocation(MuzzleLocation, MaxRange, BulletSpread);
+		LastElaspedTime = 0.f;
+	}
 }
 
 

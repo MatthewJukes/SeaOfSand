@@ -22,14 +22,18 @@ void ABaseWeapon::BeginPlay()
 void ABaseWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ABaseWeapon::StartFiring(){}
+void ABaseWeapon::StopFiring(){}
+
+void ABaseWeapon::WeaponAimLocation(FVector MuzzleLocation, float MaxRange, float BulletSpread)
+{
 
 }
 
-void ABaseWeapon::StartFiring()
+bool ABaseWeapon::CheckIfWeaponCanFire(float ElaspedTime, float LastElaspedTime, float FireRate) const
 {
-}
-
-void ABaseWeapon::StopFiring()
-{
+	return true;
 }
 
