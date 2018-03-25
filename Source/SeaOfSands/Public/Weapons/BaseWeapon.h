@@ -30,7 +30,7 @@ public:
 
 protected:
 
-	bool CheckIfWeaponCanFire(float ElaspedTime, float LastElaspedTime, float FireRate) const;
+	bool CheckIfWeaponCanFire(float FireRate) const;
 	bool WeaponTrace(FVector MuzzleLocation, float MaxRange, float BulletSpread) const;
 
 	ABasePlayerController* PlayerController;

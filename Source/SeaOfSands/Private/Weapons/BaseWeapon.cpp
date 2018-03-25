@@ -30,9 +30,9 @@ void ABaseWeapon::Tick(float DeltaTime)
 void ABaseWeapon::StartFiring(){}
 void ABaseWeapon::StopFiring(){}
 
-bool ABaseWeapon::CheckIfWeaponCanFire(float ElaspedTime, float LastElaspedTime, float FireRate) const
+bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate) const
 {
-	return true;
+	return false;
 }
 
 bool ABaseWeapon::WeaponTrace(FVector MuzzleLocation, float MaxRange, float BulletSpread) const

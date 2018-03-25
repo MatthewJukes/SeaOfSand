@@ -17,6 +17,9 @@ class SEAOFSANDS_API ARifle : public ABaseWeapon
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* Rifle;
 
+	UPROPERTY(VisibleAnywhere)
+	UAudioComponent* RifleShotAudioComponent;
+
 public:
 	// Sets default values for this actor's properties
 	ARifle();
@@ -29,20 +32,19 @@ protected:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-	float FireRate = 0.05;
+	float FireRate = 0.125;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float MaxRange = 10000.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-	float BulletSpread = 2.0f;
+	float BulletSpread = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	bool bIsAutomatic = true;
 
 	void FireBullet();
-	
-	float LastElaspedTime = 0.f;
 
 	FTimerHandle FireRateTimerHandle;
+	FTimerHandle RefireTimerHandle;
 };
