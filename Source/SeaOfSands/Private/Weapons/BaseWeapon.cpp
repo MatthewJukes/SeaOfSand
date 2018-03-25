@@ -3,6 +3,7 @@
 #include "BaseWeapon.h"
 #include "BasePlayerController.h"
 #include "Engine/World.h"
+#include "Math/UnrealMath.h"
 
 
 // Sets default values
@@ -45,21 +46,22 @@ bool ABaseWeapon::WeaponTrace(FVector MuzzleLocation, float MaxRange, float Bull
 	RV_TraceParams.bReturnPhysicalMaterial = false;
 	RV_TraceParams.TraceTag = TraceTag;
 
-	FHitResult RV_Hit;
-
+	FHitResult RV_Hit;	
 	FVector StartLocation = MuzzleLocation;
+	FVector EndLocation = StartLocation + (GetAimDirection(StartLocation, BulletSpread) * MaxRange);
 
-	FVector CrosshairHitLocation;
-	PlayerController->GetCrosshairHitLocation(CrosshairHitLocation);
-
-	FVector AimDirection = CrosshairHitLocation - StartLocation;
-	AimDirection.Normalize();
-	FVector EndLocation = StartLocation + (AimDirection * MaxRange);
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{
 		return true;
 	}
 	return false; // Line-trace didn't hit anything
+}
+
+FVector ABaseWeapon::GetAimDirection(FVector StartLocation, float BulletSpread) const
+{
+	FVector AimDirection = PlayerController->GetCrosshairHitLocation() - StartLocation;
+	AimDirection.Normalize();	
+	return FMath().VRandCone(AimDirection, FMath().DegreesToRadians(BulletSpread));
 }
 
 

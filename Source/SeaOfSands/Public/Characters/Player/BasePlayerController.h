@@ -6,13 +6,13 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class APlayerCharacter;
 class ABaseWeapon;
 
 UCLASS()
 class SEAOFSANDS_API ABasePlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
 		
 public:
 	// Called to bind functionality to input
@@ -22,7 +22,11 @@ public:
 	void UpdateCurrentWeapon(ABaseWeapon* NewWeapon);
 
 	// Return an OUT parameter
-	void GetCrosshairHitLocation(FVector& OutHitLocation);
+	FVector GetCrosshairHitLocation() const;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 	
 private:
 
@@ -41,7 +45,10 @@ private:
 
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;
-	bool GetLookVectorHitLocation(FVector & HitLocation, FVector LookDirection) const;	
+	FVector GetLookVectorHitLocation(FVector LookDirection) const;
+
+	// Player character
+	APlayerCharacter* Player;
 
 	// Currently equipped weapon
 	ABaseWeapon* CurrentWeapon;

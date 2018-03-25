@@ -33,6 +33,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);
+	
+	bool bCanFire = false;
 
 	ABaseWeapon* CurrentWeapon;
 
@@ -75,7 +77,6 @@ private:
 	// Player firing
 	void AimStart();
 	void AimEnd();
-	bool bCanFire = false;
 
 	// Movement state bools
 	bool bIsSprinting = false;

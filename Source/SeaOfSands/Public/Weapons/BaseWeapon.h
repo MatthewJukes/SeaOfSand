@@ -37,4 +37,5 @@ protected:
 
 private:
 
+	FVector GetAimDirection(FVector StartLocation, float BulletSpread) const;
 };

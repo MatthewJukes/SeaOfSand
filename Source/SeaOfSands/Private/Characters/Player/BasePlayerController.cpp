@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasePlayerController.h"
+#include "PlayerCharacter.h"
 #include "BaseWeapon.h"
 #include "Engine/World.h"
 
@@ -14,6 +15,13 @@ void ABasePlayerController::SetupInputComponent()
 	}
 }
 
+// Called when the game starts or when spawned
+void ABasePlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	Player = Cast<APlayerCharacter>(GetCharacter());
+}
+
 void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
 {
 	CurrentWeapon = Cast<ABaseWeapon>(NewWeapon);
@@ -21,9 +29,12 @@ void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
 
 void ABasePlayerController::StartFiring()
 {
-	if (CurrentWeapon)
+	if (CurrentWeapon && Player)
 	{
-		CurrentWeapon->StartFiring();
+		if (Player->bCanFire)
+		{
+			CurrentWeapon->StartFiring();
+		}		
 	}
 }
 
@@ -35,7 +46,7 @@ void ABasePlayerController::StopFiring()
 	}
 } 
 
-void ABasePlayerController::GetCrosshairHitLocation(FVector& OutHitLocation)
+FVector ABasePlayerController::GetCrosshairHitLocation() const
 {
 	// Find the crosshair position in pixel coordinates
 	int32 ViewportSizeX, ViewPortSizeY;
@@ -47,8 +58,9 @@ void ABasePlayerController::GetCrosshairHitLocation(FVector& OutHitLocation)
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
 		// Line-trace along LookDirection, and see what we hit (up to max range)
-		GetLookVectorHitLocation(OutHitLocation, LookDirection);
+		return GetLookVectorHitLocation(LookDirection);
 	}
+	return FVector(0.f,0.f,0.f);
 }
 
 bool ABasePlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
@@ -57,7 +69,7 @@ bool ABasePlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& 
 	return DeprojectScreenPositionToWorld(ScreenLocation.X,	ScreenLocation.Y, CameraWorldLocation, LookDirection);
 }
 
-bool ABasePlayerController::GetLookVectorHitLocation(FVector& HitLocation, FVector LookDirection) const
+FVector ABasePlayerController::GetLookVectorHitLocation(FVector LookDirection) const
 {
 	const FName TraceTag("CrosshairTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -74,9 +86,7 @@ bool ABasePlayerController::GetLookVectorHitLocation(FVector& HitLocation, FVect
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{
 		// Set hit location
-		HitLocation = RV_Hit.Location;
-		return true;
+		return RV_Hit.Location;
 	}
-	HitLocation = EndLocation; // Set end location as hit location if nothing hit
-	return false; // Line-trace didn't hit anything
+	return EndLocation; // return end location if nothing hit
 }
