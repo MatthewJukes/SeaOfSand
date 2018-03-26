@@ -7,7 +7,7 @@
 
 // Sets default values
 ARifle::ARifle()
-{
+{	
 	Rifle = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Rifle"));
 	RifleShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("RIfleShotAudio"));
 }

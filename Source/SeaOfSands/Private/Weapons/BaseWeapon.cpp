@@ -4,6 +4,7 @@
 #include "BasePlayerController.h"
 #include "Engine/World.h"
 #include "Math/UnrealMath.h"
+#include "Particles/ParticleSystemComponent.h"
 
 
 // Sets default values
@@ -11,6 +12,9 @@ ABaseWeapon::ABaseWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;	
+
+	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	//Beam = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Rifle"));
 }
 
 // Called when the game starts or when spawned

@@ -41,7 +41,7 @@ private:
 	float BulletSpread = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-	bool bIsAutomatic = true;
+	bool bIsAutomatic = false;
 
 	void FireBullet();
 

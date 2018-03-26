@@ -12,6 +12,11 @@ UCLASS()
 class SEAOFSANDS_API ABaseWeapon : public AActor
 {
 	GENERATED_BODY()
+
+	//USceneComponent* Root;
+
+	//UPROPERTY(VisibleAnywhere)
+	//UParticleSystemComponent* Beam;
 	
 public:	
 	// Sets default values for this actor's properties
