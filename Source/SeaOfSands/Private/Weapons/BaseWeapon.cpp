@@ -4,7 +4,6 @@
 #include "BasePlayerController.h"
 #include "Engine/World.h"
 #include "Math/UnrealMath.h"
-#include "Particles/ParticleSystemComponent.h"
 
 
 // Sets default values
@@ -12,9 +11,6 @@ ABaseWeapon::ABaseWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true; 
-
-	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	//Beam = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Rifle"));
 }
 
 // Called when the game starts or when spawned
@@ -39,7 +35,7 @@ bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate) const
 	return false;
 }
 
-bool ABaseWeapon::WeaponTrace(FVector MuzzleLocation, float MaxRange, float BulletSpread) const
+bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector MuzzleLocation, float MaxRange, float BulletSpread) const
 {
 	const FName TraceTag("WeaponTraceTag");
 	GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -56,8 +52,10 @@ bool ABaseWeapon::WeaponTrace(FVector MuzzleLocation, float MaxRange, float Bull
 
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{
+		OutHitlocation = RV_Hit.Location;
 		return true;
 	}
+	OutHitlocation = EndLocation;
 	return false; // Line-trace didn't hit anything
 }
 

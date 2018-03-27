@@ -57,6 +57,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::SprintEnd);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::CrouchStart);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::CrouchEnd);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AimStart);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::AimEnd);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::JumpAndFlip);
@@ -118,6 +120,15 @@ void APlayerCharacter::SprintEnd()
 		SprintZoom(false); // Call BP timeline, playing backwards
 		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
 	}
+}
+
+void APlayerCharacter::CrouchStart()
+{
+	// TODO add player crouching
+}
+
+void APlayerCharacter::CrouchEnd()
+{
 }
 
 void APlayerCharacter::AimStart()

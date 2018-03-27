@@ -25,8 +25,11 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bIsAiming = false;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	bool bWeaponIsDrawn = false;
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = AimZoom))
 	void AimZoom(bool Forward);
@@ -67,6 +70,8 @@ private:
 	void MoveRight(float AxisValue);
 	void SprintStart();
 	void SprintEnd();
+	void CrouchStart();
+	void CrouchEnd();
 	void JumpAndFlip();
 
 	// Player weapons

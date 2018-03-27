@@ -3,24 +3,25 @@
 #include "Rifle.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Public/TimerManager.h"
 
 // Sets default values
 ARifle::ARifle()
 {	
-	Rifle = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Rifle"));
-	RifleShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("RIfleShotAudio"));
+	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Rifle"));
+	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("RIfleShotAudio"));
+	//Beam = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("RifleBeam"));
 }
 
 void ARifle::StartFiring()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Rifle Firing"));
 	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ARifle::FireBullet, FireRate, bIsAutomatic, 0.0f);	
 }
 
 void ARifle::StopFiring()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Rifle Stopping"));
 	GetWorldTimerManager().ClearTimer(FireRateTimerHandle);
 }
 
@@ -28,10 +29,23 @@ void ARifle::FireBullet()
 {
 	if (GetWorldTimerManager().GetTimerRemaining(RefireTimerHandle) <= 0.001f)
 	{
-		FVector MuzzleLocation = Rifle->GetSocketLocation("MuzzleSocket");
-		WeaponTrace(MuzzleLocation, MaxRange, BulletSpread);
+		FVector HitLocation; // Store hit location
+		FVector MuzzleLocation = WeaponMesh->GetSocketLocation("MuzzleSocket");
+
+		// Trace from muzzle to crosshair hit location
+		if (WeaponTrace(HitLocation, MuzzleLocation, MaxRange, BulletSpread))
+		{
+			// Hit something
+		}
+
+		//Beam->SetBeamSourcePoint(0, MuzzleLocation, 0);
+		//Beam->SetBeamTargetPoint(0, HitLocation, 0);
+
+		// Reset refire timer
 		GetWorldTimerManager().SetTimer(RefireTimerHandle, FireRate, false, FireRate);
-		RifleShotAudioComponent->Play();
+
+		// Play Audio
+		ShotAudioComponent->Play();
 	}
 }
 

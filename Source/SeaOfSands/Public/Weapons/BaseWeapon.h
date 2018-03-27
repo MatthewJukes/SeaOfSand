@@ -11,12 +11,7 @@ class ABasePlayerController;
 UCLASS()
 class SEAOFSANDS_API ABaseWeapon : public AActor
 {
-	GENERATED_BODY()
-
-	//USceneComponent* Root;
-
-	//UPROPERTY(VisibleAnywhere)
-	//UParticleSystemComponent* Beam;
+	GENERATED_BODY()	
 	
 public:	
 	// Sets default values for this actor's properties
@@ -36,7 +31,7 @@ public:
 protected:
 
 	bool CheckIfWeaponCanFire(float FireRate) const;
-	bool WeaponTrace(FVector MuzzleLocation, float MaxRange, float BulletSpread) const;
+	bool WeaponTrace(FVector& OutHitlocation, FVector MuzzleLocation, float MaxRange, float BulletSpread) const;
 
 	ABasePlayerController* PlayerController;
 

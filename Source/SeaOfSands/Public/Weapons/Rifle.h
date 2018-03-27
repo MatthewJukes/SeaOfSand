@@ -14,11 +14,16 @@ class SEAOFSANDS_API ARifle : public ABaseWeapon
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* Rifle;
+	//USceneComponent* Root;
 
 	UPROPERTY(VisibleAnywhere)
-	UAudioComponent* RifleShotAudioComponent;
+	USkeletalMeshComponent* WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere)
+	UAudioComponent* ShotAudioComponent;
+
+	//UPROPERTY(VisibleAnywhere)
+	//UParticleSystemComponent* Beam;
 
 public:
 	// Sets default values for this actor's properties
@@ -28,7 +33,7 @@ public:
 	virtual void StopFiring() override;
 
 protected:
-	
+
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
@@ -42,6 +47,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	bool bIsAutomatic = false;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "Particles")
+	//TSubclassOf<UParticleSystemComponent> Beam;
 
 	void FireBullet();
 
