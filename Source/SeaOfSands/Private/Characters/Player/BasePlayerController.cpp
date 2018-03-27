@@ -35,8 +35,7 @@ void ABasePlayerController::StartFiring()
 		{
 			Player->HolsterUnholster();
 		}
-
-		if (Player->bCanFire)
+		else if (Player->bCanFire)
 		{
 			CurrentWeapon->StartFiring();
 		}		
