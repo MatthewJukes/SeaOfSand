@@ -28,6 +28,9 @@ public:
 	virtual void StartFiring();
 	virtual void StopFiring();
 
+	// Weapon is getting bonus accuracy from player aiming
+	bool bAimingBonus = false;
+
 protected:
 
 	bool CheckIfWeaponCanFire(float FireRate) const;

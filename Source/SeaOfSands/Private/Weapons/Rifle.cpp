@@ -32,6 +32,17 @@ void ARifle::FireBullet()
 		FVector HitLocation; // Store hit location
 		FVector MuzzleLocation = WeaponMesh->GetSocketLocation("MuzzleSocket");
 
+		// Set bullet spread
+		float BulletSpread;
+		if (bAimingBonus)
+		{
+			BulletSpread = BaseBulletSpread * AimingSpreadMultiplier;
+		}
+		else
+		{
+			BulletSpread = BaseBulletSpread;
+		}
+
 		// Trace from muzzle to crosshair hit location
 		if (WeaponTrace(HitLocation, MuzzleLocation, MaxRange, BulletSpread))
 		{

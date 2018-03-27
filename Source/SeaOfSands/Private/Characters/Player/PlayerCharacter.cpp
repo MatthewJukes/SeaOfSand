@@ -62,6 +62,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AimStart);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::AimEnd);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::JumpAndFlip);
+	PlayerInputComponent->BindAction("Holster", IE_Pressed, this, &APlayerCharacter::HolsterUnholster);
 }
 
 // Called when the game starts or when spawned
@@ -70,7 +71,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnWeapon();
-	HolsterWeapon();
+	HolsterUnholster();
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -106,6 +107,7 @@ void APlayerCharacter::SprintStart()
 	if (GetVelocity().Size() > 0.01)
 	{
 		if (bIsAiming) { AimEnd(); }
+		if (bWeaponIsDrawn) { HolsterUnholster(); }
 		bIsSprinting = true;
 		SprintZoom(true); // Call BP timeline, playing forward
 		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * SprintMultiplier;
@@ -134,12 +136,15 @@ void APlayerCharacter::CrouchEnd()
 void APlayerCharacter::AimStart()
 {
 	if (bIsSprinting) { SprintEnd(); }
+	if (!bWeaponIsDrawn) { HolsterUnholster(); }
 	bIsAiming = true;
-	EquipWeapon();
 	AimZoom(true); // Call BP timeline, playing forward
 	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * AimMultiplier;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+	if (CurrentWeapon) // Give weapon bonus accuracy
+	{
+		CurrentWeapon->bAimingBonus = true;
+	}
 }
 
 void APlayerCharacter::AimEnd()
@@ -147,11 +152,21 @@ void APlayerCharacter::AimEnd()
 	if (bIsAiming) // Only execute if aiming
 	{
 		bIsAiming = false;
-		HolsterWeapon();
 		AimZoom(false); // Call BP timeline, playing backwards
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+
+		if (bWeaponIsDrawn)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+		}
+
+		if (CurrentWeapon) // Remove weapon bonus accuracy
+		{
+			CurrentWeapon->bAimingBonus = false;
+		}
 	}
 }
 
@@ -170,22 +185,34 @@ void APlayerCharacter::SpawnWeapon()
 	Controller->UpdateCurrentWeapon(CurrentWeapon);
 }
 
-void APlayerCharacter::EquipWeapon()
+void APlayerCharacter::HolsterUnholster()
 {
 	if (CurrentWeapon)
 	{
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachPoint);
-		bCanFire = true;
-	}
-}
+		if (bWeaponIsDrawn) // Holster weapon
+		{
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, BackHolsterAttachPoint);
+			bCanFire = false;
+			bWeaponIsDrawn = false;
+			OffsetCamera(false);
 
-void APlayerCharacter::HolsterWeapon()
-{
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, BackHolsterAttachPoint);
-		CurrentWeapon->StopFiring();
-		bCanFire = false;
+			// Update character controller settings
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+			GetCharacterMovement()->bOrientRotationToMovement = true;
+			GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		}
+		else // Unholster weapon
+		{
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachPoint);
+			bCanFire = true;
+			bWeaponIsDrawn = true;
+			OffsetCamera(true);
+
+			// Update character controller settings
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+			GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		}
 	}
 }
 

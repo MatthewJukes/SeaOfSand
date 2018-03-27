@@ -25,11 +25,20 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bIsAiming = false;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bWeaponIsDrawn = false;
+	bool bWeaponIsDrawn = true;
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
+	void OffsetCamera(bool Forward);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = AimZoom))
 	void AimZoom(bool Forward);
@@ -37,13 +46,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);
 	
+	void HolsterUnholster();
+
 	bool bCanFire = false;
 
 	ABaseWeapon* CurrentWeapon;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 private:
 
@@ -55,6 +64,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float AimMultiplier = .6f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float WeaponDrawnMultiplier = .8f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName WeaponAttachPoint;
@@ -74,10 +86,8 @@ private:
 	void CrouchEnd();
 	void JumpAndFlip();
 
-	// Player weapons
-	void SpawnWeapon();
-	void EquipWeapon();
-	void HolsterWeapon();	
+	// Player weapon
+	void SpawnWeapon();	
 
 	// Player firing
 	void AimStart();
