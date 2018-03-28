@@ -70,6 +70,8 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerController = Cast<ABasePlayerController>(GetController());
+
 	SpawnWeapon();
 	HolsterUnholster();
 }
@@ -180,9 +182,8 @@ void APlayerCharacter::SpawnWeapon()
 {
 	FActorSpawnParameters SpawnParams;
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams);
-
-	ABasePlayerController* Controller = Cast<ABasePlayerController>(GetController());
-	Controller->UpdateCurrentWeapon(CurrentWeapon);
+	
+	if (PlayerController) {	PlayerController->UpdateCurrentWeapon(CurrentWeapon); }
 }
 
 void APlayerCharacter::HolsterUnholster()
@@ -216,5 +217,42 @@ void APlayerCharacter::HolsterUnholster()
 	}
 }
 
+void APlayerCharacter::Interact()
+{
+	InteractTrace();
+}
 
+bool APlayerCharacter::InteractTrace() const
+{
+	const FName TraceTag("InteractTraceTag");
+	GetWorld()->DebugDrawTraceTag = TraceTag;
 
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bTraceAsyncScene = true;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+	RV_TraceParams.TraceTag = TraceTag;
+
+	FHitResult RV_Hit;
+	FVector StartLocation = GetActorLocation() + FVector(0.f,0.f,40.f);
+	FVector EndLocation = StartLocation + (GetTraceDirection(StartLocation) * InteractTraceRange);
+
+	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
+	{
+		//OutHitlocation = RV_Hit.Location;
+		return true;
+	}
+	//OutHitlocation = EndLocation;
+	return false; // Line-trace didn't hit anything
+}
+
+FVector APlayerCharacter::GetTraceDirection(FVector StartLocation) const
+{
+	if (PlayerController)
+	{
+		FVector TraceDirection = PlayerController->GetCrosshairHitLocation() - StartLocation;
+		TraceDirection.Normalize();
+		return TraceDirection;
+	}
+	return FVector(0.f,0.f,0.f);
+}

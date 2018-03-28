@@ -6,6 +6,7 @@
 #include "Characters/Base/BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
+class ABasePlayerController;
 class ABaseWeapon;
 
 UCLASS()
@@ -46,10 +47,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);
 	
+	// Weapon holstering
 	void HolsterUnholster();
+
+	// Player interaction/use objects in world
+	void Interact();
 
 	bool bCanFire = false;
 
+	ABasePlayerController* PlayerController;
 	ABaseWeapon* CurrentWeapon;
 
 protected:
@@ -67,6 +73,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float WeaponDrawnMultiplier = .8f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	float InteractTraceRange = 150.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName WeaponAttachPoint;
@@ -92,6 +101,10 @@ private:
 	// Player firing
 	void AimStart();
 	void AimEnd();
+
+	// Trace to see if hit interactable actor
+	bool InteractTrace() const;
+	FVector GetTraceDirection(FVector StartLocation) const;
 
 	// Movement state bools
 	bool bIsSprinting = false;

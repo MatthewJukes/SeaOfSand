@@ -37,11 +37,14 @@ private:
 	float CrosshairYLocation = 0.5;
 
 	UPROPERTY(EditDefaultsOnly)
-	float LineTraceRange = 100000.f;
+	float CrosshairTraceRange = 100000.f;
 
 	// Player firing
 	void StartFiring();
 	void StopFiring();
+
+	// Interact and mount/dismount vehicle
+	void Interact();
 
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;

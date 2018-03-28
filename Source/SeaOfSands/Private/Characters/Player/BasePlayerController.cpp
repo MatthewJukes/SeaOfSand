@@ -12,6 +12,7 @@ void ABasePlayerController::SetupInputComponent()
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, this, &ABasePlayerController::StartFiring);
 		InputComponent->BindAction("Fire", IE_Released, this, &ABasePlayerController::StopFiring);
+		InputComponent->BindAction("Use", IE_Released, this, &ABasePlayerController::Interact);
 	}
 }
 
@@ -48,7 +49,15 @@ void ABasePlayerController::StopFiring()
 	{
 		CurrentWeapon->StopFiring();
 	}
-} 
+}
+
+void ABasePlayerController::Interact()
+{
+	if (Player)
+	{
+		Player->Interact();
+	}
+}
 
 FVector ABasePlayerController::GetCrosshairHitLocation() const
 {
@@ -86,7 +95,7 @@ FVector ABasePlayerController::GetLookVectorHitLocation(FVector LookDirection) c
 
 	FHitResult RV_Hit;
 	FVector StartLocation = PlayerCameraManager->GetCameraLocation();
-	FVector EndLocation = StartLocation + (LookDirection * LineTraceRange);
+	FVector EndLocation = StartLocation + (LookDirection * CrosshairTraceRange);
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{
 		// Set hit location
