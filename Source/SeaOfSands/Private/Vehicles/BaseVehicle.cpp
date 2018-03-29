@@ -52,6 +52,7 @@ bool ABaseVehicle::Interact_Implementation()
 	// Possess player pawn
 	if (PlayerCharacter && PlayerController)
 	{
+		PlayerCharacter->GetWorld();
 		PlayerController->Possess(PlayerCharacter);
 		PlayerController->UpdateCurrentPawn();
 	}

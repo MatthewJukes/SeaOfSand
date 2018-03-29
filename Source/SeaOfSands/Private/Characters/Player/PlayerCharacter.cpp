@@ -251,12 +251,16 @@ bool APlayerCharacter::InteractTrace(AActor* &OutActor) const
 	FVector StartLocation = GetActorLocation() + FVector(0.f,0.f,40.f);
 	FVector EndLocation = StartLocation + (GetTraceDirection(StartLocation) * InteractTraceRange);
 
+	if (GetWorld()) { UE_LOG(LogTemp, Warning, TEXT("World not null")); }
+
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{		
+		UE_LOG(LogTemp, Warning, TEXT("Trace success"));
 		OutActor = RV_Hit.GetActor();
 		return true;
 	}
-	return false; // Line-trace didn't hit anything
+	UE_LOG(LogTemp, Warning, TEXT("Trace failed"));
+	return false; // Trace didn't hit anything
 }
 
 FVector APlayerCharacter::GetTraceDirection(FVector StartLocation) const

@@ -17,8 +17,8 @@ ARifle::ARifle()
 
 void ARifle::StartFiring()
 {	
-	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ARifle::FireBullet, FireRate, bIsAutomatic, 0.0f);	
-	UE_LOG(LogTemp, Warning, TEXT("World is %s"), *GetNameSafe(GetWorld()));
+	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ARifle::FireBullet, FireRate, bIsAutomatic, 0.0f);
+	// It's getting to here
 }
 
 void ARifle::StopFiring()
@@ -28,6 +28,7 @@ void ARifle::StopFiring()
 
 void ARifle::FireBullet()
 {
+	// But not here
 	if (GetWorldTimerManager().GetTimerRemaining(RefireTimerHandle) <= 0.001f)
 	{
 		FVector HitLocation; // Store hit location
