@@ -1,6 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BaseVehicle.h"
+#include "BasePlayerController.h"
+#include "PlayerCharacter.h"
+#include "Components/InputComponent.h"
+#include "Engine/World.h"
 
 
 // Sets default values
@@ -15,7 +19,7 @@ ABaseVehicle::ABaseVehicle()
 // Called when the game starts or when spawned
 void ABaseVehicle::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay();	
 	
 }
 
@@ -31,5 +35,26 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	check(PlayerInputComponent);
+	PlayerInputComponent->BindAxis("Turn", this, &ABaseVehicle::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &ABaseVehicle::AddControllerPitchInput);
+}
+
+bool ABaseVehicle::Interact_Implementation()
+{
+	// Respawn player character
+	FActorSpawnParameters SpawnParams;
+	FVector SpawnLocation = GetActorLocation() + FVector(0.f,300.f,0.f);
+	FRotator SpawnRotation = GetActorRotation();
+	APlayerCharacter* PlayerCharacter = GetWorld()->SpawnActor<APlayerCharacter>(PlayerCharacterBlueprint, SpawnLocation, SpawnRotation, SpawnParams);
+	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
+
+	// Possess player pawn
+	if (PlayerCharacter && PlayerController)
+	{
+		PlayerController->Possess(PlayerCharacter);
+		PlayerController->UpdateCurrentPawn();
+	}
+	return false;
 }
 

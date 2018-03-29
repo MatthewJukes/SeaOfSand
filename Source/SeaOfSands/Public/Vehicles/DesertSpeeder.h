@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Vehicles/BaseVehicle.h"
-#include "PlayerSpeeder.generated.h"
+#include "BaseVehicle.h"
+#include "DesertSpeeder.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SEAOFSANDS_API APlayerSpeeder : public ABaseVehicle
+class SEAOFSANDS_API ADesertSpeeder : public ABaseVehicle
 {
 	GENERATED_BODY()
 
@@ -24,7 +24,7 @@ class SEAOFSANDS_API APlayerSpeeder : public ABaseVehicle
 	class UCameraComponent* FollowCamera;
 
 public:
-	APlayerSpeeder();
+	ADesertSpeeder();
 	
 public:
 	/** Returns CameraBoom subobject **/

@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Base/BaseCharacter.h"
+#include "BaseCharacter.h"
+#include "PlayerInputsInterface.h"
 #include "PlayerCharacter.generated.h"
 
 class ABasePlayerController;
 class ABaseWeapon;
 
 UCLASS()
-class SEAOFSANDS_API APlayerCharacter : public ABaseCharacter
+class SEAOFSANDS_API APlayerCharacter : public ABaseCharacter , public IPlayerInputsInterface
 {
 	GENERATED_BODY()
 	
@@ -51,11 +52,12 @@ public:
 	void HolsterUnholster();
 
 	// Player interaction/use objects in world
-	void Interact();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	bool Interact();
+	virtual bool Interact_Implementation() override;
 
 	bool bCanFire = false;
-
-	ABasePlayerController* PlayerController;
+	
 	ABaseWeapon* CurrentWeapon;
 
 protected:
@@ -75,7 +77,7 @@ private:
 	float WeaponDrawnMultiplier = .8f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
-	float InteractTraceRange = 150.f;
+	float InteractTraceRange = 250.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName WeaponAttachPoint;
@@ -103,11 +105,13 @@ private:
 	void AimEnd();
 
 	// Trace to see if hit interactable actor
-	bool InteractTrace() const;
+	bool InteractTrace(AActor* &OutActor) const;
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	// Movement state bools
 	bool bIsSprinting = false;
+
+	ABasePlayerController* PlayerController;
 
 public:
 	/** Returns CameraBoom subobject **/

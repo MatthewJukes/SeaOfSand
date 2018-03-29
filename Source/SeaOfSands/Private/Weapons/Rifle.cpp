@@ -16,8 +16,9 @@ ARifle::ARifle()
 }
 
 void ARifle::StartFiring()
-{
+{	
 	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ARifle::FireBullet, FireRate, bIsAutomatic, 0.0f);	
+	UE_LOG(LogTemp, Warning, TEXT("World is %s"), *GetNameSafe(GetWorld()));
 }
 
 void ARifle::StopFiring()
@@ -56,7 +57,7 @@ void ARifle::FireBullet()
 		GetWorldTimerManager().SetTimer(RefireTimerHandle, FireRate, false, FireRate);
 
 		// Play Audio
-		ShotAudioComponent->Play();
+		ShotAudioComponent->Play();		
 	}
 }
 

@@ -4,16 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "PlayerInputsInterface.h"
 #include "BaseVehicle.generated.h"
 
+class APlayerCharacter;
+
 UCLASS()
-class SEAOFSANDS_API ABaseVehicle : public APawn
+class SEAOFSANDS_API ABaseVehicle : public APawn , public IPlayerInputsInterface
 {
 	GENERATED_BODY()
 
-	USceneComponent* Root;
-	
-	
+	USceneComponent* Root;	
 
 public:
 	// Sets default values for this pawn's properties
@@ -30,6 +31,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+public:
+
+	// Interact while on vehicle/ exit vehicle
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	bool Interact();
+	virtual bool Interact_Implementation() override;
 	
-	
+private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player Character")
+	TSubclassOf<APlayerCharacter> PlayerCharacterBlueprint;
 };

@@ -20,7 +20,13 @@ void ABasePlayerController::SetupInputComponent()
 void ABasePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	Player = Cast<APlayerCharacter>(GetCharacter());
+	UpdateCurrentPawn();
+}
+
+void ABasePlayerController::UpdateCurrentPawn()
+{
+	CurrentPlayerPawn = GetPawn();
+	UE_LOG(LogTemp, Warning, TEXT("Current Pawn is %s"), *GetNameSafe(CurrentPlayerPawn));
 }
 
 void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
@@ -30,6 +36,8 @@ void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
 
 void ABasePlayerController::StartFiring()
 {
+	APlayerCharacter* Player = Cast<APlayerCharacter>(CurrentPlayerPawn); // TODO refactor and add to player inputs interface
+
 	if (CurrentWeapon && Player)
 	{
 		if (!Player->bWeaponIsDrawn) // Draw weapon is not drawn already
@@ -38,7 +46,7 @@ void ABasePlayerController::StartFiring()
 		}
 		else if (Player->bCanFire)
 		{
-			CurrentWeapon->StartFiring();
+			CurrentWeapon->StartFiring();			
 		}		
 	}
 }
@@ -53,9 +61,10 @@ void ABasePlayerController::StopFiring()
 
 void ABasePlayerController::Interact()
 {
-	if (Player)
-	{
-		Player->Interact();
+	IPlayerInputsInterface* InputInterface = Cast<IPlayerInputsInterface>(CurrentPlayerPawn);
+	if (InputInterface)
+	{		
+		InputInterface->Execute_Interact(CurrentPlayerPawn);
 	}
 }
 

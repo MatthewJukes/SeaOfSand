@@ -19,6 +19,9 @@ public:
 	virtual void SetupInputComponent() override;
 
 	// Reference to the weapon the player has currently equipped
+	void UpdateCurrentPawn();
+
+	// Reference to the weapon the player has currently equipped
 	void UpdateCurrentWeapon(ABaseWeapon* NewWeapon);
 
 	// Return an OUT parameter
@@ -50,8 +53,8 @@ private:
 	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;
 	FVector GetLookVectorHitLocation(FVector LookDirection) const;
 
-	// Player character
-	APlayerCharacter* Player;
+	// Current Player pawn
+	APawn* CurrentPlayerPawn;
 
 	// Currently equipped weapon
 	ABaseWeapon* CurrentWeapon;

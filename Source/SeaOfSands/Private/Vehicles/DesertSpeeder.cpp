@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PlayerSpeeder.h"
+#include "DesertSpeeder.h"
 #include "BasePlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
-APlayerSpeeder::APlayerSpeeder()
+ADesertSpeeder::ADesertSpeeder()
 {
 	VehicleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VehicleMesh"));
 

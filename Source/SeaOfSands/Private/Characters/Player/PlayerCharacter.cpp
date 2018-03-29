@@ -3,6 +3,7 @@
 #include "PlayerCharacter.h"
 #include "BasePlayerController.h"
 #include "BaseWeapon.h"
+#include "BaseVehicle.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -68,12 +69,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
-	Super::BeginPlay();
-
+	Super::BeginPlay();	
 	PlayerController = Cast<ABasePlayerController>(GetController());
 
 	SpawnWeapon();
-	HolsterUnholster();
+	HolsterUnholster();	
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -217,12 +217,26 @@ void APlayerCharacter::HolsterUnholster()
 	}
 }
 
-void APlayerCharacter::Interact()
+bool APlayerCharacter::Interact_Implementation()
 {
-	InteractTrace();
+	AActor* ActorHit = nullptr;
+	if (InteractTrace(ActorHit))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *GetNameSafe(ActorHit));
+
+		ABaseVehicle* Vehicle = Cast<ABaseVehicle>(ActorHit);
+		if (Vehicle) // If a vehicle, possess this vehicle pawn
+		{
+			PlayerController->Possess(Vehicle);
+			PlayerController->UpdateCurrentPawn();
+			Destroy();
+			CurrentWeapon->Destroy();
+		}	
+	}
+	return false;
 }
 
-bool APlayerCharacter::InteractTrace() const
+bool APlayerCharacter::InteractTrace(AActor* &OutActor) const
 {
 	const FName TraceTag("InteractTraceTag");
 	GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -238,11 +252,10 @@ bool APlayerCharacter::InteractTrace() const
 	FVector EndLocation = StartLocation + (GetTraceDirection(StartLocation) * InteractTraceRange);
 
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
-	{
-		//OutHitlocation = RV_Hit.Location;
+	{		
+		OutActor = RV_Hit.GetActor();
 		return true;
 	}
-	//OutHitlocation = EndLocation;
 	return false; // Line-trace didn't hit anything
 }
 
