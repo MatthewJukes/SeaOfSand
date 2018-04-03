@@ -44,17 +44,17 @@ bool ABaseVehicle::Interact_Implementation()
 {
 	// Respawn player character
 	FActorSpawnParameters SpawnParams;
-	FVector SpawnLocation = GetActorLocation() + FVector(0.f,300.f,0.f);
-	FRotator SpawnRotation = GetActorRotation();
-	APlayerCharacter* PlayerCharacter = GetWorld()->SpawnActor<APlayerCharacter>(PlayerCharacterBlueprint, SpawnLocation, SpawnRotation, SpawnParams);
+	FTransform SpawnTransform = GetTransform();
+	SpawnTransform.AddToTranslation(FVector(0.f,200.f,0.f));
+	APlayerCharacter* PlayerCharacter = GetWorld()->SpawnActorDeferred<APlayerCharacter>(PlayerCharacterBP, SpawnTransform);
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
 
 	// Possess player pawn
 	if (PlayerCharacter && PlayerController)
 	{
-		PlayerCharacter->GetWorld();
 		PlayerController->Possess(PlayerCharacter);
 		PlayerController->UpdateCurrentPawn();
+		PlayerCharacter->FinishSpawning(SpawnTransform);
 	}
 	return false;
 }

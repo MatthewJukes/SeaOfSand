@@ -26,7 +26,6 @@ void ABasePlayerController::BeginPlay()
 void ABasePlayerController::UpdateCurrentPawn()
 {
 	CurrentPlayerPawn = GetPawn();
-	UE_LOG(LogTemp, Warning, TEXT("Current Pawn is %s"), *GetNameSafe(CurrentPlayerPawn));
 }
 
 void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)

@@ -41,5 +41,5 @@ public:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Character")
-	TSubclassOf<APlayerCharacter> PlayerCharacterBlueprint;
+	TSubclassOf<APlayerCharacter> PlayerCharacterBP;
 };
