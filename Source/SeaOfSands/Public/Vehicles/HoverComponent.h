@@ -27,6 +27,20 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float CompressionRatio;
 
+	FVector HitLocation;
+	FVector HitNormal;
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+	float TraceLength = 250.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ThrustLength = 60.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HoverForce = 400000.f;
+
 private:
 	
 	UStaticMeshComponent* ParentMesh;
@@ -34,13 +48,4 @@ private:
 	void AddForceToParent();
 
 	void HoverTrace();
-
-	UPROPERTY(EditDefaultsOnly)
-	float TraceLength = 60.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float HoverForce = 400000.f;
-
-	FVector HitLocation;
-	FVector HitNormal;
 };

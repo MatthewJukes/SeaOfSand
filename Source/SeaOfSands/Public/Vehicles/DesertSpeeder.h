@@ -6,8 +6,6 @@
 #include "BaseVehicle.h"
 #include "DesertSpeeder.generated.h"
 
-class UHoverComponent;
-
 UCLASS()
 class SEAOFSANDS_API ADesertSpeeder : public ABaseVehicle
 {
@@ -19,23 +17,10 @@ class SEAOFSANDS_API ADesertSpeeder : public ABaseVehicle
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent1;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent2;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent3;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent4;
-
 public:
 	ADesertSpeeder();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:	
 	
 public:
 	/** Returns CameraBoom subobject **/
