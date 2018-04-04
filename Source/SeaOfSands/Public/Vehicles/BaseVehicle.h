@@ -14,15 +14,17 @@ class SEAOFSANDS_API ABaseVehicle : public APawn , public IPlayerInputsInterface
 {
 	GENERATED_BODY()
 
-	USceneComponent* Root;	
-
 public:
 	// Sets default values for this pawn's properties
 	ABaseVehicle();
 
 protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* VehicleMesh;
+
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	virtual void BeginPlay() override;	
 
 public:	
 	// Called every frame

@@ -2,14 +2,12 @@
 
 #include "DesertSpeeder.h"
 #include "BasePlayerController.h"
+#include "HoverComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 ADesertSpeeder::ADesertSpeeder()
 {
-	VehicleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VehicleMesh"));
-
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -21,4 +19,22 @@ ADesertSpeeder::ADesertSpeeder()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Setup hover components
+	HoverComponent1 = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponent1"));
+	HoverComponent2 = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponent2"));
+	HoverComponent3 = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponent3"));
+	HoverComponent4 = CreateDefaultSubobject<UHoverComponent>(TEXT("HoverComponent4"));
+	HoverComponent1->SetupAttachment(RootComponent);
+	HoverComponent2->SetupAttachment(RootComponent);
+	HoverComponent3->SetupAttachment(RootComponent);
+	HoverComponent4->SetupAttachment(RootComponent);
+}
+
+// Called every frame
+void ADesertSpeeder::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	//VehicleMesh
 }

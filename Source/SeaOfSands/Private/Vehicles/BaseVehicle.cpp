@@ -4,6 +4,7 @@
 #include "BasePlayerController.h"
 #include "PlayerCharacter.h"
 #include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 
 
@@ -13,7 +14,8 @@ ABaseVehicle::ABaseVehicle()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	VehicleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VehicleMesh"));
+	RootComponent = VehicleMesh;
 }
 
 // Called when the game starts or when spawned
@@ -40,12 +42,14 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("LookUp", this, &ABaseVehicle::AddControllerPitchInput);
 }
 
+// Exit vehicle
 bool ABaseVehicle::Interact_Implementation()
 {
 	// Respawn player character
-	FActorSpawnParameters SpawnParams;
-	FTransform SpawnTransform = GetTransform();
-	SpawnTransform.AddToTranslation(FVector(0.f,200.f,0.f));
+	FActorSpawnParameters SpawnParams; 
+	FTransform SpawnTransform = GetTransform(); // TODO refine spawning position
+	SpawnTransform.AddToTranslation(FVector(0.f,300.f,100.f));
+	SpawnTransform.SetRotation(FQuat(0.f,0.f,0.f,0.f));
 	APlayerCharacter* PlayerCharacter = GetWorld()->SpawnActorDeferred<APlayerCharacter>(PlayerCharacterBP, SpawnTransform);
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
 
@@ -54,7 +58,12 @@ bool ABaseVehicle::Interact_Implementation()
 	{
 		PlayerController->Possess(PlayerCharacter);
 		PlayerController->UpdateCurrentPawn();
-		PlayerCharacter->FinishSpawning(SpawnTransform);
+		PlayerCharacter->FinishSpawning(SpawnTransform);		
+		if (!IsValid(PlayerCharacter)) // Reposses vehicle is spawn failed
+		{
+			PlayerController->Possess(this);
+			PlayerController->UpdateCurrentPawn();
+		}
 	}
 	return false;
 }

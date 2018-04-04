@@ -23,7 +23,24 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 	
+	UPROPERTY(BlueprintReadOnly)
+	float CompressionRatio;
+
+private:
+	
+	UStaticMeshComponent* ParentMesh;
+
+	void AddForceToParent();
+
+	void HoverTrace();
+
+	UPROPERTY(EditDefaultsOnly)
+	float TraceLength = 60.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HoverForce = 400000.f;
+
+	FVector HitLocation;
+	FVector HitNormal;
 };
