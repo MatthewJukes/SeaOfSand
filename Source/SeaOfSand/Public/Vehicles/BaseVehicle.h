@@ -73,25 +73,32 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float TurningThrust = 20000000.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	float RollOrientStrength = 10000000.f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Player Character")
 	TSubclassOf<APlayerCharacter> PlayerCharacterBP;
 
+	// Movement
 	void MoveForward(float AxisValue);
-
 	void MoveRight(float AxisValue);
-
 	void BoostStart();
 	void BoostEnd();
 
-	// Get forward vector of the ground based on hover component traces
-	FVector CalculateGroundForwardVector();
-
-	// Get up vector of the ground based on hover component traces
-	FVector CalculateGroundUpVector();
-
+	// Adjust linear damping based on traction
 	void SetDamping();
 
-	float CalculateTotalCompressionRatio();
+	// Attempt to orient vehicle roll to ground plane
+	void RollTowardsGroundPlaneNormal();
+
+	// Get forward vector of the ground based on hover component traces
+	FVector GetGroundForwardVector();
+
+	// Get up vector of the ground based on hover component traces
+	FVector GetGroundUpVector();	
+
+	// Get total compression ratio of the hover components
+	float GetTotalCompressionRatio();
 
 	// Calculate traction amount based on compression ratio
 	float GetTractionRatio();	

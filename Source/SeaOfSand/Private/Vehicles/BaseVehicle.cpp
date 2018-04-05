@@ -64,11 +64,12 @@ void ABaseVehicle::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	SetDamping();
+	RollTowardsGroundPlaneNormal();
 
-	ForwardArrow->SetWorldRotation(CalculateGroundForwardVector().Rotation());
-	UpArrow->SetWorldRotation(CalculateGroundUpVector().Rotation());
+	ForwardArrow->SetWorldRotation(GetGroundForwardVector().Rotation());
+	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());
 
-	UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f)
+	//UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f)
 }
 
 
@@ -101,15 +102,15 @@ bool ABaseVehicle::Interact_Implementation()
 void ABaseVehicle::MoveForward(float AxisValue)
 {
 	AxisValue = FMath::Clamp(AxisValue, -0.25f, 1.f);
-	FVector Force = CalculateGroundForwardVector() * ForwardThrust * AxisValue * GetTractionRatio();
+	FVector Force = GetGroundForwardVector() * ForwardThrust * AxisValue * GetTractionRatio();
 	VehicleMesh->AddForce(Force);
 }
 
 void ABaseVehicle::MoveRight(float AxisValue)
 {
 	float TorqueStrength = AxisValue * TurningThrust;
-	FVector RotationTorque = CalculateGroundUpVector() * TorqueStrength;
-	VehicleMesh->AddTorque(RotationTorque);
+	FVector Torque = GetGroundUpVector() * TorqueStrength;
+	VehicleMesh->AddTorque(Torque);
 }
 
 void ABaseVehicle::BoostStart()
@@ -122,14 +123,14 @@ void ABaseVehicle::BoostEnd()
 	ForwardThrust /= BoostMultiplier;
 }
 
-FVector ABaseVehicle::CalculateGroundForwardVector()
+FVector ABaseVehicle::GetGroundForwardVector()
 {
 	FVector Forward = ((HoverComponent1->HitLocation + HoverComponent2->HitLocation) - (HoverComponent3->HitLocation + HoverComponent4->HitLocation));
 	Forward.Normalize();	
 	return Forward;
 }
 
-FVector ABaseVehicle::CalculateGroundUpVector()
+FVector ABaseVehicle::GetGroundUpVector()
 {
 	FVector Up = (HoverComponent1->HitNormal + HoverComponent2->HitNormal + HoverComponent3->HitNormal + HoverComponent4->HitNormal) / 4;
 	return Up;
@@ -139,10 +140,17 @@ void ABaseVehicle::SetDamping()
 {
 	float Traction = GetTractionRatio();
 	VehicleMesh->SetLinearDamping(FMath::Lerp(0.f, 2.f, Traction));
-	//VehicleMesh->SetAngularDamping(FMath::Lerp(0.f, 4.f, Traction));
 }
 
-float ABaseVehicle::CalculateTotalCompressionRatio()
+void ABaseVehicle::RollTowardsGroundPlaneNormal()
+{
+	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), FVector(0.f,0.f,1.f));
+	UE_LOG(LogTemp, Warning, TEXT("Dot product: %f"), ForceRatio);
+	FVector Torque = VehicleMesh->GetForwardVector() * -ForceRatio * RollOrientStrength;
+	VehicleMesh->AddTorque(Torque);
+}
+
+float ABaseVehicle::GetTotalCompressionRatio()
 {
 	return HoverComponent1->CompressionRatio + HoverComponent2->CompressionRatio + HoverComponent3->CompressionRatio + HoverComponent4->CompressionRatio;
 }
@@ -150,7 +158,7 @@ float ABaseVehicle::CalculateTotalCompressionRatio()
 float ABaseVehicle::GetTractionRatio()
 {
 	FVector2D InputRange = FVector2D(3.5f, 4.f);
-	FVector2D OutputRange = FVector2D(1.f, 0.2f);
-	return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, CalculateTotalCompressionRatio());
+	FVector2D OutputRange = FVector2D(1.f, 0.1f);
+	return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalCompressionRatio());
 }
 

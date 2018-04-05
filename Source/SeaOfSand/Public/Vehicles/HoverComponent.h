@@ -39,7 +39,7 @@ protected:
 	float ThrustLength = 130.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float HoverForce = 500000.f;
+	float HoverForce = 600000.f;
 
 private:
 	
