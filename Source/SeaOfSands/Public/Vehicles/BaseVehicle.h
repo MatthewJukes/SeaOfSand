@@ -65,10 +65,10 @@ protected:
 private:
 
 	UPROPERTY(EditDefaultsOnly)
-	float ForwardThrust = 1000000.f;
+	float ForwardThrust = 2000000.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float BoostMultiplier = 2.f;
+	float BoostMultiplier = 1.6f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float TurningThrust = 20000000.f;
@@ -88,4 +88,11 @@ private:
 
 	// Get up vector of the ground based on hover component traces
 	FVector CalculateGroundUpVector();
+
+	void SetDamping();
+
+	float CalculateTotalCompressionRatio();
+
+	// Calculate traction amount based on compression ratio
+	float GetTractionRatio();	
 };

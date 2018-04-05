@@ -36,21 +36,6 @@ ABaseVehicle::ABaseVehicle()
 	UpArrow->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
-void ABaseVehicle::BeginPlay()
-{
-	Super::BeginPlay();	
-	
-}
-
-// Called every frame
-void ABaseVehicle::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	ForwardArrow->SetWorldRotation(CalculateGroundForwardVector().Rotation());
-	UpArrow->SetWorldRotation(CalculateGroundUpVector().Rotation());
-}
-
 // Called to bind functionality to input
 void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -65,6 +50,27 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseVehicle::BoostStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseVehicle::BoostEnd);
 }
+
+// Called when the game starts or when spawned
+void ABaseVehicle::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+// Called every frame
+void ABaseVehicle::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetDamping();
+
+	ForwardArrow->SetWorldRotation(CalculateGroundForwardVector().Rotation());
+	UpArrow->SetWorldRotation(CalculateGroundUpVector().Rotation());
+
+	UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f)
+}
+
 
 // Exit vehicle
 bool ABaseVehicle::Interact_Implementation()
@@ -94,24 +100,15 @@ bool ABaseVehicle::Interact_Implementation()
 
 void ABaseVehicle::MoveForward(float AxisValue)
 {
-	FVector Force = CalculateGroundForwardVector() * ForwardThrust * AxisValue;
+	AxisValue = FMath::Clamp(AxisValue, -0.25f, 1.f);
+	FVector Force = CalculateGroundForwardVector() * ForwardThrust * AxisValue * GetTractionRatio();
 	VehicleMesh->AddForce(Force);
 }
 
 void ABaseVehicle::MoveRight(float AxisValue)
 {
-	// Calculate if vehicle is moving forwards or backwards
-	float TorqueMultiplier = FVector::DotProduct(VehicleMesh->GetPhysicsLinearVelocity(), VehicleMesh->GetForwardVector());
-	if (TorqueMultiplier >= 0) // If moving forward set multiplier to 1
-	{
-		TorqueMultiplier = 1;
-	}
-	else // If moving backwards invert torque multiplier
-	{
-		TorqueMultiplier = -1;
-	}
 	float TorqueStrength = AxisValue * TurningThrust;
-	FVector RotationTorque = CalculateGroundUpVector() * TorqueStrength * TorqueMultiplier;
+	FVector RotationTorque = CalculateGroundUpVector() * TorqueStrength;
 	VehicleMesh->AddTorque(RotationTorque);
 }
 
@@ -136,5 +133,24 @@ FVector ABaseVehicle::CalculateGroundUpVector()
 {
 	FVector Up = (HoverComponent1->HitNormal + HoverComponent2->HitNormal + HoverComponent3->HitNormal + HoverComponent4->HitNormal) / 4;
 	return Up;
+}
+
+void ABaseVehicle::SetDamping()
+{
+	float Traction = GetTractionRatio();
+	VehicleMesh->SetLinearDamping(FMath::Lerp(0.f, 2.f, Traction));
+	//VehicleMesh->SetAngularDamping(FMath::Lerp(0.f, 4.f, Traction));
+}
+
+float ABaseVehicle::CalculateTotalCompressionRatio()
+{
+	return HoverComponent1->CompressionRatio + HoverComponent2->CompressionRatio + HoverComponent3->CompressionRatio + HoverComponent4->CompressionRatio;
+}
+
+float ABaseVehicle::GetTractionRatio()
+{
+	FVector2D InputRange = FVector2D(3.5f, 4.f);
+	FVector2D OutputRange = FVector2D(1.f, 0.2f);
+	return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, CalculateTotalCompressionRatio());
 }
 

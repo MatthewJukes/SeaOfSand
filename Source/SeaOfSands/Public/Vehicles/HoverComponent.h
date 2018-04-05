@@ -33,13 +33,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float TraceLength = 250.f;
+	float TraceLength = 300.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float ThrustLength = 60.f;
+	float ThrustLength = 130.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float HoverForce = 400000.f;
+	float HoverForce = 500000.f;
 
 private:
 	
