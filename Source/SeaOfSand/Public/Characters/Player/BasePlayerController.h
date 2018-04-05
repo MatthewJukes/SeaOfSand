@@ -10,7 +10,7 @@ class APlayerCharacter;
 class ABaseWeapon;
 
 UCLASS()
-class SEAOFSANDS_API ABasePlayerController : public APlayerController
+class SEAOFSAND_API ABasePlayerController : public APlayerController
 {
 	GENERATED_BODY()
 		

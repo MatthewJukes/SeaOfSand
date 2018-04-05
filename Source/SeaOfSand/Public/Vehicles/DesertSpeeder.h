@@ -7,7 +7,7 @@
 #include "DesertSpeeder.generated.h"
 
 UCLASS()
-class SEAOFSANDS_API ADesertSpeeder : public ABaseVehicle
+class SEAOFSAND_API ADesertSpeeder : public ABaseVehicle
 {
 	GENERATED_BODY()
 

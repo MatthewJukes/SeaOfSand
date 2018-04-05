@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class SEAOFSANDS_API ARifle : public ABaseWeapon
+class SEAOFSAND_API ARifle : public ABaseWeapon
 {
 	GENERATED_BODY()
 

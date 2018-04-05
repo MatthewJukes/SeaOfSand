@@ -7,7 +7,7 @@
 #include "BaseCharacter.generated.h"
 
 UCLASS()
-class SEAOFSANDS_API ABaseCharacter : public ACharacter
+class SEAOFSAND_API ABaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 

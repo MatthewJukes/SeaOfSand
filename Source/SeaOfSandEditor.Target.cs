@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class SeaOfSandsEditorTarget : TargetRules
+public class SeaOfSandEditorTarget : TargetRules
 {
-	public SeaOfSandsEditorTarget(TargetInfo Target) : base(Target)
+	public SeaOfSandEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "SeaOfSands" } );
+		ExtraModuleNames.AddRange( new string[] { "SeaOfSand" } );
 	}
 }

@@ -15,7 +15,7 @@ class UPlayerInputsInterface : public UInterface
 /**
  * 
  */
-class SEAOFSANDS_API IPlayerInputsInterface
+class SEAOFSAND_API IPlayerInputsInterface
 {
 	GENERATED_BODY()
 

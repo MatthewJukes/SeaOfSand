@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "SeaOfSandsGameModeBase.generated.h"
+#include "SeaOfSandGameModeBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SEAOFSANDS_API ASeaOfSandsGameModeBase : public AGameModeBase
+class SEAOFSAND_API ASeaOfSandGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	

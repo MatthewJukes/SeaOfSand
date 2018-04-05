@@ -11,7 +11,7 @@ class ABasePlayerController;
 class ABaseWeapon;
 
 UCLASS()
-class SEAOFSANDS_API APlayerCharacter : public ABaseCharacter , public IPlayerInputsInterface
+class SEAOFSAND_API APlayerCharacter : public ABaseCharacter , public IPlayerInputsInterface
 {
 	GENERATED_BODY()
 	

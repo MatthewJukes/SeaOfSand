@@ -8,7 +8,7 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SEAOFSANDS_API UHoverComponent : public USceneComponent
+class SEAOFSAND_API UHoverComponent : public USceneComponent
 {
 	GENERATED_BODY()
 

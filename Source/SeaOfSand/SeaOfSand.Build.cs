@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class SeaOfSands : ModuleRules
+public class SeaOfSand : ModuleRules
 {
-	public SeaOfSands(ReadOnlyTargetRules Target) : base(Target)
+	public SeaOfSand(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	

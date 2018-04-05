@@ -12,7 +12,7 @@ class UHoverComponent;
 class UArrowComponent;
 
 UCLASS()
-class SEAOFSANDS_API ABaseVehicle : public APawn , public IPlayerInputsInterface
+class SEAOFSAND_API ABaseVehicle : public APawn , public IPlayerInputsInterface
 {
 	GENERATED_BODY()
 
