@@ -229,6 +229,7 @@ bool APlayerCharacter::Interact_Implementation()
 		{
 			PlayerController->Possess(Vehicle);
 			PlayerController->UpdateCurrentPawn();
+			Vehicle->ToggleDriverVisibility();
 			Destroy();
 			CurrentWeapon->Destroy();
 		}	

@@ -6,6 +6,7 @@
 #include "PlayerCharacter.h"
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Engine/World.h"
 
@@ -28,6 +29,11 @@ ABaseVehicle::ABaseVehicle()
 	HoverComponent2->SetupAttachment(RootComponent);
 	HoverComponent3->SetupAttachment(RootComponent);
 	HoverComponent4->SetupAttachment(RootComponent);
+
+	// Setup driver mesh
+	DriverMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DriverMesh"));
+	DriverMesh->SetupAttachment(RootComponent);
+	DriverMesh->SetVisibility(false);
 
 	//Test Arrows
 	ForwardArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardArrow"));
@@ -65,11 +71,12 @@ void ABaseVehicle::Tick(float DeltaTime)
 
 	SetDamping();
 	RollTowardsGroundPlaneNormal();
+	PitchTowardsGroundPlaneNormal();
 
 	ForwardArrow->SetWorldRotation(GetGroundForwardVector().Rotation());
 	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());
 
-	//UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f)
+	UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f)
 }
 
 
@@ -89,19 +96,26 @@ bool ABaseVehicle::Interact_Implementation()
 	{
 		PlayerController->Possess(PlayerCharacter);
 		PlayerController->UpdateCurrentPawn();
-		PlayerCharacter->FinishSpawning(SpawnTransform);		
+		PlayerCharacter->FinishSpawning(SpawnTransform);
+		ToggleDriverVisibility();
 		if (!IsValid(PlayerCharacter)) // Reposses vehicle is spawn failed
 		{
 			PlayerController->Possess(this);
 			PlayerController->UpdateCurrentPawn();
+			ToggleDriverVisibility();
 		}
 	}
 	return false;
 }
 
+void ABaseVehicle::ToggleDriverVisibility()
+{
+	DriverMesh->ToggleVisibility();
+}
+
 void ABaseVehicle::MoveForward(float AxisValue)
 {
-	AxisValue = FMath::Clamp(AxisValue, -0.25f, 1.f);
+	AxisValue = FMath::Clamp(AxisValue, -0.5f, 1.f);
 	FVector Force = GetGroundForwardVector() * ForwardThrust * AxisValue * GetTractionRatio();
 	VehicleMesh->AddForce(Force);
 }
@@ -138,27 +152,49 @@ FVector ABaseVehicle::GetGroundUpVector()
 
 void ABaseVehicle::SetDamping()
 {
-	float Traction = GetTractionRatio();
-	VehicleMesh->SetLinearDamping(FMath::Lerp(0.f, 2.f, Traction));
+	VehicleMesh->SetLinearDamping(FMath::Lerp(0.f, 2.f, GetTractionRatio()));
 }
 
 void ABaseVehicle::RollTowardsGroundPlaneNormal()
 {
-	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), FVector(0.f,0.f,1.f));
-	UE_LOG(LogTemp, Warning, TEXT("Dot product: %f"), ForceRatio);
+	FVector GoalVector = FMath::Lerp(GetGroundUpVector(), FVector(0.f, 0.f, 1.f), GetTractionRatio(true));
+	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), GoalVector);
+	//UE_LOG(LogTemp, Warning, TEXT("Dot product: %f"), ForceRatio);
 	FVector Torque = VehicleMesh->GetForwardVector() * -ForceRatio * RollOrientStrength;
 	VehicleMesh->AddTorque(Torque);
 }
 
-float ABaseVehicle::GetTotalCompressionRatio()
+void ABaseVehicle::PitchTowardsGroundPlaneNormal()
 {
-	return HoverComponent1->CompressionRatio + HoverComponent2->CompressionRatio + HoverComponent3->CompressionRatio + HoverComponent4->CompressionRatio;
+	FVector InAirVector = VehicleMesh->GetForwardVector();
+	InAirVector.Z = -0.2f;
+	InAirVector.Normalize();
+	FVector GoalVector = FMath::Lerp(GetGroundForwardVector(), InAirVector, GetTractionRatio(true));
+	float ForceRatio = FVector::DotProduct(VehicleMesh->GetUpVector(), GoalVector);
+	//UE_LOG(LogTemp, Warning, TEXT("Dot product: %f"), ForceRatio);
+	FVector Torque = VehicleMesh->GetRightVector() * -ForceRatio * PitchOrientStrength;
+	VehicleMesh->AddTorque(Torque);
 }
 
-float ABaseVehicle::GetTractionRatio()
+float ABaseVehicle::GetTotalShortCompressionRatio()
+{
+	return HoverComponent1->ShortCompressionRatio + HoverComponent2->ShortCompressionRatio + HoverComponent3->ShortCompressionRatio + HoverComponent4->ShortCompressionRatio;
+}
+
+float ABaseVehicle::GetTotalLongCompressionRatio()
+{
+	return HoverComponent1->LongCompressionRatio + HoverComponent2->LongCompressionRatio + HoverComponent3->LongCompressionRatio + HoverComponent4->LongCompressionRatio;
+}
+
+float ABaseVehicle::GetTractionRatio(bool bUseLongCompressionRatio)
 {
 	FVector2D InputRange = FVector2D(3.5f, 4.f);
 	FVector2D OutputRange = FVector2D(1.f, 0.1f);
-	return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalCompressionRatio());
+	if (bUseLongCompressionRatio)
+	{
+		return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalLongCompressionRatio());
+	}
+
+	return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalShortCompressionRatio());
 }
 

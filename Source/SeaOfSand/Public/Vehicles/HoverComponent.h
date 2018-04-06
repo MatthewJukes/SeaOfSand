@@ -24,8 +24,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	UPROPERTY(BlueprintReadOnly)
-	float CompressionRatio;
+	float ShortCompressionRatio;
+	float LongCompressionRatio;
 
 	FVector HitLocation;
 	FVector HitNormal;
@@ -33,13 +33,16 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float TraceLength = 300.f;
+	float TraceLength = 390.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float ThrustLength = 130.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float HoverForce = 600000.f;
+	float ShortHoverForce = 550000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LongHoverForce = 50000.f;
 
 private:
 	
