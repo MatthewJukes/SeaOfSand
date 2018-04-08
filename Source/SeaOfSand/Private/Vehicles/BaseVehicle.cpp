@@ -71,12 +71,13 @@ void ABaseVehicle::Tick(float DeltaTime)
 
 	SetDamping();
 	RollTowardsGroundPlaneNormal();
-	PitchTowardsGroundPlaneNormal();
+	CorrectPitchWhileInAir();
 
 	ForwardArrow->SetWorldRotation(GetGroundForwardVector().Rotation());
-	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());
+	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());	
 
-	UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f)
+	//UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f);
+	UE_LOG(LogTemp, Warning, TEXT("%f traction"), GetTractionRatio())
 }
 
 
@@ -124,7 +125,7 @@ void ABaseVehicle::MoveRight(float AxisValue)
 {
 	float TorqueStrength = AxisValue * TurningThrust;
 	FVector Torque = GetGroundUpVector() * TorqueStrength;
-	VehicleMesh->AddTorque(Torque);
+	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
 void ABaseVehicle::BoostStart()
@@ -159,21 +160,18 @@ void ABaseVehicle::RollTowardsGroundPlaneNormal()
 {
 	FVector GoalVector = FMath::Lerp(GetGroundUpVector(), FVector(0.f, 0.f, 1.f), GetTractionRatio(true));
 	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), GoalVector);
-	//UE_LOG(LogTemp, Warning, TEXT("Dot product: %f"), ForceRatio);
 	FVector Torque = VehicleMesh->GetForwardVector() * -ForceRatio * RollOrientStrength;
-	VehicleMesh->AddTorque(Torque);
+	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
-void ABaseVehicle::PitchTowardsGroundPlaneNormal()
+void ABaseVehicle::CorrectPitchWhileInAir()
 {
-	FVector InAirVector = VehicleMesh->GetForwardVector();
-	InAirVector.Z = -0.2f;
-	InAirVector.Normalize();
-	FVector GoalVector = FMath::Lerp(GetGroundForwardVector(), InAirVector, GetTractionRatio(true));
+	FVector GoalVector = VehicleMesh->GetForwardVector();
+	GoalVector.Z = -0.2f;
+	GoalVector.Normalize();
 	float ForceRatio = FVector::DotProduct(VehicleMesh->GetUpVector(), GoalVector);
-	//UE_LOG(LogTemp, Warning, TEXT("Dot product: %f"), ForceRatio);
-	FVector Torque = VehicleMesh->GetRightVector() * -ForceRatio * PitchOrientStrength;
-	VehicleMesh->AddTorque(Torque);
+	FVector Torque = VehicleMesh->GetRightVector() * -ForceRatio * PitchOrientStrength * GetTractionRatio(true);
+	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
 float ABaseVehicle::GetTotalShortCompressionRatio()
@@ -194,7 +192,16 @@ float ABaseVehicle::GetTractionRatio(bool bUseLongCompressionRatio)
 	{
 		return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalLongCompressionRatio());
 	}
+	else
+	{
+		// Get x,y direction the vehicle is facing
+		FVector AdjustedForward = VehicleMesh->GetForwardVector();
+		AdjustedForward.Z = 0.f;
+		AdjustedForward.Normalize();
 
-	return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalShortCompressionRatio());
+		float Incline = FVector::DotProduct(VehicleMesh->GetUpVector(), AdjustedForward);
+
+		return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalShortCompressionRatio());
+	}
 }
 

@@ -100,7 +100,7 @@ private:
 	void RollTowardsGroundPlaneNormal();
 
 	// Attempt to orient vehicle pitch to ground plane, use world up vector if in air
-	void PitchTowardsGroundPlaneNormal();
+	void CorrectPitchWhileInAir();
 
 	// Get forward vector of the ground based on hover component traces
 	FVector GetGroundForwardVector();
