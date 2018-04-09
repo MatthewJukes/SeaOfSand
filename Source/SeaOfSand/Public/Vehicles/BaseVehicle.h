@@ -73,7 +73,7 @@ private:
 	float ForwardThrust = 2800000.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float BoostMultiplier = 2.f;
+	float BoostMultiplier = 1.6f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float TurningThrust = 45000000.f;
