@@ -42,10 +42,10 @@ void UHoverComponent::AddForceToParent()
 	HoverTrace();
 
 	// Increase hover force magnitude based on distance between component and ground
-	ShortCompressionRatio = FMath::Clamp((HitLocation - GetComponentLocation()).Size() / ThrustLength, 0.f, 1.f);
+	ShortCompressionRatio = FMath::Clamp((HitLocation - GetComponentLocation()).Size() / CalculateThrustLength(), 0.f, 1.f);
 	LongCompressionRatio = FMath::Clamp((HitLocation - GetComponentLocation()).Size() / TraceLength, 0.f, 1.f);
-	FVector Force = HitNormal * FMath::Lerp(ShortHoverForce, 0.f, ShortCompressionRatio);
-	Force += HitNormal * FMath::Lerp(LongHoverForce, -LongHoverForce*0.75f, LongCompressionRatio);
+	FVector Force = HitNormal * FMath::Lerp(RepulseHoverForce, 0.f, ShortCompressionRatio); // Repulsion force
+	Force += HitNormal * FMath::Lerp(-AttractHoverForce*0.1f, -AttractHoverForce, FMath::Clamp(LongCompressionRatio - (1.f - ShortCompressionRatio), 0.f, 1.f));
 	ParentMesh->AddForceAtLocation(Force, GetComponentLocation());
 }
 
@@ -75,5 +75,11 @@ void UHoverComponent::HoverTrace()
 		HitNormal = FVector(0.f,0.f,1.f);
 	}
 	
+}
+
+float UHoverComponent::CalculateThrustLength()
+{
+	float ThrustLength = FMath::Lerp(FMath::Clamp(FVector::Dist(GetComponentLocation(), HitLocation), ThrustRange.X, ThrustRange.Y), BaseThrustLength, 0.6f);
+	return ThrustLength;
 }
 

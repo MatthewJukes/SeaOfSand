@@ -33,16 +33,19 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly)
-	float TraceLength = 450.f;
+	float TraceLength = 380.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float ThrustLength = 180.f;
+	float BaseThrustLength = 135.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float ShortHoverForce = 550000.f;
+	FVector2D ThrustRange = FVector2D(80.f, 200.f);
 
 	UPROPERTY(EditDefaultsOnly)
-	float LongHoverForce = 50000.f;
+	float RepulseHoverForce = 600000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float AttractHoverForce = 50000.f;
 
 private:
 	
@@ -51,4 +54,6 @@ private:
 	void AddForceToParent();
 
 	void HoverTrace();
+
+	float CalculateThrustLength();
 };

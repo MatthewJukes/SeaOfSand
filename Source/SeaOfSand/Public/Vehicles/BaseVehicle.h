@@ -70,19 +70,22 @@ protected:
 private:
 
 	UPROPERTY(EditDefaultsOnly)
-	float ForwardThrust = 1500000.f;
+	float ForwardThrust = 2800000.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float BoostMultiplier = 1.6f;
+	float BoostMultiplier = 2.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float TurningThrust = 20000000.f;
+	float TurningThrust = 45000000.f;
 
 	UPROPERTY(EditDefaultsOnly)
-	float RollOrientStrength = 10000000.f;
+	float RollOrientStrength = 12000000.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	float PitchOrientStrength = 30000000.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	UCurveFloat* InclineTractionCurve;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Character")
 	TSubclassOf<APlayerCharacter> PlayerCharacterBP;
@@ -92,21 +95,24 @@ private:
 	void MoveRight(float AxisValue);
 	void BoostStart();
 	void BoostEnd();
+	bool bIsBoosting = false;
 
 	// Adjust linear damping based on traction
 	void SetDamping();
 
 	// Attempt to orient vehicle roll to ground plane, use world up vector if in air
-	void RollTowardsGroundPlaneNormal();
+	void RollCorrection();
 
 	// Attempt to orient vehicle pitch to ground plane, use world up vector if in air
-	void CorrectPitchWhileInAir();
+	void PitchCorrection();
 
 	// Get forward vector of the ground based on hover component traces
 	FVector GetGroundForwardVector();
 
 	// Get up vector of the ground based on hover component traces
 	FVector GetGroundUpVector();	
+
+	float GetGroundIncline();
 
 	// Get total compression ratio of the hover components
 	float GetTotalShortCompressionRatio();

@@ -70,14 +70,13 @@ void ABaseVehicle::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	SetDamping();
-	RollTowardsGroundPlaneNormal();
-	CorrectPitchWhileInAir();
+	RollCorrection();
+	PitchCorrection();
 
 	ForwardArrow->SetWorldRotation(GetGroundForwardVector().Rotation());
 	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());	
 
-	//UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f);
-	UE_LOG(LogTemp, Warning, TEXT("%f traction"), GetTractionRatio())
+	UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f);	
 }
 
 
@@ -95,6 +94,7 @@ bool ABaseVehicle::Interact_Implementation()
 	// Possess player pawn
 	if (PlayerCharacter && PlayerController)
 	{
+		if (bIsBoosting) { BoostEnd(); }
 		PlayerController->Possess(PlayerCharacter);
 		PlayerController->UpdateCurrentPawn();
 		PlayerCharacter->FinishSpawning(SpawnTransform);
@@ -124,18 +124,28 @@ void ABaseVehicle::MoveForward(float AxisValue)
 void ABaseVehicle::MoveRight(float AxisValue)
 {
 	float TorqueStrength = AxisValue * TurningThrust;
-	FVector Torque = GetGroundUpVector() * TorqueStrength;
+	FVector Torque = GetGroundUpVector() * TorqueStrength * GetTractionRatio(true);
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
-void ABaseVehicle::BoostStart()
+void ABaseVehicle::BoostStart() // TODO increase strength overtime and impliment overheating system
 {
-	ForwardThrust *= BoostMultiplier;
+	if (!bIsBoosting)
+	{
+		bIsBoosting = true;
+		ForwardThrust *= BoostMultiplier;
+		TurningThrust *= 0.5f;
+	}
 }
 
 void ABaseVehicle::BoostEnd()
 {
-	ForwardThrust /= BoostMultiplier;
+	if (bIsBoosting)
+	{
+		bIsBoosting = false;
+		ForwardThrust /= BoostMultiplier;
+		TurningThrust *= 2.f;
+	}
 }
 
 FVector ABaseVehicle::GetGroundForwardVector()
@@ -151,12 +161,24 @@ FVector ABaseVehicle::GetGroundUpVector()
 	return Up;
 }
 
-void ABaseVehicle::SetDamping()
+float ABaseVehicle::GetGroundIncline()
 {
-	VehicleMesh->SetLinearDamping(FMath::Lerp(0.f, 2.f, GetTractionRatio()));
+	if (InclineTractionCurve)
+	{
+		float Incline = InclineTractionCurve->GetFloatValue(FVector::DotProduct(GetGroundUpVector(), FVector(0.f, 0.f, 1.f)));
+
+		return 1.f - Incline;
+	}
+	
+	return 0.f;
 }
 
-void ABaseVehicle::RollTowardsGroundPlaneNormal()
+void ABaseVehicle::SetDamping()
+{
+	VehicleMesh->SetLinearDamping(FMath::Lerp(0.f, 3.f, GetTractionRatio()));
+}
+
+void ABaseVehicle::RollCorrection()
 {
 	FVector GoalVector = FMath::Lerp(GetGroundUpVector(), FVector(0.f, 0.f, 1.f), GetTractionRatio(true));
 	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), GoalVector);
@@ -164,13 +186,16 @@ void ABaseVehicle::RollTowardsGroundPlaneNormal()
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
-void ABaseVehicle::CorrectPitchWhileInAir()
+void ABaseVehicle::PitchCorrection()
 {
-	FVector GoalVector = VehicleMesh->GetForwardVector();
-	GoalVector.Z = -0.2f;
-	GoalVector.Normalize();
+	FVector InAirVector = VehicleMesh->GetForwardVector();
+	InAirVector.Z = -0.2f;
+	InAirVector.Normalize();
+
+	FVector GoalVector = FMath::Lerp(GetGroundForwardVector(), InAirVector, GetTractionRatio(true));
 	float ForceRatio = FVector::DotProduct(VehicleMesh->GetUpVector(), GoalVector);
-	FVector Torque = VehicleMesh->GetRightVector() * -ForceRatio * PitchOrientStrength * GetTractionRatio(true);
+
+	FVector Torque = VehicleMesh->GetRightVector() * -ForceRatio * PitchOrientStrength;
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
@@ -194,14 +219,17 @@ float ABaseVehicle::GetTractionRatio(bool bUseLongCompressionRatio)
 	}
 	else
 	{
-		// Get x,y direction the vehicle is facing
-		FVector AdjustedForward = VehicleMesh->GetForwardVector();
-		AdjustedForward.Z = 0.f;
-		AdjustedForward.Normalize();
+		FVector2D VelocityInputRange = FVector2D(30.f, 200.f); // In km/h
+		FVector2D VelocityOutputRange = FVector2D(0.f, .8f);
 
-		float Incline = FVector::DotProduct(VehicleMesh->GetUpVector(), AdjustedForward);
+		float SpeedTractionBoost = FMath::GetMappedRangeValueClamped(VelocityInputRange, VelocityOutputRange, this->GetVelocity().Size()*0.036f);
+		UE_LOG(LogTemp, Warning, TEXT("%f traction boost"), SpeedTractionBoost);
 
-		return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalShortCompressionRatio());
+		float Traction = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalShortCompressionRatio());
+		Traction = FMath::Lerp(Traction, 0.01f, FMath::Lerp(GetGroundIncline(), 0.f, SpeedTractionBoost)); // Reduce traction if on steep slope, boost traction again if going fast
+		UE_LOG(LogTemp, Warning, TEXT("%f traction"), Traction);
+
+		return Traction;
 	}
 }
 
