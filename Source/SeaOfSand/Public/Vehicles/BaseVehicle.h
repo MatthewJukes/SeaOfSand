@@ -63,28 +63,31 @@ public:
 	bool Interact();
 	virtual bool Interact_Implementation() override;
 
-	void ToggleDriverVisibility();
+	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
+	FName DriverAttachPoint;
+
+	APlayerCharacter* CurrentDriver;
 
 protected:	
 	
 private:
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float ForwardThrust = 2800000.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float BoostMultiplier = 1.6f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float TurningThrust = 45000000.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float RollOrientStrength = 12000000.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float PitchOrientStrength = 30000000.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	UCurveFloat* InclineTractionCurve;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player Character")

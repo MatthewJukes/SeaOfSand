@@ -13,19 +13,23 @@ void ABasePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Fire", IE_Pressed, this, &ABasePlayerController::StartFiring);
 		InputComponent->BindAction("Fire", IE_Released, this, &ABasePlayerController::StopFiring);
 		InputComponent->BindAction("Use", IE_Released, this, &ABasePlayerController::Interact);
-	}
+		InputComponent->BindAction("Holster", IE_Pressed, this, &ABasePlayerController::HolsterUnholster);
+	}	
 }
 
 // Called when the game starts or when spawned
 void ABasePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
 	UpdateCurrentPawn();
+	PlayerCharacter = Cast<APlayerCharacter>(CurrentPlayerPawn);
 }
 
 void ABasePlayerController::UpdateCurrentPawn()
 {
-	CurrentPlayerPawn = GetPawn();
+	CurrentPlayerPawn = GetPawn(); // Set current pawn
+	if (CurrentPlayerPawn) { InputInterface = Cast<IPlayerInputsInterface>(CurrentPlayerPawn); } // Set input interface
 }
 
 void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
@@ -34,16 +38,14 @@ void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
 }
 
 void ABasePlayerController::StartFiring()
-{
-	APlayerCharacter* Player = Cast<APlayerCharacter>(CurrentPlayerPawn); // TODO refactor and add to player inputs interface
-
-	if (CurrentWeapon && Player)
+{	 
+	if (CurrentWeapon && CurrentPlayerPawn)
 	{
-		if (!Player->bWeaponIsDrawn) // Draw weapon is not drawn already
+		if (!PlayerCharacter->bWeaponIsDrawn) // Draw weapon is not drawn already
 		{
-			Player->HolsterUnholster();
+			PlayerCharacter->HolsterUnholster();
 		}
-		else if (Player->bCanFire)
+		else if (PlayerCharacter->bCanFire)
 		{
 			CurrentWeapon->StartFiring();			
 		}		
@@ -59,11 +61,18 @@ void ABasePlayerController::StopFiring()
 }
 
 void ABasePlayerController::Interact()
-{
-	IPlayerInputsInterface* InputInterface = Cast<IPlayerInputsInterface>(CurrentPlayerPawn);
+{	
 	if (InputInterface)
 	{		
 		InputInterface->Execute_Interact(CurrentPlayerPawn);
+	}
+}
+
+void ABasePlayerController::HolsterUnholster()
+{
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->HolsterUnholster();
 	}
 }
 

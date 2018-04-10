@@ -62,8 +62,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::CrouchEnd);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AimStart);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::AimEnd);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::JumpAndFlip);
-	PlayerInputComponent->BindAction("Holster", IE_Pressed, this, &APlayerCharacter::HolsterUnholster);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::JumpAndFlip);	
 }
 
 // Called when the game starts or when spawned
@@ -217,6 +216,11 @@ void APlayerCharacter::HolsterUnholster()
 	}
 }
 
+void APlayerCharacter::EnableCollsion()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
 bool APlayerCharacter::Interact_Implementation()
 {
 	AActor* ActorHit = nullptr;
@@ -227,11 +231,13 @@ bool APlayerCharacter::Interact_Implementation()
 		ABaseVehicle* Vehicle = Cast<ABaseVehicle>(ActorHit);
 		if (Vehicle) // If a vehicle, possess this vehicle pawn
 		{
+			Vehicle->CurrentDriver = this;
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			AttachToComponent(Vehicle->GetRootComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Vehicle->DriverAttachPoint);
+
+			bInVehicle = true;
 			PlayerController->Possess(Vehicle);
 			PlayerController->UpdateCurrentPawn();
-			Vehicle->ToggleDriverVisibility();
-			Destroy();
-			CurrentWeapon->Destroy();
 		}	
 	}
 	return false;

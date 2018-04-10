@@ -35,6 +35,9 @@ ABaseVehicle::ABaseVehicle()
 	DriverMesh->SetupAttachment(RootComponent);
 	DriverMesh->SetVisibility(false);
 
+	// Socket names
+	DriverAttachPoint = TEXT("DriverSeatSocket");
+
 	//Test Arrows
 	ForwardArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardArrow"));
 	UpArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("UpArrow"));
@@ -83,35 +86,27 @@ void ABaseVehicle::Tick(float DeltaTime)
 // Exit vehicle
 bool ABaseVehicle::Interact_Implementation()
 {
-	// Respawn player character
-	FActorSpawnParameters SpawnParams; 
-	FTransform SpawnTransform = GetTransform(); // TODO refine spawning position
-	SpawnTransform.AddToTranslation(FVector(0.f,300.f,100.f));
-	SpawnTransform.SetRotation(FQuat(0.f,0.f,0.f,0.f));
-	APlayerCharacter* PlayerCharacter = GetWorld()->SpawnActorDeferred<APlayerCharacter>(PlayerCharacterBP, SpawnTransform);
-	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
+	FTransform SpawnTransform = GetTransform();
+	SpawnTransform.AddToTranslation((VehicleMesh->GetRightVector() * 200.f) + FVector(0.f,0.f,50.f)); // TODO refine spawning position
+	FVector RelativeForward = VehicleMesh->GetForwardVector();
+	RelativeForward.Z = 0.f;
+	RelativeForward.Normalize();
+	SpawnTransform.SetRotation(FQuat(RelativeForward.Rotation()));	
 
 	// Possess player pawn
-	if (PlayerCharacter && PlayerController)
+	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
+	if (PlayerController && CurrentDriver)
 	{
 		if (bIsBoosting) { BoostEnd(); }
-		PlayerController->Possess(PlayerCharacter);
+		CurrentDriver->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+		CurrentDriver->AddActorLocalTransform(SpawnTransform);
+		CurrentDriver->EnableCollsion();
+		CurrentDriver->bInVehicle = false;
+		PlayerController->Possess(CurrentDriver);
 		PlayerController->UpdateCurrentPawn();
-		PlayerCharacter->FinishSpawning(SpawnTransform);
-		ToggleDriverVisibility();
-		if (!IsValid(PlayerCharacter)) // Reposses vehicle is spawn failed
-		{
-			PlayerController->Possess(this);
-			PlayerController->UpdateCurrentPawn();
-			ToggleDriverVisibility();
-		}
+		return true;
 	}
 	return false;
-}
-
-void ABaseVehicle::ToggleDriverVisibility()
-{
-	DriverMesh->ToggleVisibility();
 }
 
 void ABaseVehicle::MoveForward(float AxisValue)

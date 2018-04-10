@@ -39,6 +39,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bWeaponIsDrawn = true;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	bool bInVehicle = false;
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -46,17 +49,20 @@ public:
 	void AimZoom(bool Forward);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
-	void SprintZoom(bool Forward);
-	
-	// Weapon holstering
-	void HolsterUnholster();
+	void SprintZoom(bool Forward);	
+
+	// Turn collision back on
+	void EnableCollsion();
 
 	// Player interaction/use objects in world
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction") //TODO learn way to do without BlueprintCallable,etc
 	bool Interact();
 	virtual bool Interact_Implementation() override;
 
-	bool bCanFire = false;
+	// Weapon holstering
+	void HolsterUnholster();
+
+	bool bCanFire = false;	
 	
 	ABaseWeapon* CurrentWeapon;
 

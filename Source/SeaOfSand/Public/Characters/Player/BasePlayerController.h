@@ -8,6 +8,7 @@
 
 class APlayerCharacter;
 class ABaseWeapon;
+class IPlayerInputsInterface;
 
 UCLASS()
 class SEAOFSAND_API ABasePlayerController : public APlayerController
@@ -48,14 +49,23 @@ private:
 
 	// Interact and mount/dismount vehicle
 	void Interact();
+	
+	// Holster Weapon
+	void HolsterUnholster();
 
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;
 	FVector GetLookVectorHitLocation(FVector LookDirection) const;
 
+	// Interface to handle inputs for both player and vehicles
+	IPlayerInputsInterface* InputInterface;
+
 	// Current Player pawn
-	APawn* CurrentPlayerPawn;
+	APawn* CurrentPlayerPawn;	
 
 	// Currently equipped weapon
 	ABaseWeapon* CurrentWeapon;
+
+	// The player character
+	APlayerCharacter* PlayerCharacter;
 }; 
