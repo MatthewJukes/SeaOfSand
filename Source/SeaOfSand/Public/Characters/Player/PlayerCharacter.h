@@ -42,6 +42,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bInVehicle = false;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Controller")
+	ABasePlayerController* PlayerController;
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -115,9 +118,7 @@ private:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	// Movement state bools
-	bool bIsSprinting = false;
-
-	ABasePlayerController* PlayerController;
+	bool bIsSprinting = false;	
 
 public:
 	/** Returns CameraBoom subobject **/

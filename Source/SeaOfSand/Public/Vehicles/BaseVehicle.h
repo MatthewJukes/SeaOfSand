@@ -35,9 +35,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
 	UHoverComponent* HoverComponent4;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* DriverMesh;
-
 	UPROPERTY(VisibleAnywhere)
 	UArrowComponent* ForwardArrow;
 
@@ -62,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
 	bool Interact();
 	virtual bool Interact_Implementation() override;
+
+	UPROPERTY(BlueprintReadOnly, Category = "UI")
+	int32 Speed; // in km/h
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName DriverAttachPoint;
@@ -89,9 +89,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	UCurveFloat* InclineTractionCurve;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Player Character")
-	TSubclassOf<APlayerCharacter> PlayerCharacterBP;
 
 	// Movement
 	void MoveForward(float AxisValue);

@@ -9,6 +9,7 @@
 class APlayerCharacter;
 class ABaseWeapon;
 class IPlayerInputsInterface;
+class APlayerHUD;
 
 UCLASS()
 class SEAOFSAND_API ABasePlayerController : public APlayerController
@@ -25,8 +26,15 @@ public:
 	// Reference to the weapon the player has currently equipped
 	void UpdateCurrentWeapon(ABaseWeapon* NewWeapon);
 
+	// Toggle Vehicle HUD
+	void ToggleVehicleHud();
+
 	// Return an OUT parameter
 	FVector GetCrosshairHitLocation() const;
+
+	// Get Pitch/Yaw from current pawn camera
+	UFUNCTION(BlueprintCallable, Category = "Targeting")
+	FRotator GetAimOffsets() const;
 
 protected:
 	// Called when the game starts or when spawned
@@ -68,4 +76,7 @@ private:
 
 	// The player character
 	APlayerCharacter* PlayerCharacter;
+
+	// Player HUD
+	APlayerHUD* PlayerHUD;
 }; 

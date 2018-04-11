@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasePlayerController.h"
+#include "PlayerHUD.h"
 #include "PlayerCharacter.h"
 #include "BaseWeapon.h"
 #include "Engine/World.h"
+#include "GameFramework/HUD.h"
 
 void ABasePlayerController::SetupInputComponent()
 {
@@ -24,6 +26,7 @@ void ABasePlayerController::BeginPlay()
 
 	UpdateCurrentPawn();
 	PlayerCharacter = Cast<APlayerCharacter>(CurrentPlayerPawn);
+	PlayerHUD = Cast<APlayerHUD>(GetHUD());
 }
 
 void ABasePlayerController::UpdateCurrentPawn()
@@ -35,6 +38,14 @@ void ABasePlayerController::UpdateCurrentPawn()
 void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
 {
 	CurrentWeapon = Cast<ABaseWeapon>(NewWeapon);
+}
+
+void ABasePlayerController::ToggleVehicleHud()
+{
+	if (PlayerHUD)
+	{
+		PlayerHUD->ToggleVehicleHud();
+	}
 }
 
 void ABasePlayerController::StartFiring()
@@ -119,4 +130,13 @@ FVector ABasePlayerController::GetLookVectorHitLocation(FVector LookDirection) c
 		return RV_Hit.Location;
 	}
 	return EndLocation; // return end location if nothing hit
+}
+
+FRotator ABasePlayerController::GetAimOffsets() const
+{
+	const FVector AimDirWS = CurrentPlayerPawn->GetBaseAimRotation().Vector();
+	const FVector AimDirLS = CurrentPlayerPawn->ActorToWorld().InverseTransformVectorNoScale(AimDirWS);
+	const FRotator AimRotLS = AimDirLS.Rotation();
+
+	return AimRotLS;
 }

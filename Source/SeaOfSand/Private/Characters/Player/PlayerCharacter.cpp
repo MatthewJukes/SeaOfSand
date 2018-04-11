@@ -238,6 +238,7 @@ bool APlayerCharacter::Interact_Implementation()
 			bInVehicle = true;
 			PlayerController->Possess(Vehicle);
 			PlayerController->UpdateCurrentPawn();
+			PlayerController->ToggleVehicleHud();
 		}	
 	}
 	return false;

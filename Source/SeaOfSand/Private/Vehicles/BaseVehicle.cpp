@@ -30,11 +30,6 @@ ABaseVehicle::ABaseVehicle()
 	HoverComponent3->SetupAttachment(RootComponent);
 	HoverComponent4->SetupAttachment(RootComponent);
 
-	// Setup driver mesh
-	DriverMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DriverMesh"));
-	DriverMesh->SetupAttachment(RootComponent);
-	DriverMesh->SetVisibility(false);
-
 	// Socket names
 	DriverAttachPoint = TEXT("DriverSeatSocket");
 
@@ -77,9 +72,9 @@ void ABaseVehicle::Tick(float DeltaTime)
 	PitchCorrection();
 
 	ForwardArrow->SetWorldRotation(GetGroundForwardVector().Rotation());
-	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());	
+	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());
 
-	UE_LOG(LogTemp, Warning, TEXT("%f km/h"), this->GetVelocity().Size()*0.036f);	
+	Speed = this->GetVelocity().Size()*0.036f;	
 }
 
 
@@ -104,6 +99,7 @@ bool ABaseVehicle::Interact_Implementation()
 		CurrentDriver->bInVehicle = false;
 		PlayerController->Possess(CurrentDriver);
 		PlayerController->UpdateCurrentPawn();
+		PlayerController->ToggleVehicleHud();
 		return true;
 	}
 	return false;
