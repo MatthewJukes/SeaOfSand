@@ -9,12 +9,12 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Engine/World.h"
-
+#include "Public/TimerManager.h"
 
 // Sets default values
 ABaseVehicle::ABaseVehicle()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	VehicleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VehicleMesh"));
@@ -32,12 +32,6 @@ ABaseVehicle::ABaseVehicle()
 
 	// Socket names
 	DriverAttachPoint = TEXT("DriverSeatSocket");
-
-	//Test Arrows
-	ForwardArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("ForwardArrow"));
-	UpArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("UpArrow"));
-	ForwardArrow->SetupAttachment(RootComponent);
-	UpArrow->SetupAttachment(RootComponent);
 }
 
 // Called to bind functionality to input
@@ -60,6 +54,12 @@ void ABaseVehicle::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentForwardThrust = BaseForwardThrust;
+	CurrentTurningThrust = BaseTurningThrust;
+	CurrentHeat = HeatThresholds[0];
+	Health = MaxHealth;
+
+	GetWorldTimerManager().SetTimer(HeatTimerHandle, this, &ABaseVehicle::CheckHeatLevels, 0.1f, true, 0.1f);
 }
 
 // Called every frame
@@ -71,12 +71,8 @@ void ABaseVehicle::Tick(float DeltaTime)
 	RollCorrection();
 	PitchCorrection();
 
-	ForwardArrow->SetWorldRotation(GetGroundForwardVector().Rotation());
-	UpArrow->SetWorldRotation(GetGroundUpVector().Rotation());
-
 	Speed = this->GetVelocity().Size()*0.036f;	
 }
-
 
 // Exit vehicle
 bool ABaseVehicle::Interact_Implementation()
@@ -108,13 +104,13 @@ bool ABaseVehicle::Interact_Implementation()
 void ABaseVehicle::MoveForward(float AxisValue)
 {
 	AxisValue = FMath::Clamp(AxisValue, -0.5f, 1.f);
-	FVector Force = GetGroundForwardVector() * ForwardThrust * AxisValue * GetTractionRatio();
+	FVector Force = GetGroundForwardVector() * CurrentForwardThrust * AxisValue * GetTractionRatio();
 	VehicleMesh->AddForce(Force);
 }
 
 void ABaseVehicle::MoveRight(float AxisValue)
 {
-	float TorqueStrength = AxisValue * TurningThrust;
+	float TorqueStrength = AxisValue * CurrentTurningThrust;
 	FVector Torque = GetGroundUpVector() * TorqueStrength * GetTractionRatio(true);
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
@@ -123,9 +119,8 @@ void ABaseVehicle::BoostStart() // TODO increase strength overtime and impliment
 {
 	if (!bIsBoosting)
 	{
-		bIsBoosting = true;
-		ForwardThrust *= BoostMultiplier;
-		TurningThrust *= 0.5f;
+		bIsBoosting = true;		
+		GetWorldTimerManager().SetTimer(BoostTimerHandle, this, &ABaseVehicle::Boost, 0.1f, true, 0.1f);
 	}
 }
 
@@ -134,25 +129,94 @@ void ABaseVehicle::BoostEnd()
 	if (bIsBoosting)
 	{
 		bIsBoosting = false;
-		ForwardThrust /= BoostMultiplier;
-		TurningThrust *= 2.f;
+		GetWorldTimerManager().ClearTimer(BoostTimerHandle);
+		CurrentBoost = 1.f;
+		CurrentForwardThrust = BaseForwardThrust;
+		CurrentTurningThrust = BaseTurningThrust;
 	}
 }
 
-FVector ABaseVehicle::GetGroundForwardVector()
+void ABaseVehicle::Boost()
+{ 
+	FVector2D InputRange = FVector2D(HeatThresholds[1], HeatThresholds[2]);
+	CurrentBoost = FMath::GetMappedRangeValueClamped(InputRange, BoostMultiplierRange, CurrentHeat);
+	CurrentForwardThrust = BaseForwardThrust * CurrentBoost;
+	CurrentTurningThrust = BaseTurningThrust / CurrentBoost;
+
+	//UE_LOG(LogTemp, Warning, TEXT("Current Boost: %f"), CurrentBoost);
+}
+
+void ABaseVehicle::CheckHeatLevels()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Heat Level: %f"), CurrentHeat);
+
+	if (CurrentHeat > HeatThresholds[3] && bIsBoosting)
+	{		
+		FVector2D InputRange = FVector2D(HeatThresholds[3], HeatThresholds[4]);
+		FVector2D OutputRange = FVector2D(0.f, 1.f);
+		float CurvePosition = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, CurrentHeat);
+		float DamageRate = DamageRateCurve->GetFloatValue(CurvePosition);
+		Health -= DamageRate;
+		UE_LOG(LogTemp, Warning, TEXT("Health: %f"), Health);
+	}
+
+	SetHeat();
+}
+
+void ABaseVehicle::SetHeat()
+{
+	if (Speed < 3) // Vehicle at idle
+	{
+		CurrentHeat -= CoolingRateRange.X * 0.1f; // cool by first rate
+		CurrentHeat = FMath::Clamp(CurrentHeat, HeatThresholds[0], HeatThresholds[4]); // clamp to idle min temperature
+	}
+	else if (!bIsBoosting) // Not currently boosting
+	{
+		if (CurrentHeat <= HeatThresholds[1]) // and heat below normal threshold
+		{
+			CurrentHeat += HeatingRateRange.X * 0.1f; // increase heat at first rate
+		}
+		else if (CurrentHeat <= HeatThresholds[4]) // Heat is above normal threshold but below soft cap
+		{
+			CurrentHeat -= CoolingRateRange.Y * 0.1f; // Cool at second rate
+		}
+		else
+		{
+			CurrentHeat -= CoolingRateRange.Z * 0.1f; // Cool at third rate
+		}
+	}
+	else // Currently boosting
+	{
+		if (CurrentHeat <= HeatThresholds[1]) // and heat still below normal threshold
+		{
+			CurrentHeat += (HeatingRateRange.X + HeatingRateRange.Y) * 0.1f; // increase heat at combined rate
+		}
+		else if (CurrentHeat <= HeatThresholds[4]) // Heat is above normal threshold but below soft cap
+		{
+			CurrentHeat += HeatingRateRange.Y * 0.1f; // increase heat at second rate
+		}
+		else
+		{
+			CurrentHeat += HeatingRateRange.Z * 0.1f; // heat at third rate
+		}
+	}
+
+}
+
+FVector ABaseVehicle::GetGroundForwardVector() const
 {
 	FVector Forward = ((HoverComponent1->HitLocation + HoverComponent2->HitLocation) - (HoverComponent3->HitLocation + HoverComponent4->HitLocation));
 	Forward.Normalize();	
 	return Forward;
 }
 
-FVector ABaseVehicle::GetGroundUpVector()
+FVector ABaseVehicle::GetGroundUpVector() const
 {
 	FVector Up = (HoverComponent1->HitNormal + HoverComponent2->HitNormal + HoverComponent3->HitNormal + HoverComponent4->HitNormal) / 4;
 	return Up;
 }
 
-float ABaseVehicle::GetGroundIncline()
+float ABaseVehicle::GetGroundIncline() const
 {
 	if (InclineTractionCurve)
 	{
@@ -190,17 +254,17 @@ void ABaseVehicle::PitchCorrection()
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
-float ABaseVehicle::GetTotalShortCompressionRatio()
+float ABaseVehicle::GetTotalShortCompressionRatio() const
 {
 	return HoverComponent1->ShortCompressionRatio + HoverComponent2->ShortCompressionRatio + HoverComponent3->ShortCompressionRatio + HoverComponent4->ShortCompressionRatio;
 }
 
-float ABaseVehicle::GetTotalLongCompressionRatio()
+float ABaseVehicle::GetTotalLongCompressionRatio() const
 {
 	return HoverComponent1->LongCompressionRatio + HoverComponent2->LongCompressionRatio + HoverComponent3->LongCompressionRatio + HoverComponent4->LongCompressionRatio;
 }
 
-float ABaseVehicle::GetTractionRatio(bool bUseLongCompressionRatio)
+float ABaseVehicle::GetTractionRatio(const bool bUseLongCompressionRatio) const
 {
 	FVector2D InputRange = FVector2D(3.5f, 4.f);
 	FVector2D OutputRange = FVector2D(1.f, 0.1f);
@@ -214,11 +278,11 @@ float ABaseVehicle::GetTractionRatio(bool bUseLongCompressionRatio)
 		FVector2D VelocityOutputRange = FVector2D(0.f, .8f);
 
 		float SpeedTractionBoost = FMath::GetMappedRangeValueClamped(VelocityInputRange, VelocityOutputRange, this->GetVelocity().Size()*0.036f);
-		UE_LOG(LogTemp, Warning, TEXT("%f traction boost"), SpeedTractionBoost);
+		//UE_LOG(LogTemp, Warning, TEXT("%f traction boost"), SpeedTractionBoost);
 
 		float Traction = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalShortCompressionRatio());
 		Traction = FMath::Lerp(Traction, 0.01f, FMath::Lerp(GetGroundIncline(), 0.f, SpeedTractionBoost)); // Reduce traction if on steep slope, boost traction again if going fast
-		UE_LOG(LogTemp, Warning, TEXT("%f traction"), Traction);
+		//UE_LOG(LogTemp, Warning, TEXT("%f traction"), Traction);
 
 		return Traction;
 	}

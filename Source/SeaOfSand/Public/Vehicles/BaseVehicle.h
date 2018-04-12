@@ -17,10 +17,11 @@ class SEAOFSAND_API ABaseVehicle : public APawn , public IPlayerInputsInterface
 	GENERATED_BODY()
 
 public:
+
 	// Sets default values for this pawn's properties
 	ABaseVehicle();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true")) //TODO check if these still need to be BP accessable
 	UStaticMeshComponent* VehicleMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
@@ -35,18 +36,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
 	UHoverComponent* HoverComponent4;
 
-	UPROPERTY(VisibleAnywhere)
-	UArrowComponent* ForwardArrow;
-
-	UPROPERTY(VisibleAnywhere)
-	UArrowComponent* UpArrow;
-
 protected:	
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
 
 public:	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -55,69 +51,96 @@ public:
 
 public:
 
-	// Interact while on vehicle/ exit vehicle
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
-	bool Interact();
-	virtual bool Interact_Implementation() override;
-
-	UPROPERTY(BlueprintReadOnly, Category = "UI")
-	int32 Speed; // in km/h
+	APlayerCharacter * CurrentDriver;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName DriverAttachPoint;
 
-	APlayerCharacter* CurrentDriver;
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	int32 Speed; // in km/h exposed to BPs for HUD
+
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	float Health; // vehicle health exposed to BPs for HUD // TODO switch to event based update
+
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	float CurrentHeat; // vehicles current heat exposed to BPs for HUD
+
+	// Interact while on vehicle/ exit vehicle
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+	bool Interact();
+	virtual bool Interact_Implementation() override;	
 
 protected:	
 	
 private:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float ForwardThrust = 2800000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	float MaxHealth = 1000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float BoostMultiplier = 1.6f;
+	float BaseForwardThrust = 2800000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float TurningThrust = 45000000.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float RollOrientStrength = 12000000.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float PitchOrientStrength = 30000000.f;
+	float BaseTurningThrust = 45000000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	UCurveFloat* InclineTractionCurve;
 
-	// Movement
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	FVector2D BoostMultiplierRange = FVector2D(1.5f, 2.0f);	
+
+	UPROPERTY(EditDefaultsOnly, Category = "Heat") //TODO maybe change system to use curves
+	TArray<float> HeatThresholds = { 40.f, 100.f, 140.f, 160.f, 180.f }; //  temperature min at idle, normal running temperature, temperature for max boost, damage threshold and soft cap, in celsius
+
+	UPROPERTY(EditDefaultsOnly, Category = "Heat")
+	FVector HeatingRateRange = FVector(1.f, .8f, 0.01f); // per second
+
+	UPROPERTY(EditDefaultsOnly, Category = "Heat")
+	FVector CoolingRateRange = FVector(.4f, .6f, 1.f); // per second
+
+	UPROPERTY(EditDefaultsOnly, Category = "Heat")
+	UCurveFloat* DamageRateCurve;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Corrections")
+	float RollOrientStrength = 12000000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Corrections")
+	float PitchOrientStrength = 30000000.f;
+
+
+	// Movement variables
+	float CurrentForwardThrust;
+	float CurrentTurningThrust;
+	float CurrentBoost = 1.f;
+	bool bIsBoosting = false;
+
+	// Movement functions
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 	void BoostStart();
 	void BoostEnd();
-	bool bIsBoosting = false;
+	void Boost();
+	void SetDamping(); // Adjust linear damping based on traction
 
-	// Adjust linear damping based on traction
-	void SetDamping();
+	// Heat
+	void CheckHeatLevels();
+	void SetHeat();
 
-	// Attempt to orient vehicle roll to ground plane, use world up vector if in air
-	void RollCorrection();
+	// Orientation corrections
+	void RollCorrection(); // Attempt to orient vehicle roll to ground plane, use world up vector if in air	
+	void PitchCorrection(); // Attempt to orient vehicle pitch to ground plane, use world up vector if in air
 
-	// Attempt to orient vehicle pitch to ground plane, use world up vector if in air
-	void PitchCorrection();
+	// Ground plane calculations
+	FVector GetGroundForwardVector() const; // Get forward vector of the ground based on hover component traces	
+	FVector GetGroundUpVector() const; // Get up vector of the ground based on hover component traces	
+	float GetGroundIncline() const; // Get the incline to the current slope the vehicle is on
+	float GetTractionRatio(const bool bUseLongCompressionRatio = false) const; // Calculate traction amount based on compression ratio
+	
+	// Get total compression ratios of the hover components
+	float GetTotalShortCompressionRatio() const;
+	float GetTotalLongCompressionRatio() const;	
 
-	// Get forward vector of the ground based on hover component traces
-	FVector GetGroundForwardVector();
-
-	// Get up vector of the ground based on hover component traces
-	FVector GetGroundUpVector();	
-
-	float GetGroundIncline();
-
-	// Get total compression ratio of the hover components
-	float GetTotalShortCompressionRatio();
-	float GetTotalLongCompressionRatio();
-
-	// Calculate traction amount based on compression ratio
-	float GetTractionRatio(bool bUseLongCompressionRatio = false);
+	// Timer handles
+	FTimerHandle BoostTimerHandle;
+	FTimerHandle HeatTimerHandle;
 };
