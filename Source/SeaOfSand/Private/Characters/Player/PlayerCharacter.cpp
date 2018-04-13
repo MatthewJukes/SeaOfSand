@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Public/TimerManager.h"
 
 
 // Set defaults
@@ -22,6 +23,7 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -62,7 +64,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::CrouchEnd);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AimStart);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::AimEnd);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::JumpAndFlip);	
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::DoubleJump);
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APlayerCharacter::StartRoll);
 }
 
 // Called when the game starts or when spawned
@@ -105,7 +108,7 @@ void APlayerCharacter::MoveRight(float AxisValue)
 
 void APlayerCharacter::SprintStart()
 {
-	if (GetVelocity().Size() > 0.01)
+	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling())
 	{
 		if (bIsAiming) { AimEnd(); }
 		if (bWeaponIsDrawn) { HolsterUnholster(); }
@@ -171,10 +174,54 @@ void APlayerCharacter::AimEnd()
 	}
 }
 
-void APlayerCharacter::JumpAndFlip()
+void APlayerCharacter::DoubleJump()
 {
-	// TODO add double jump or flip and play test
-	Jump();
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		bCanDoubleJump = true;
+		Jump();
+	}
+	else if (bCanDoubleJump)
+	{
+		bCanDoubleJump = false;
+		bIsDoubleJumping = true;
+		GetCharacterMovement()->Velocity.Z = 0.f;
+		GetCharacterMovement()->AddImpulse(FVector(0.f, 0.f, 1.f) * 65000.f);
+		GetCharacterMovement()->AirControl = 1.f;
+		GetWorldTimerManager().SetTimer(DoubleJumpTimerHandle, this, &APlayerCharacter::ResetAirControl, .8f, false, .8f);
+	}	
+}
+
+void APlayerCharacter::ResetAirControl()
+{
+	bIsDoubleJumping = false;
+	GetCharacterMovement()->AirControl = 0.2f;
+}
+
+void APlayerCharacter::StartRoll()
+{
+	FVector DodgeDirection = GetCharacterMovement()->Velocity;
+	DodgeDirection.Z = 0.f;
+	DodgeDirection.Normalize(); 
+	if (DodgeDirection.Size() < 0.01f)
+	{
+		DodgeDirection = Controller->GetActorForwardVector();
+	}
+	FTimerDelegate TimerDel;
+	TimerDel.BindUFunction(this, FName("Roll"), DodgeDirection);
+	GetWorldTimerManager().SetTimer(DodgeTimerHandle, TimerDel, 1.f / 120.f, true);
+
+	
+	UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *DodgeDirection.ToString()); 
+}
+
+void APlayerCharacter::Roll(const FVector DodgeDirection)
+{
+	AddMovementInput(DodgeDirection, 1.f);
+}
+
+void APlayerCharacter::EndRoll()
+{
 }
 
 void APlayerCharacter::SpawnWeapon()

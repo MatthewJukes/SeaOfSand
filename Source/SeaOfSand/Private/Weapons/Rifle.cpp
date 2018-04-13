@@ -9,8 +9,8 @@
 // Sets default values
 ARifle::ARifle()
 {	
-	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Rifle"));
+	RootComponent = WeaponMesh;
 	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("RIfleShotAudio"));
 	//Beam = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("RifleBeam"));
 }

@@ -33,6 +33,13 @@ protected:
 
 public:
 
+	ABaseWeapon * CurrentWeapon;
+
+	bool bCanFire = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Controller")
+	ABasePlayerController* PlayerController;
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bIsAiming = false;
 
@@ -42,8 +49,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bInVehicle = false;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Controller")
-	ABasePlayerController* PlayerController;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	bool bIsDoubleJumping = false;
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
@@ -54,9 +61,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);	
 
-	// Turn collision back on
-	void EnableCollsion();
-
 	// Player interaction/use objects in world
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction") //TODO learn way to do without BlueprintCallable,etc
 	bool Interact();
@@ -65,9 +69,8 @@ public:
 	// Weapon holstering
 	void HolsterUnholster();
 
-	bool bCanFire = false;	
-	
-	ABaseWeapon* CurrentWeapon;
+	// Turn collision back on
+	void EnableCollsion();
 
 protected:
 
@@ -104,7 +107,11 @@ private:
 	void SprintEnd();
 	void CrouchStart();
 	void CrouchEnd();
-	void JumpAndFlip();
+	void DoubleJump();
+	void ResetAirControl();
+	void StartRoll();
+	void Roll(const FVector DodgeDirection);
+	void EndRoll();
 
 	// Player weapon
 	void SpawnWeapon();	
@@ -119,6 +126,11 @@ private:
 
 	// Movement state bools
 	bool bIsSprinting = false;	
+	bool bCanDoubleJump = true;
+
+	//Timer handles
+	FTimerHandle DoubleJumpTimerHandle;
+	FTimerHandle DodgeTimerHandle;
 
 public:
 	/** Returns CameraBoom subobject **/

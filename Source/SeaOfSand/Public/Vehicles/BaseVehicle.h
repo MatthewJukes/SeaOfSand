@@ -93,10 +93,10 @@ private:
 	TArray<float> HeatThresholds = { 40.f, 100.f, 140.f, 160.f, 180.f }; //  temperature min at idle, normal running temperature, temperature for max boost, damage threshold and soft cap, in celsius
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat")
-	FVector HeatingRateRange = FVector(1.f, .8f, 0.01f); // per second
+	FVector HeatingRateRange = FVector(10.f, 8.f, 0.1f); // per second
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat")
-	FVector CoolingRateRange = FVector(.4f, .6f, 1.f); // per second
+	FVector CoolingRateRange = FVector(4.f, 6.f, 10.f); // per second
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat")
 	UCurveFloat* DamageRateCurve;

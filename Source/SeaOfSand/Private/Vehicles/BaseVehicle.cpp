@@ -236,7 +236,7 @@ void ABaseVehicle::SetDamping()
 void ABaseVehicle::RollCorrection()
 {
 	FVector GoalVector = FMath::Lerp(GetGroundUpVector(), FVector(0.f, 0.f, 1.f), GetTractionRatio(true));
-	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), GoalVector);
+	float ForceRatio = FVector::DotProduct(VehicleMesh->GetRightVector(), GoalVector) * GetTractionRatio();
 	FVector Torque = VehicleMesh->GetForwardVector() * -ForceRatio * RollOrientStrength;
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
@@ -264,7 +264,7 @@ float ABaseVehicle::GetTotalLongCompressionRatio() const
 	return HoverComponent1->LongCompressionRatio + HoverComponent2->LongCompressionRatio + HoverComponent3->LongCompressionRatio + HoverComponent4->LongCompressionRatio;
 }
 
-float ABaseVehicle::GetTractionRatio(const bool bUseLongCompressionRatio) const
+float ABaseVehicle::GetTractionRatio(const bool bUseLongCompressionRatio) const // TODO test physics materials for unclimbable barriers
 {
 	FVector2D InputRange = FVector2D(3.5f, 4.f);
 	FVector2D OutputRange = FVector2D(1.f, 0.1f);
@@ -272,10 +272,10 @@ float ABaseVehicle::GetTractionRatio(const bool bUseLongCompressionRatio) const
 	{
 		return FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetTotalLongCompressionRatio());
 	}
-	else
+	else 
 	{
-		FVector2D VelocityInputRange = FVector2D(30.f, 200.f); // In km/h
-		FVector2D VelocityOutputRange = FVector2D(0.f, .8f);
+		FVector2D VelocityInputRange = FVector2D(50.f, 200.f); // In km/h
+		FVector2D VelocityOutputRange = FVector2D(0.f, .65f);
 
 		float SpeedTractionBoost = FMath::GetMappedRangeValueClamped(VelocityInputRange, VelocityOutputRange, this->GetVelocity().Size()*0.036f);
 		//UE_LOG(LogTemp, Warning, TEXT("%f traction boost"), SpeedTractionBoost);
