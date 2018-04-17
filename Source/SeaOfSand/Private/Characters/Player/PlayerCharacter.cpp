@@ -80,7 +80,7 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::MoveForward(float AxisValue)
 {
-	if ((Controller != NULL) && (AxisValue != 0.0f))
+	if ((Controller != NULL) && (AxisValue != 0.0f) && !bIsRolling)
 	{
 		// Find out which was is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -94,7 +94,7 @@ void APlayerCharacter::MoveForward(float AxisValue)
 
 void APlayerCharacter::MoveRight(float AxisValue)
 {
-	if ((Controller != NULL) && (AxisValue != 0.0f))
+	if ((Controller != NULL) && (AxisValue != 0.0f) && !bIsRolling)
 	{
 		// Find out which was is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -108,7 +108,7 @@ void APlayerCharacter::MoveRight(float AxisValue)
 
 void APlayerCharacter::SprintStart()
 {
-	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling())
+	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling() && !bIsRolling)
 	{
 		if (bIsAiming) { AimEnd(); }
 		if (bWeaponIsDrawn) { HolsterUnholster(); }
@@ -176,7 +176,7 @@ void APlayerCharacter::AimEnd()
 
 void APlayerCharacter::DoubleJump()
 {
-	if (!GetCharacterMovement()->IsFalling())
+	if (!GetCharacterMovement()->IsFalling() && !bIsRolling)
 	{
 		bCanDoubleJump = true;
 		Jump();
@@ -200,19 +200,33 @@ void APlayerCharacter::ResetAirControl()
 
 void APlayerCharacter::StartRoll()
 {
-	FVector DodgeDirection = GetCharacterMovement()->Velocity;
-	DodgeDirection.Z = 0.f;
-	DodgeDirection.Normalize(); 
-	if (DodgeDirection.Size() < 0.01f)
+	if (!bIsRolling)
 	{
-		DodgeDirection = Controller->GetActorForwardVector();
-	}
-	FTimerDelegate TimerDel;
-	TimerDel.BindUFunction(this, FName("Roll"), DodgeDirection);
-	GetWorldTimerManager().SetTimer(DodgeTimerHandle, TimerDel, 1.f / 120.f, true);
+		bIsRolling = true;
 
-	
-	UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *DodgeDirection.ToString()); 
+		// Calculate dodge direction
+		FVector DodgeDirection = GetCharacterMovement()->Velocity;
+		DodgeDirection.Z = 0.f;
+		DodgeDirection.Normalize();
+		if (DodgeDirection.Size() < 0.01f) // If not moving roll forward
+		{
+			DodgeDirection = Controller->GetActorForwardVector();
+		}
+
+		// Set roll speed
+		GetCharacterMovement()->MaxWalkSpeed = 1200.f;
+		bool PrevOrientRotationToMovement = GetCharacterMovement()->bOrientRotationToMovement;
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+
+		// Set timers
+		FTimerDelegate RollTimerDel;
+		RollTimerDel.BindUFunction(this, FName("Roll"), DodgeDirection);
+		GetWorldTimerManager().SetTimer(DodgeTimerHandle, RollTimerDel, 1.f / 120.f, true);
+		FTimerDelegate RollEndTimerDel;
+		RollEndTimerDel.BindUFunction(this, FName("EndRoll"), PrevOrientRotationToMovement);
+		GetWorldTimerManager().SetTimer(DodgeEndTimerHandle, RollEndTimerDel, .75f, false);
+	}
 }
 
 void APlayerCharacter::Roll(const FVector DodgeDirection)
@@ -220,8 +234,18 @@ void APlayerCharacter::Roll(const FVector DodgeDirection)
 	AddMovementInput(DodgeDirection, 1.f);
 }
 
-void APlayerCharacter::EndRoll()
+void APlayerCharacter::EndRoll(const bool OrientRotationToMovement)
 {
+	// Reset movement	
+	GetCharacterMovement()->bOrientRotationToMovement = OrientRotationToMovement;
+	GetCharacterMovement()->bUseControllerDesiredRotation = !OrientRotationToMovement;
+	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+
+	// Clear roll timers
+	GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
+	GetWorldTimerManager().ClearTimer(DodgeEndTimerHandle);
+
+	bIsRolling = false;
 }
 
 void APlayerCharacter::SpawnWeapon()
@@ -234,7 +258,7 @@ void APlayerCharacter::SpawnWeapon()
 
 void APlayerCharacter::HolsterUnholster()
 {
-	if (CurrentWeapon)
+	if (CurrentWeapon && !bIsRolling)
 	{
 		if (bWeaponIsDrawn) // Holster weapon
 		{

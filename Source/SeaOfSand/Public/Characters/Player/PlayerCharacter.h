@@ -52,6 +52,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bIsDoubleJumping = false;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	bool bIsRolling = false;
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -109,9 +112,13 @@ private:
 	void CrouchEnd();
 	void DoubleJump();
 	void ResetAirControl();
-	void StartRoll();
+	void StartRoll();		
+
+	UFUNCTION()
 	void Roll(const FVector DodgeDirection);
-	void EndRoll();
+
+	UFUNCTION()
+	void EndRoll(const bool OrientRotationToMovement);
 
 	// Player weapon
 	void SpawnWeapon();	
@@ -131,6 +138,7 @@ private:
 	//Timer handles
 	FTimerHandle DoubleJumpTimerHandle;
 	FTimerHandle DodgeTimerHandle;
+	FTimerHandle DodgeEndTimerHandle;
 
 public:
 	/** Returns CameraBoom subobject **/
