@@ -55,6 +55,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bIsRolling = false;
 
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	float Health; // Player health exposed to BPs for HUD
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -65,7 +68,7 @@ public:
 	void SprintZoom(bool Forward);	
 
 	// Player interaction/use objects in world
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction") //TODO learn way to do without BlueprintCallable,etc
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction") // TODO learn way to do without BlueprintCallable,etc
 	bool Interact();
 	virtual bool Interact_Implementation() override;
 
@@ -78,6 +81,9 @@ public:
 protected:
 
 private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
+	float MaxHealth = 250.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float BaseSpeed = 400.f;
@@ -115,10 +121,10 @@ private:
 	void StartRoll();		
 
 	UFUNCTION()
-	void Roll(const FVector DodgeDirection);
+	void Roll(FVector DodgeDirection, bool OrientRotationToMovement);
 
 	UFUNCTION()
-	void EndRoll(const bool OrientRotationToMovement);
+	void EndRoll(bool OrientRotationToMovement);
 
 	// Player weapon
 	void SpawnWeapon();	

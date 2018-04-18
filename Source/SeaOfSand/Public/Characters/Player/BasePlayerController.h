@@ -32,6 +32,10 @@ public:
 	// Return an OUT parameter
 	FVector GetCrosshairHitLocation() const;
 
+	// Currently equipped weapon
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	ABaseWeapon* CurrentWeapon;
+
 	// Get Pitch/Yaw from current pawn camera
 	UFUNCTION(BlueprintCallable, Category = "Targeting")
 	FRotator GetAimOffsets() const;
@@ -62,7 +66,7 @@ private:
 	void HolsterUnholster();
 
 	// Get crosshair world hit location
-	bool GetLookDirection(FVector2D ScreenLocation, FVector & LookDirection) const;
+	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
 	FVector GetLookVectorHitLocation(FVector LookDirection) const;
 
 	// Interface to handle inputs for both player and vehicles
@@ -70,9 +74,6 @@ private:
 
 	// Current Player pawn
 	APawn* CurrentPlayerPawn;	
-
-	// Currently equipped weapon
-	ABaseWeapon* CurrentWeapon;
 
 	// The player character
 	APlayerCharacter* PlayerCharacter;

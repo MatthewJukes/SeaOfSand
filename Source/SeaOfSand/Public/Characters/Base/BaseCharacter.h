@@ -25,9 +25,4 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	// Get Pitch/Yaw from current camera
-	UFUNCTION(BlueprintCallable, Category = "Targeting")
-	FRotator GetAimOffsets() const;
-
 };

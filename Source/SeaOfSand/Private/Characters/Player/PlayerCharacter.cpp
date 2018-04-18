@@ -200,17 +200,18 @@ void APlayerCharacter::ResetAirControl()
 
 void APlayerCharacter::StartRoll()
 {
-	if (!bIsRolling)
+	if (!GetCharacterMovement()->IsFalling() && !bIsRolling)
 	{
 		bIsRolling = true;
+		if (bIsSprinting) { SprintEnd(); }
 
 		// Calculate dodge direction
-		FVector DodgeDirection = GetCharacterMovement()->Velocity;
-		DodgeDirection.Z = 0.f;
-		DodgeDirection.Normalize();
-		if (DodgeDirection.Size() < 0.01f) // If not moving roll forward
+		FVector RollDirection = GetCharacterMovement()->Velocity;
+		RollDirection.Z = 0.f;
+		RollDirection.Normalize();
+		if (RollDirection.Size() < 0.01f) // If not moving roll forward
 		{
-			DodgeDirection = Controller->GetActorForwardVector();
+			RollDirection = RootComponent->GetForwardVector();
 		}
 
 		// Set roll speed
@@ -221,7 +222,7 @@ void APlayerCharacter::StartRoll()
 
 		// Set timers
 		FTimerDelegate RollTimerDel;
-		RollTimerDel.BindUFunction(this, FName("Roll"), DodgeDirection);
+		RollTimerDel.BindUFunction(this, FName("Roll"), RollDirection, PrevOrientRotationToMovement);
 		GetWorldTimerManager().SetTimer(DodgeTimerHandle, RollTimerDel, 1.f / 120.f, true);
 		FTimerDelegate RollEndTimerDel;
 		RollEndTimerDel.BindUFunction(this, FName("EndRoll"), PrevOrientRotationToMovement);
@@ -229,17 +230,22 @@ void APlayerCharacter::StartRoll()
 	}
 }
 
-void APlayerCharacter::Roll(const FVector DodgeDirection)
+void APlayerCharacter::Roll(FVector DodgeDirection, bool OrientRotationToMovement)
 {
 	AddMovementInput(DodgeDirection, 1.f);
+
+	if (GetCharacterMovement()->IsFalling())
+	{
+		EndRoll(OrientRotationToMovement);
+	}
 }
 
-void APlayerCharacter::EndRoll(const bool OrientRotationToMovement)
+void APlayerCharacter::EndRoll(bool OrientRotationToMovement)
 {
 	// Reset movement	
-	GetCharacterMovement()->bOrientRotationToMovement = OrientRotationToMovement;
-	GetCharacterMovement()->bUseControllerDesiredRotation = !OrientRotationToMovement;
 	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	GetCharacterMovement()->bOrientRotationToMovement = OrientRotationToMovement;
+	GetCharacterMovement()->bUseControllerDesiredRotation = !OrientRotationToMovement;	
 
 	// Clear roll timers
 	GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
@@ -298,9 +304,8 @@ bool APlayerCharacter::Interact_Implementation()
 	if (InteractTrace(ActorHit))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *GetNameSafe(ActorHit));
-
-		ABaseVehicle* Vehicle = Cast<ABaseVehicle>(ActorHit);
-		if (Vehicle) // If a vehicle, possess this vehicle pawn
+		
+		if (ABaseVehicle* Vehicle = Cast<ABaseVehicle>(ActorHit)) // If a vehicle, possess this vehicle pawn
 		{
 			Vehicle->CurrentDriver = this;
 			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
