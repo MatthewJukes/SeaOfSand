@@ -16,6 +16,7 @@ void ABasePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Fire", IE_Released, this, &ABasePlayerController::StopFiring);
 		InputComponent->BindAction("Use", IE_Released, this, &ABasePlayerController::Interact);
 		InputComponent->BindAction("Holster", IE_Pressed, this, &ABasePlayerController::HolsterUnholster);
+		InputComponent->BindAction("Reload", IE_Pressed, this, &ABasePlayerController::Reload);
 	}	
 }
 
@@ -55,13 +56,14 @@ void ABasePlayerController::StartFiring()
 		if (!PlayerCharacter->bWeaponIsDrawn) // Draw weapon is not drawn already
 		{
 			PlayerCharacter->HolsterUnholster();
-			if (PlayerCharacter->bCanFire)
-			{
+			/* if (PlayerCharacter->bCanFire)
+			{				
 				CurrentWeapon->StartFiring();
-			}
+			} */
 		}
 		else if (PlayerCharacter->bCanFire)
 		{
+			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
 			CurrentWeapon->StartFiring();			
 		}		
 	}
@@ -88,6 +90,14 @@ void ABasePlayerController::HolsterUnholster()
 	if (PlayerCharacter)
 	{
 		PlayerCharacter->HolsterUnholster();
+	}
+}
+
+void ABasePlayerController::Reload()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->StartReload();
 	}
 }
 

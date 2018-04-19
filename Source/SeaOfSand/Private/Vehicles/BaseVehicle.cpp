@@ -77,17 +77,17 @@ void ABaseVehicle::Tick(float DeltaTime)
 // Exit vehicle
 bool ABaseVehicle::Interact_Implementation()
 {
-	FTransform SpawnTransform = GetTransform();
-	SpawnTransform.AddToTranslation((VehicleMesh->GetRightVector() * 200.f) + FVector(0.f,0.f,50.f)); // TODO refine spawning position
-	FVector RelativeForward = VehicleMesh->GetForwardVector();
-	RelativeForward.Z = 0.f;
-	RelativeForward.Normalize();
-	SpawnTransform.SetRotation(FQuat(RelativeForward.Rotation()));	
-
 	// Possess player pawn
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
 	if (PlayerController && CurrentDriver)
 	{
+		FTransform SpawnTransform = GetTransform();
+		SpawnTransform.AddToTranslation((VehicleMesh->GetRightVector() * 200.f) + FVector(0.f, 0.f, 50.f)); // TODO refine spawning position
+		FVector RelativeForward = PlayerController->GetActorForwardVector();
+		RelativeForward.Z = 0.f;
+		RelativeForward.Normalize();
+		SpawnTransform.SetRotation(FQuat(RelativeForward.Rotation()));
+
 		if (bIsBoosting) { BoostEnd(); }
 		CurrentDriver->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 		CurrentDriver->AddActorLocalTransform(SpawnTransform);

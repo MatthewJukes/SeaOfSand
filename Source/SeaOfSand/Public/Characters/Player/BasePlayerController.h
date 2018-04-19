@@ -32,6 +32,10 @@ public:
 	// Return an OUT parameter
 	FVector GetCrosshairHitLocation() const;
 
+	// The player character
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	APlayerCharacter* PlayerCharacter;
+
 	// Currently equipped weapon
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	ABaseWeapon* CurrentWeapon;
@@ -65,6 +69,9 @@ private:
 	// Holster Weapon
 	void HolsterUnholster();
 
+	// Reload Weapon
+	void Reload();
+
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
 	FVector GetLookVectorHitLocation(FVector LookDirection) const;
@@ -74,9 +81,6 @@ private:
 
 	// Current Player pawn
 	APawn* CurrentPlayerPawn;	
-
-	// The player character
-	APlayerCharacter* PlayerCharacter;
 
 	// Player HUD
 	APlayerHUD* PlayerHUD;

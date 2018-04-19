@@ -19,6 +19,9 @@ ABaseWeapon::ABaseWeapon()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
 	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShotAudio"));
+
+	bCanReload = true;
+	bIsReloading = false;
 }
 
 // Called when the game starts or when spawned
@@ -32,9 +35,6 @@ void ABaseWeapon::BeginPlay()
 	// Setup ammo
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, StartAmmo);
-
-	bCanReload = true;
-	bIsReloading = false;
 }
 
 void ABaseWeapon::StartFiring()
@@ -63,7 +63,7 @@ void ABaseWeapon::HandleFiring()
 		// Play Audio
 		ShotAudioComponent->Play();
 	}
-	else if (CurrentAmmoInClip == 0 && bCanReload)
+	else if (CurrentAmmoInClip == 0 && bCanReload && CurrentAmmo > 0)
 	{
 		StartReload();
 	}
@@ -73,7 +73,7 @@ bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate)
 {
 	if (Player)
 	{
-		if (Player->bIsRolling)
+		if (Player->bIsRolling || bIsReloading)
 		{
 			return false;
 		}
@@ -107,17 +107,29 @@ void ABaseWeapon::UseAmmo()
 
 void ABaseWeapon::StartReload()
 {
-	if (!bIsReloading)
+	if (Player)
 	{
-		bIsReloading = true;
-		GetWorldTimerManager().SetTimer(ReloadTimerHandle, this, &ABaseWeapon::ReloadWeapon, ReloadDuration, false);
+		if (!bIsReloading && CurrentAmmoInClip < MaxAmmoPerClip && !Player->bIsRolling && !Player->bIsSprinting && Player->bWeaponIsDrawn)
+		{
+			bIsReloading = true;
+			GetWorldTimerManager().SetTimer(ReloadTimerHandle, this, &ABaseWeapon::ReloadWeapon, ReloadDuration, false);
+		}
+	}
+}
+
+void ABaseWeapon::InterruptReload()
+{
+	if (bIsReloading)
+	{
+		GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
+		bIsReloading = false;
 	}
 }
 
 void ABaseWeapon::ReloadWeapon()
 {
 	bIsReloading = false;
-	CurrentAmmoInClip = MaxAmmoPerClip;
+	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, CurrentAmmo);
 	GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 }
 

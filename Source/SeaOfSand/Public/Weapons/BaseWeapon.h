@@ -32,11 +32,16 @@ public:
 
 	void StartFiring();
 	void StopFiring();
+	void StartReload();
+	void InterruptReload();
 
 	// Weapon is getting bonus accuracy from player aiming
 	bool bAimingBonus;
 
 	bool bCanReload;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Reload")
+	bool bIsReloading;
 
 protected:
 
@@ -85,9 +90,7 @@ private:
 	float CalculateBulletSpread();
 
 	void UseAmmo();
-
-	bool bIsReloading;
-	void StartReload();
+	
 	void ReloadWeapon();
 
 	// Weapon trace

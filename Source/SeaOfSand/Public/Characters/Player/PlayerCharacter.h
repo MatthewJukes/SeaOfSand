@@ -35,28 +35,34 @@ public:
 
 	ABaseWeapon * CurrentWeapon;
 
-	bool bCanFire = false;
+	bool bCanFire;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Controller")
 	ABasePlayerController* PlayerController;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bIsAiming = false;
+	bool bIsAiming;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bWeaponIsDrawn = true;
+	bool bWeaponIsDrawn;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bInVehicle = false;
+	bool bIsRolling;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bIsDoubleJumping = false;
+	bool bIsSprinting;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bIsRolling = false;
+	bool bIsDoubleJumping;
 
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	float Health; // Player health exposed to BPs for HUD
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	bool bInVehicle;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Vitals")
+	float CurrentHealth; // Player health exposed to BPs for HUD
+
+	UPROPERTY(BlueprintReadOnly, Category = "Vitals")
+	float CurrentStamina; // Player stamina exposed to BPs for HUD
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
@@ -78,27 +84,42 @@ public:
 	// Turn collision back on
 	void EnableCollsion();
 
+	// stop/interrupt sprinting
+	void SprintEnd();
+
 protected:
 
 private:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	float MaxHealth = 250.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	float MaxHealth;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	float MaxStamina;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	float BaseStaminaRegenRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	float SprintStaminaDrainRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	float RollStaminaCost;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float BaseSpeed = 400.f;
+	float BaseSpeed;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float SprintMultiplier = 1.6f;
+	float SprintMultiplier;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float AimMultiplier = .6f;
+	float AimMultiplier;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float WeaponDrawnMultiplier = .8f;
+	float WeaponDrawnMultiplier;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
-	float InteractTraceRange = 250.f;
+	float InteractTraceRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName WeaponAttachPoint;
@@ -109,11 +130,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ABaseWeapon> RifleBlueprint;
 
+	// Player vitals
+	void SetStaminaRate(float RatePerSecond);
+
+	UFUNCTION()
+	void IncrementStamina(float Amount);
+
 	// Player movement
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
-	void SprintStart();
-	void SprintEnd();
+	void SprintStart();	
 	void CrouchStart();
 	void CrouchEnd();
 	void DoubleJump();
@@ -138,13 +164,13 @@ private:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	// Movement state bools
-	bool bIsSprinting = false;	
-	bool bCanDoubleJump = true;
+	bool bCanDoubleJump;
 
 	//Timer handles
 	FTimerHandle DoubleJumpTimerHandle;
 	FTimerHandle DodgeTimerHandle;
 	FTimerHandle DodgeEndTimerHandle;
+	FTimerHandle StaminaTimerHandle;
 
 public:
 	/** Returns CameraBoom subobject **/

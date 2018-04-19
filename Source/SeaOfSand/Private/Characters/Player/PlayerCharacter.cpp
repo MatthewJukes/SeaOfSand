@@ -19,17 +19,6 @@ APlayerCharacter::APlayerCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-	GetCharacterMovement()->AirControl = 0.2f;
-
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -45,6 +34,41 @@ APlayerCharacter::APlayerCharacter()
 	// Socket names
 	WeaponAttachPoint = TEXT("WeaponSocket");
 	BackHolsterAttachPoint = TEXT("BackHolsterSocket");
+
+	// Configure player vitals
+	MaxHealth = 250.f;
+	MaxStamina = 100.f;
+	BaseStaminaRegenRate = 6.f;
+	SprintStaminaDrainRate = 10.f;
+	RollStaminaCost = 20.f;
+
+	// Configure character movement
+	BaseSpeed = 400.f;
+	SprintMultiplier = 1.6f;
+	AimMultiplier = 0.6f;
+	WeaponDrawnMultiplier = 0.8f;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	GetCharacterMovement()->AirControl = 0.2f;
+
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;	
+
+	// Configure interact
+	InteractTraceRange = 250.f;
+
+	// Set bools
+	bCanFire = false;
+	bIsAiming = false;
+	bWeaponIsDrawn = false;
+	bIsRolling = false;
+	bIsSprinting = false;
+	bIsDoubleJumping = false;
+	bCanDoubleJump = true;
+	bInVehicle = false;
 }
 
 // Bind Inputs specific to player on foot
@@ -74,8 +98,33 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();	
 	PlayerController = Cast<ABasePlayerController>(GetController());
 
+	CurrentHealth = MaxHealth;
+	CurrentStamina = MaxStamina;
+	SetStaminaRate(BaseStaminaRegenRate);
+
 	SpawnWeapon();
-	HolsterUnholster();	
+	HolsterUnholster();
+}
+
+void APlayerCharacter::SetStaminaRate(float RatePerSecond)
+{
+	float TickRate = 0.25f;
+	
+	// Set timers
+	FTimerDelegate StaminaTimerDel;
+	StaminaTimerDel.BindUFunction(this, FName("IncrementStamina"), RatePerSecond * TickRate);
+	GetWorldTimerManager().SetTimer(StaminaTimerHandle, StaminaTimerDel, TickRate, true);
+}
+
+void APlayerCharacter::IncrementStamina(float Amount)
+{
+	CurrentStamina += Amount;
+	CurrentStamina = FMath::Clamp(CurrentStamina, 0.f, MaxStamina);
+
+	if (CurrentStamina <= 0.1f)
+	{
+		if (bIsSprinting) { SprintEnd(); }
+	}
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -108,13 +157,25 @@ void APlayerCharacter::MoveRight(float AxisValue)
 
 void APlayerCharacter::SprintStart()
 {
-	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling() && !bIsRolling)
+	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling() && !bIsRolling && CurrentStamina >= 5.f)
 	{
 		if (bIsAiming) { AimEnd(); }
-		if (bWeaponIsDrawn) { HolsterUnholster(); }
+		if (CurrentWeapon) { CurrentWeapon->InterruptReload(); }
+
 		bIsSprinting = true;
 		SprintZoom(true); // Call BP timeline, playing forward
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * SprintMultiplier;
+		SetStaminaRate(-SprintStaminaDrainRate);
+
+		if (bWeaponIsDrawn)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier * SprintMultiplier;
+			GetCharacterMovement()->bOrientRotationToMovement = true;
+			GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * SprintMultiplier;
+		}
 	}
 }
 
@@ -124,7 +185,18 @@ void APlayerCharacter::SprintEnd()
 	{
 		bIsSprinting = false;
 		SprintZoom(false); // Call BP timeline, playing backwards
-		GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+		SetStaminaRate(BaseStaminaRegenRate);
+
+		if (bWeaponIsDrawn)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+			GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		}
+		else
+		{
+			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+		}
 	}
 }
 
@@ -200,10 +272,12 @@ void APlayerCharacter::ResetAirControl()
 
 void APlayerCharacter::StartRoll()
 {
-	if (!GetCharacterMovement()->IsFalling() && !bIsRolling)
+	if (!GetCharacterMovement()->IsFalling() && !bIsRolling && CurrentStamina >= RollStaminaCost)
 	{
 		bIsRolling = true;
 		if (bIsSprinting) { SprintEnd(); }
+		if (CurrentWeapon) { CurrentWeapon->InterruptReload(); }
+		IncrementStamina(-RollStaminaCost);
 
 		// Calculate dodge direction
 		FVector RollDirection = GetCharacterMovement()->Velocity;
@@ -258,6 +332,7 @@ void APlayerCharacter::SpawnWeapon()
 {
 	FActorSpawnParameters SpawnParams;
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams);
+	bWeaponIsDrawn = !bWeaponIsDrawn;
 
 	if (PlayerController) {	PlayerController->UpdateCurrentWeapon(CurrentWeapon); }
 }
@@ -272,6 +347,8 @@ void APlayerCharacter::HolsterUnholster()
 			bCanFire = false;
 			bWeaponIsDrawn = false;
 			OffsetCamera(false);
+
+			CurrentWeapon->InterruptReload();
 
 			// Update character controller settings
 			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;

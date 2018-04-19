@@ -13,7 +13,7 @@ ARifle::ARifle()
 	MaxAmmo = 999;
 	StartAmmo = 999;
 	MaxAmmoPerClip = 60;
-	ReloadDuration = 1.5f;
+	ReloadDuration = 2.1f;
 }
 
 
