@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BaseWeapon.h"
+#include "BaseProjectile.h"
 #include "BasePlayerController.h"
 #include "PlayerCharacter.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -53,12 +54,14 @@ void ABaseWeapon::HandleFiring()
 	{
 		UseAmmo();
 
-		FVector HitLocation; // Store hit location
-		FVector MuzzleLocation = WeaponMesh->GetSocketLocation("MuzzleSocket");				
+		FVector HitLocation; // Store hit location		
+		FireProjectile();
+
+		/*
 		if (WeaponTrace(HitLocation, MuzzleLocation, MaxRange, CalculateBulletSpread())) // Trace from muzzle to crosshair hit location
 		{
 			// Hit something
-		}
+		} */
 
 		// Play Audio
 		ShotAudioComponent->Play();
@@ -133,7 +136,28 @@ void ABaseWeapon::ReloadWeapon()
 	GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 }
 
-bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector MuzzleLocation, float MaxRange, float BulletSpread) const
+void ABaseWeapon::FireProjectile()
+{
+	if (ProjectileBlueprint)
+	{
+		UWorld* const World = GetWorld();
+		if (World)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = Instigator;
+
+			// Spawn projectile at muzzle
+			ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(ProjectileBlueprint, WeaponMesh->GetSocketLocation("MuzzleSocket"), GetAimDirection().Rotation(), SpawnParams);
+			if (Projectile)
+			{
+
+			}
+		}
+	}
+}
+
+bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation) const
 {
 	const FName TraceTag("WeaponTraceTag");
 	GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -145,8 +169,8 @@ bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector MuzzleLocation, f
 	RV_TraceParams.TraceTag = TraceTag;
 
 	FHitResult RV_Hit;	
-	FVector StartLocation = MuzzleLocation;
-	FVector EndLocation = StartLocation + (GetAimDirection(StartLocation, BulletSpread) * MaxRange);
+	FVector StartLocation = WeaponMesh->GetSocketLocation("MuzzleSocket");
+	FVector EndLocation = StartLocation + (GetAimDirection() * MaxRange);
 
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{
@@ -157,10 +181,16 @@ bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector MuzzleLocation, f
 	return false; // Line-trace didn't hit anything
 }
 
-FVector ABaseWeapon::GetAimDirection(FVector StartLocation, float BulletSpread) const
+FVector ABaseWeapon::GetAimDirection() const
 {
-	FVector AimDirection = PlayerController->GetCrosshairHitLocation() - StartLocation;
+	FVector AimDirection = PlayerController->GetCrosshairHitLocation() - WeaponMesh->GetSocketLocation("MuzzleSocket");
 	AimDirection.Normalize();	
+
+	float BulletSpread = BaseBulletSpread;
+	if (bAimingBonus)
+	{
+		BulletSpread = BaseBulletSpread * AimingSpreadMultiplier;
+	}
 	return FMath().VRandCone(AimDirection, FMath().DegreesToRadians(BulletSpread));
 }
 

@@ -8,6 +8,7 @@
 
 class ABasePlayerController;
 class APlayerCharacter;
+class ABaseProjectile;
 
 UCLASS()
 class SEAOFSAND_API ABaseWeapon : public AActor
@@ -93,9 +94,14 @@ private:
 	
 	void ReloadWeapon();
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
+	TSubclassOf<ABaseProjectile> ProjectileBlueprint;
+
+	void FireProjectile();
+
 	// Weapon trace
-	bool WeaponTrace(FVector& OutHitlocation, FVector MuzzleLocation, float MaxRange, float BulletSpread) const;
-	FVector GetAimDirection(FVector StartLocation, float BulletSpread) const;	
+	bool WeaponTrace(FVector& OutHitlocation) const;
+	FVector GetAimDirection() const;	
 
 	// Controller and Player references
 	ABasePlayerController* PlayerController;
