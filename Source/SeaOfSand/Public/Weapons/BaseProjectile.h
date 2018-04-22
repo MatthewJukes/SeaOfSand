@@ -15,13 +15,20 @@ public:
 	// Sets default values for this actor's properties
 	ABaseProjectile();
 
+	UPROPERTY(VisibleAnywhere, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* ProjectileCapsule;
+
+	//UPROPERTY(VisibleAnywhere)
+	//UParticleSystemComponent* ProjectileParticle;
+
+	UPROPERTY(VisibleAnywhere, Category = Projectile, meta = (AllowPrivateAccess = "true"))
+	class UProjectileMovementComponent* ProjectileMovement;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 protected:
 
@@ -30,7 +37,15 @@ protected:
 
 private:
 
+	UFUNCTION()
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+					  int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
 	void DestroyProjectile();
 
 	FTimerHandle LifetimeTimerHandle;	
+
+public:
+	FORCEINLINE class USphereComponent* GetProjectileCapsule() const { return ProjectileCapsule; }
+	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 };

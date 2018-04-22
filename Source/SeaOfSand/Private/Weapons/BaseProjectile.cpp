@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BaseProjectile.h"
+#include "Components/SphereComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Public/TimerManager.h"
 
 
@@ -8,7 +11,17 @@
 ABaseProjectile::ABaseProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	// Setup projectile
+	ProjectileCapsule = CreateDefaultSubobject<USphereComponent>(TEXT("ProjectileCapsule"));
+	//ProjectileParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileParticle"));
+	RootComponent = ProjectileCapsule;
+	
+	// Setup projectile movement
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+
+	ProjectileCapsule->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::BeginOverlap);
 
 	// Default lifetime
 	ProjectileLifetime = 2.f;
@@ -22,15 +35,16 @@ void ABaseProjectile::BeginPlay()
 	GetWorldTimerManager().SetTimer(LifetimeTimerHandle, this, &ABaseProjectile::DestroyProjectile, ProjectileLifetime, false);
 }
 
-// Called every frame
-void ABaseProjectile::Tick(float DeltaTime)
+void ABaseProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+								   int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	Super::Tick(DeltaTime);
-
+	Destroy();
+	DestroyProjectile();
 }
 
 void ABaseProjectile::DestroyProjectile()
 {
+	GetWorldTimerManager().ClearTimer(LifetimeTimerHandle);
 	Destroy();
 }
 
