@@ -10,6 +10,15 @@ class ABasePlayerController;
 class APlayerCharacter;
 class ABaseProjectile;
 
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
+{
+	Idle,
+	Firing,
+	Equipping,
+	Reloading,
+};
+
 UCLASS()
 class SEAOFSAND_API ABaseWeapon : public AActor
 {
@@ -41,8 +50,8 @@ public:
 
 	bool bCanReload;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Reload")
-	bool bIsReloading;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponState WeaponState;
 
 protected:
 

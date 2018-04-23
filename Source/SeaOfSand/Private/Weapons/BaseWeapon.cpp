@@ -22,7 +22,7 @@ ABaseWeapon::ABaseWeapon()
 	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShotAudio"));
 
 	bCanReload = true;
-	bIsReloading = false;
+	WeaponState = EWeaponState::Idle;
 }
 
 // Called when the game starts or when spawned
@@ -46,12 +46,17 @@ void ABaseWeapon::StartFiring()
 void ABaseWeapon::StopFiring()
 {
 	GetWorldTimerManager().ClearTimer(FireRateTimerHandle);
+	if (WeaponState == EWeaponState::Firing)
+	{
+		WeaponState = EWeaponState::Idle;
+	}
 }
 
 void ABaseWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire(FireRate))
 	{
+		WeaponState = EWeaponState::Firing;
 		UseAmmo();
 
 		FVector HitLocation; // Store hit location		
@@ -76,7 +81,7 @@ bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate)
 {
 	if (Player)
 	{
-		if (Player->bIsRolling || bIsReloading)
+		if (Player->bIsRolling || WeaponState == EWeaponState::Reloading)
 		{
 			return false;
 		}
@@ -112,9 +117,9 @@ void ABaseWeapon::StartReload()
 {
 	if (Player)
 	{
-		if (!bIsReloading && CurrentAmmoInClip < MaxAmmoPerClip && !Player->bIsRolling && !Player->bIsSprinting && Player->bWeaponIsDrawn)
+		if (WeaponState != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && !Player->bIsRolling && !Player->bIsSprinting && Player->bWeaponIsDrawn)
 		{
-			bIsReloading = true;
+			WeaponState = EWeaponState::Reloading;
 			GetWorldTimerManager().SetTimer(ReloadTimerHandle, this, &ABaseWeapon::ReloadWeapon, ReloadDuration, false);
 		}
 	}
@@ -122,18 +127,18 @@ void ABaseWeapon::StartReload()
 
 void ABaseWeapon::InterruptReload()
 {
-	if (bIsReloading)
+	if (WeaponState == EWeaponState::Reloading)
 	{
 		GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
-		bIsReloading = false;
+		WeaponState = EWeaponState::Idle;
 	}
 }
 
 void ABaseWeapon::ReloadWeapon()
 {
-	bIsReloading = false;
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, CurrentAmmo);
 	GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
+	WeaponState = EWeaponState::Idle;
 }
 
 void ABaseWeapon::FireProjectile()

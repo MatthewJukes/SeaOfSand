@@ -15,8 +15,9 @@ ABaseProjectile::ABaseProjectile()
 
 	// Setup projectile
 	ProjectileCapsule = CreateDefaultSubobject<USphereComponent>(TEXT("ProjectileCapsule"));
-	//ProjectileParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileParticle"));
+	//ProjectileParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ProjectileParticle")); // TODO figure out attachment issues
 	RootComponent = ProjectileCapsule;
+	//ProjectileParticle->SetupAttachment(ProjectileCapsule);
 	
 	// Setup projectile movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
@@ -38,8 +39,7 @@ void ABaseProjectile::BeginPlay()
 void ABaseProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 								   int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	Destroy();
-	DestroyProjectile();
+	//DestroyProjectile();
 }
 
 void ABaseProjectile::DestroyProjectile()

@@ -18,7 +18,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* ProjectileCapsule;
 
-	//UPROPERTY(VisibleAnywhere)
+	//UPROPERTY(VisibleAnywhere, Category = Projectile, meta = (AllowPrivateAccess = "true"))
 	//UParticleSystemComponent* ProjectileParticle;
 
 	UPROPERTY(VisibleAnywhere, Category = Projectile, meta = (AllowPrivateAccess = "true"))
