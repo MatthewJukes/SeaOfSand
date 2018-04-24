@@ -76,10 +76,7 @@ public:
 	// Player interaction/use objects in world
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction") // TODO learn way to do without BlueprintCallable,etc
 	bool Interact();
-	virtual bool Interact_Implementation() override;
-
-	// Weapon holstering
-	void HolsterUnholster();
+	virtual bool Interact_Implementation() override;	
 
 	// Turn collision back on
 	void EnableCollsion();
@@ -121,15 +118,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
-	FName WeaponAttachPoint;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
-	FName BackHolsterAttachPoint;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
-	TSubclassOf<ABaseWeapon> RifleBlueprint;
-
 	// Player vitals
 	void SetStaminaRate(float RatePerSecond);
 
@@ -151,9 +139,6 @@ private:
 
 	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
-
-	// Player weapon
-	void SpawnWeapon();	
 
 	// Player firing
 	void AimStart();

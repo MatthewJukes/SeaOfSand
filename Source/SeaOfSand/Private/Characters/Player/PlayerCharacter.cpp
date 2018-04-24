@@ -31,10 +31,6 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Socket names
-	WeaponAttachPoint = TEXT("WeaponSocket");
-	BackHolsterAttachPoint = TEXT("BackHolsterSocket");
-
 	// Configure player vitals
 	MaxHealth = 250.f;
 	MaxStamina = 100.f;
@@ -101,9 +97,6 @@ void APlayerCharacter::BeginPlay()
 	CurrentHealth = MaxHealth;
 	CurrentStamina = MaxStamina;
 	SetStaminaRate(BaseStaminaRegenRate);
-
-	SpawnWeapon();
-	HolsterUnholster();
 }
 
 void APlayerCharacter::SetStaminaRate(float RatePerSecond)
@@ -212,7 +205,7 @@ void APlayerCharacter::CrouchEnd()
 void APlayerCharacter::AimStart()
 {
 	if (bIsSprinting) { SprintEnd(); }
-	if (!bWeaponIsDrawn) { HolsterUnholster(); }
+	//if (!bWeaponIsDrawn) { HolsterUnholster(); }
 	bIsAiming = true;
 	AimZoom(true); // Call BP timeline, playing forward
 	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * AimMultiplier;
@@ -326,48 +319,6 @@ void APlayerCharacter::EndRoll(bool OrientRotationToMovement)
 	GetWorldTimerManager().ClearTimer(DodgeEndTimerHandle);
 
 	bIsRolling = false;
-}
-
-void APlayerCharacter::SpawnWeapon()
-{
-	FActorSpawnParameters SpawnParams;
-	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams);
-	bWeaponIsDrawn = !bWeaponIsDrawn;
-
-	if (PlayerController) {	PlayerController->UpdateCurrentWeapon(CurrentWeapon); }
-}
-
-void APlayerCharacter::HolsterUnholster()
-{
-	if (CurrentWeapon && !bIsRolling)
-	{
-		if (bWeaponIsDrawn) // Holster weapon
-		{
-			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, BackHolsterAttachPoint);
-			bCanFire = false;
-			bWeaponIsDrawn = false;
-			OffsetCamera(false);
-
-			CurrentWeapon->InterruptReload();
-
-			// Update character controller settings
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-			GetCharacterMovement()->bOrientRotationToMovement = true;
-			GetCharacterMovement()->bUseControllerDesiredRotation = false;
-		}
-		else // Unholster weapon
-		{
-			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachPoint);
-			bCanFire = true;
-			bWeaponIsDrawn = true;
-			OffsetCamera(true);
-
-			// Update character controller settings
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
-			GetCharacterMovement()->bOrientRotationToMovement = false;
-			GetCharacterMovement()->bUseControllerDesiredRotation = true;
-		}
-	}
 }
 
 void APlayerCharacter::EnableCollsion()

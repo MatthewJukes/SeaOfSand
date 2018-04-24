@@ -55,7 +55,7 @@ void ABasePlayerController::StartFiring()
 	{
 		if (!PlayerCharacter->bWeaponIsDrawn) // Draw weapon is not drawn already
 		{
-			PlayerCharacter->HolsterUnholster();
+			//PlayerCharacter->HolsterUnholster();
 			/* if (PlayerCharacter->bCanFire)
 			{				
 				CurrentWeapon->StartFiring();
@@ -89,7 +89,7 @@ void ABasePlayerController::HolsterUnholster()
 {
 	if (PlayerCharacter)
 	{
-		PlayerCharacter->HolsterUnholster();
+		//PlayerCharacter->HolsterUnholster();
 	}
 }
 
