@@ -35,7 +35,7 @@ public:
 	// Weapon holstering
 	void HolsterUnholster();
 
-	UPROPERTY() 
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	ABaseWeapon* CurrentWeapon; // Currently selected weapon
 
 private:

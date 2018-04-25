@@ -81,10 +81,9 @@ void UPlayerInventory::HolsterUnholster()
 
 			CurrentWeapon->InterruptReload();
 
-			// Update character controller settings
-			//GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-			//GetCharacterMovement()->bOrientRotationToMovement = true;
-			//GetCharacterMovement()->bUseControllerDesiredRotation = false;
+			// Update character movement settings
+			PlayerCharacter->SetPlayerSpeed(1.f);
+			PlayerCharacter->SetPlayerMovementType(true, false);
 		}
 		else // Unholster weapon
 		{
@@ -93,10 +92,9 @@ void UPlayerInventory::HolsterUnholster()
 			PlayerCharacter->bWeaponIsDrawn = true;
 			PlayerCharacter->OffsetCamera(true);
 
-			// Update character controller settings
-			//GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
-			//GetCharacterMovement()->bOrientRotationToMovement = false;
-			//GetCharacterMovement()->bUseControllerDesiredRotation = true;
+			// Update character movement settings
+			PlayerCharacter->SetPlayerSpeed(.8); // TODO move weapon movement speed multipliers to BaseWeapon
+			PlayerCharacter->SetPlayerMovementType(false, true);
 		}
 	} 
 }

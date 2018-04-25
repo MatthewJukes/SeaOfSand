@@ -115,7 +115,7 @@ void ABaseVehicle::MoveRight(float AxisValue)
 	VehicleMesh->AddTorqueInRadians(Torque);
 }
 
-void ABaseVehicle::BoostStart() // TODO increase strength overtime and impliment overheating system
+void ABaseVehicle::BoostStart()
 {
 	if (!bIsBoosting)
 	{

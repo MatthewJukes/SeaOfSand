@@ -6,9 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
-class APlayerCharacter;
-class ABaseWeapon;
 class IPlayerInputsInterface;
+class APlayerCharacter;
 class APlayerHUD;
 
 UCLASS()
@@ -23,9 +22,6 @@ public:
 	// Reference to the weapon the player has currently equipped
 	void UpdateCurrentPawn();
 
-	// Reference to the weapon the player has currently equipped
-	void UpdateCurrentWeapon(ABaseWeapon* NewWeapon);
-
 	// Toggle Vehicle HUD
 	void ToggleVehicleHud();
 
@@ -35,10 +31,6 @@ public:
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
 	APlayerCharacter* PlayerCharacter;
-
-	// Currently equipped weapon
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	ABaseWeapon* CurrentWeapon;
 
 	// Get Pitch/Yaw from current pawn camera
 	UFUNCTION(BlueprintCallable, Category = "Targeting")

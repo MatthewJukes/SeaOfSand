@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasePlayerController.h"
-#include "PlayerHUD.h"
 #include "PlayerCharacter.h"
+#include "PlayerInventory.h"
+#include "PlayerHUD.h"
 #include "BaseWeapon.h"
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
@@ -33,12 +34,7 @@ void ABasePlayerController::BeginPlay()
 void ABasePlayerController::UpdateCurrentPawn()
 {
 	CurrentPlayerPawn = GetPawn(); // Set current pawn
-	if (CurrentPlayerPawn) { InputInterface = Cast<IPlayerInputsInterface>(CurrentPlayerPawn); } // Set input interface
-}
-
-void ABasePlayerController::UpdateCurrentWeapon(ABaseWeapon * NewWeapon)
-{
-	CurrentWeapon = Cast<ABaseWeapon>(NewWeapon);
+	if (CurrentPlayerPawn) { InputInterface = Cast<IPlayerInputsInterface>(CurrentPlayerPawn); } // Set input interface //TODO do I need to use an interface?
 }
 
 void ABasePlayerController::ToggleVehicleHud()
@@ -51,29 +47,25 @@ void ABasePlayerController::ToggleVehicleHud()
 
 void ABasePlayerController::StartFiring()
 {	 
-	if (CurrentWeapon && CurrentPlayerPawn)
+	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
 		if (!PlayerCharacter->bWeaponIsDrawn) // Draw weapon is not drawn already
 		{
-			//PlayerCharacter->HolsterUnholster();
-			/* if (PlayerCharacter->bCanFire)
-			{				
-				CurrentWeapon->StartFiring();
-			} */
+			PlayerCharacter->PlayerInventory->HolsterUnholster();
 		}
 		else if (PlayerCharacter->bCanFire)
 		{
 			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
-			CurrentWeapon->StartFiring();			
+			PlayerCharacter->PlayerInventory->CurrentWeapon->StartFiring();
 		}		
 	}
 }
 
 void ABasePlayerController::StopFiring()
 {
-	if (CurrentWeapon)
+	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
-		CurrentWeapon->StopFiring();
+		PlayerCharacter->PlayerInventory->CurrentWeapon->StopFiring();
 	}
 }
 
@@ -87,17 +79,17 @@ void ABasePlayerController::Interact()
 
 void ABasePlayerController::HolsterUnholster()
 {
-	if (PlayerCharacter)
+	if (PlayerCharacter->PlayerInventory)
 	{
-		//PlayerCharacter->HolsterUnholster();
+		PlayerCharacter->PlayerInventory->HolsterUnholster();
 	}
 }
 
 void ABasePlayerController::Reload()
 {
-	if (CurrentWeapon)
+	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
-		CurrentWeapon->StartReload();
+		PlayerCharacter->PlayerInventory->CurrentWeapon->StartReload();
 	}
 }
 

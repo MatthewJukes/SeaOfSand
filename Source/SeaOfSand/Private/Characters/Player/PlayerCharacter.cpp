@@ -1,9 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerCharacter.h"
+#include "PlayerInventory.h"
 #include "BasePlayerController.h"
-#include "BaseWeapon.h"
 #include "BaseVehicle.h"
+#include "BaseWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -18,6 +19,9 @@ APlayerCharacter::APlayerCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	// Setup inventory
+	PlayerInventory = CreateDefaultSubobject<UPlayerInventory>(TEXT("PlayerInventory"));
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -92,8 +96,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();	
+
+	// Get controller
 	PlayerController = Cast<ABasePlayerController>(GetController());
 
+	// Set default health and stamina values
 	CurrentHealth = MaxHealth;
 	CurrentStamina = MaxStamina;
 	SetStaminaRate(BaseStaminaRegenRate);
@@ -153,7 +160,7 @@ void APlayerCharacter::SprintStart()
 	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling() && !bIsRolling && CurrentStamina >= 5.f)
 	{
 		if (bIsAiming) { AimEnd(); }
-		if (CurrentWeapon) { CurrentWeapon->InterruptReload(); }
+		if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
 
 		bIsSprinting = true;
 		SprintZoom(true); // Call BP timeline, playing forward
@@ -161,16 +168,16 @@ void APlayerCharacter::SprintStart()
 
 		if (bWeaponIsDrawn)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier * SprintMultiplier;
-			GetCharacterMovement()->bOrientRotationToMovement = true;
-			GetCharacterMovement()->bUseControllerDesiredRotation = false;
+			SetPlayerSpeed(WeaponDrawnMultiplier * SprintMultiplier);
+			SetPlayerMovementType(true, false);
 		}
 		else
 		{
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * SprintMultiplier;
+			SetPlayerSpeed(SprintMultiplier);
 		}
 	}
 }
+
 
 void APlayerCharacter::SprintEnd()
 {
@@ -182,13 +189,12 @@ void APlayerCharacter::SprintEnd()
 
 		if (bWeaponIsDrawn)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
-			GetCharacterMovement()->bOrientRotationToMovement = false;
-			GetCharacterMovement()->bUseControllerDesiredRotation = true;
+			SetPlayerSpeed(WeaponDrawnMultiplier);
+			SetPlayerMovementType(false, true);
 		}
 		else
 		{
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+			SetPlayerSpeed(1.f);
 		}
 	}
 }
@@ -205,14 +211,14 @@ void APlayerCharacter::CrouchEnd()
 void APlayerCharacter::AimStart()
 {
 	if (bIsSprinting) { SprintEnd(); }
-	//if (!bWeaponIsDrawn) { HolsterUnholster(); }
+	if (!bWeaponIsDrawn) { PlayerInventory->HolsterUnholster(); }
 	bIsAiming = true;
 	AimZoom(true); // Call BP timeline, playing forward
-	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * AimMultiplier;
+	SetPlayerSpeed(AimMultiplier);
 
-	if (CurrentWeapon) // Give weapon bonus accuracy
+	if (PlayerInventory->CurrentWeapon) // Give weapon bonus accuracy
 	{
-		CurrentWeapon->bAimingBonus = true;
+		PlayerInventory->CurrentWeapon->bAimingBonus = true;
 	}
 }
 
@@ -225,16 +231,16 @@ void APlayerCharacter::AimEnd()
 
 		if (bWeaponIsDrawn)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed * WeaponDrawnMultiplier;
+			SetPlayerSpeed(WeaponDrawnMultiplier);
 		}
 		else
 		{
-			GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+			SetPlayerSpeed(1.f);
 		}
 
-		if (CurrentWeapon) // Remove weapon bonus accuracy
+		if (PlayerInventory->CurrentWeapon) // Remove weapon bonus accuracy
 		{
-			CurrentWeapon->bAimingBonus = false;
+			PlayerInventory->CurrentWeapon->bAimingBonus = false;
 		}
 	}
 }
@@ -269,7 +275,7 @@ void APlayerCharacter::StartRoll()
 	{
 		bIsRolling = true;
 		if (bIsSprinting) { SprintEnd(); }
-		if (CurrentWeapon) { CurrentWeapon->InterruptReload(); }
+		if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
 		IncrementStamina(-RollStaminaCost);
 
 		// Calculate dodge direction
@@ -282,37 +288,35 @@ void APlayerCharacter::StartRoll()
 		}
 
 		// Set roll speed
-		GetCharacterMovement()->MaxWalkSpeed = 1200.f;
-		bool PrevOrientRotationToMovement = GetCharacterMovement()->bOrientRotationToMovement;
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+		SetPlayerSpeed(3.f);
+		bool bLastOrientRotationToMovement = GetCharacterMovement()->bOrientRotationToMovement;
+		SetPlayerMovementType(true, false);
 
 		// Set timers
 		FTimerDelegate RollTimerDel;
-		RollTimerDel.BindUFunction(this, FName("Roll"), RollDirection, PrevOrientRotationToMovement);
+		RollTimerDel.BindUFunction(this, FName("Roll"), RollDirection, bLastOrientRotationToMovement);
 		GetWorldTimerManager().SetTimer(DodgeTimerHandle, RollTimerDel, 1.f / 120.f, true);
 		FTimerDelegate RollEndTimerDel;
-		RollEndTimerDel.BindUFunction(this, FName("EndRoll"), PrevOrientRotationToMovement);
+		RollEndTimerDel.BindUFunction(this, FName("EndRoll"), bLastOrientRotationToMovement);
 		GetWorldTimerManager().SetTimer(DodgeEndTimerHandle, RollEndTimerDel, .75f, false);
 	}
 }
 
-void APlayerCharacter::Roll(FVector DodgeDirection, bool OrientRotationToMovement)
+void APlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationToMovement)
 {
 	AddMovementInput(DodgeDirection, 1.f);
 
 	if (GetCharacterMovement()->IsFalling())
 	{
-		EndRoll(OrientRotationToMovement);
+		EndRoll(bLastOrientRotationToMovement);
 	}
 }
 
-void APlayerCharacter::EndRoll(bool OrientRotationToMovement)
+void APlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 {
 	// Reset movement	
-	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
-	GetCharacterMovement()->bOrientRotationToMovement = OrientRotationToMovement;
-	GetCharacterMovement()->bUseControllerDesiredRotation = !OrientRotationToMovement;	
+	SetPlayerSpeed(1.f);
+	SetPlayerMovementType(bLastOrientRotationToMovement, !bLastOrientRotationToMovement);
 
 	// Clear roll timers
 	GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
@@ -324,6 +328,24 @@ void APlayerCharacter::EndRoll(bool OrientRotationToMovement)
 void APlayerCharacter::EnableCollsion()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void APlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
+{
+	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
+	{
+		CharacterMovement->MaxWalkSpeed = BaseSpeed * SpeedMultiplier;
+	}
+}
+
+
+void APlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
+{
+	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
+	{
+		CharacterMovement->bOrientRotationToMovement = bOrientRotationToMovement;
+		CharacterMovement->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
+	}
 }
 
 bool APlayerCharacter::Interact_Implementation()

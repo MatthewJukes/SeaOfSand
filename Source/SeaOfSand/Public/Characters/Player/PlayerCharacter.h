@@ -8,7 +8,7 @@
 #include "PlayerCharacter.generated.h"
 
 class ABasePlayerController;
-class ABaseWeapon;
+class UPlayerInventory;
 
 UCLASS()
 class SEAOFSAND_API APlayerCharacter : public ABaseCharacter , public IPlayerInputsInterface
@@ -33,12 +33,15 @@ protected:
 
 public:
 
-	ABaseWeapon * CurrentWeapon;
-
 	bool bCanFire;
 
+	// The player controller
 	UPROPERTY(BlueprintReadOnly, Category = "Controller")
 	ABasePlayerController* PlayerController;
+
+	// The player inventory
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Player")
+	UPlayerInventory* PlayerInventory;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
 	bool bIsAiming;
@@ -80,6 +83,10 @@ public:
 
 	// Turn collision back on
 	void EnableCollsion();
+
+	void SetPlayerSpeed(float SpeedMultiplier);
+
+	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 
 	// stop/interrupt sprinting
 	void SprintEnd();

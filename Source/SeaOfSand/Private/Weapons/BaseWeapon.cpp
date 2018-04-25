@@ -154,10 +154,6 @@ void ABaseWeapon::FireProjectile()
 
 			// Spawn projectile at muzzle
 			ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(ProjectileBlueprint, WeaponMesh->GetSocketLocation("MuzzleSocket"), GetAimDirection().Rotation(), SpawnParams);
-			if (Projectile)
-			{
-
-			}
 		}
 	}
 }
