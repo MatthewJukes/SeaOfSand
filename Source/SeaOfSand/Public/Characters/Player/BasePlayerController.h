@@ -16,6 +16,7 @@ class SEAOFSAND_API ABasePlayerController : public APlayerController
 	GENERATED_BODY()
 		
 public:
+
 	// Called to bind functionality to input
 	virtual void SetupInputComponent() override;
 
@@ -51,18 +52,17 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float CrosshairTraceRange = 100000.f;
 
-	// Player firing
+	UFUNCTION()
 	void StartFiring();
+
+	UFUNCTION()
 	void StopFiring();
-
-	// Interact and mount/dismount vehicle
-	void Interact();
 	
-	// Holster Weapon
-	void HolsterUnholster();
-
-	// Reload Weapon
-	void Reload();
+	UFUNCTION()
+	void HolsterUnholster(); // Holster Weapon
+	
+	UFUNCTION()
+	void Reload(); // Reload Weapon
 
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;

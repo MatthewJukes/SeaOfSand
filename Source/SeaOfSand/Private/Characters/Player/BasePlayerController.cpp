@@ -15,7 +15,6 @@ void ABasePlayerController::SetupInputComponent()
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, this, &ABasePlayerController::StartFiring);
 		InputComponent->BindAction("Fire", IE_Released, this, &ABasePlayerController::StopFiring);
-		InputComponent->BindAction("Use", IE_Released, this, &ABasePlayerController::Interact);
 		InputComponent->BindAction("Holster", IE_Pressed, this, &ABasePlayerController::HolsterUnholster);
 		InputComponent->BindAction("Reload", IE_Pressed, this, &ABasePlayerController::Reload);
 	}	
@@ -34,7 +33,6 @@ void ABasePlayerController::BeginPlay()
 void ABasePlayerController::UpdateCurrentPawn()
 {
 	CurrentPlayerPawn = GetPawn(); // Set current pawn
-	if (CurrentPlayerPawn) { InputInterface = Cast<IPlayerInputsInterface>(CurrentPlayerPawn); } // Set input interface //TODO do I need to use an interface?
 }
 
 void ABasePlayerController::ToggleVehicleHud()
@@ -49,11 +47,11 @@ void ABasePlayerController::StartFiring()
 {	 
 	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
-		if (!PlayerCharacter->bWeaponIsDrawn) // Draw weapon is not drawn already
+		if (!PlayerCharacter->PlayerInventory->bWeaponIsDrawn) // Draw weapon is not drawn already
 		{
 			PlayerCharacter->PlayerInventory->HolsterUnholster();
 		}
-		else if (PlayerCharacter->bCanFire)
+		else
 		{
 			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
 			PlayerCharacter->PlayerInventory->CurrentWeapon->StartFiring();
@@ -66,14 +64,6 @@ void ABasePlayerController::StopFiring()
 	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
 		PlayerCharacter->PlayerInventory->CurrentWeapon->StopFiring();
-	}
-}
-
-void ABasePlayerController::Interact()
-{	
-	if (InputInterface)
-	{		
-		InputInterface->Execute_Interact(CurrentPlayerPawn);
 	}
 }
 

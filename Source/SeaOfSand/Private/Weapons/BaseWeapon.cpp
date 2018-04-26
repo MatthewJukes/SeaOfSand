@@ -4,6 +4,7 @@
 #include "BaseProjectile.h"
 #include "BasePlayerController.h"
 #include "PlayerCharacter.h"
+#include "PlayerInventory.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Engine/World.h"
@@ -31,7 +32,7 @@ void ABaseWeapon::BeginPlay()
 	Super::BeginPlay();
 	
 	PlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
-	Player = Cast<APlayerCharacter>(PlayerController->GetPawn());
+	PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
 
 	// Setup ammo
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);
@@ -60,13 +61,14 @@ void ABaseWeapon::HandleFiring()
 		UseAmmo();
 
 		FVector HitLocation; // Store hit location		
-		FireProjectile();
+		FVector AimDirection = GetAimDirection();
 
-		/*
-		if (WeaponTrace(HitLocation, MuzzleLocation, MaxRange, CalculateBulletSpread())) // Trace from muzzle to crosshair hit location
+		FireProjectile(AimDirection);
+
+		if (WeaponTrace(HitLocation, AimDirection)) // Trace from muzzle to crosshair hit location
 		{
 			// Hit something
-		} */
+		}
 
 		// Play Audio
 		ShotAudioComponent->Play();
@@ -79,9 +81,9 @@ void ABaseWeapon::HandleFiring()
 
 bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate)
 {
-	if (Player)
+	if (PlayerCharacter)
 	{
-		if (Player->bIsRolling || WeaponState == EWeaponState::Reloading)
+		if (PlayerCharacter->bIsRolling || WeaponState == EWeaponState::Reloading)
 		{
 			return false;
 		}
@@ -115,9 +117,10 @@ void ABaseWeapon::UseAmmo()
 
 void ABaseWeapon::StartReload()
 {
-	if (Player)
+	if (PlayerCharacter)
 	{
-		if (WeaponState != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && !Player->bIsRolling && !Player->bIsSprinting && Player->bWeaponIsDrawn)
+		if (WeaponState != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && !PlayerCharacter->bIsRolling 
+			&& !PlayerCharacter->bIsSprinting && PlayerCharacter->PlayerInventory->bWeaponIsDrawn)
 		{
 			WeaponState = EWeaponState::Reloading;
 			GetWorldTimerManager().SetTimer(ReloadTimerHandle, this, &ABaseWeapon::ReloadWeapon, ReloadDuration, false);
@@ -141,7 +144,7 @@ void ABaseWeapon::ReloadWeapon()
 	WeaponState = EWeaponState::Idle;
 }
 
-void ABaseWeapon::FireProjectile()
+void ABaseWeapon::FireProjectile(FVector AimDirection)
 {
 	if (ProjectileBlueprint)
 	{
@@ -153,12 +156,12 @@ void ABaseWeapon::FireProjectile()
 			SpawnParams.Instigator = Instigator;
 
 			// Spawn projectile at muzzle
-			ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(ProjectileBlueprint, WeaponMesh->GetSocketLocation("MuzzleSocket"), GetAimDirection().Rotation(), SpawnParams);
+			ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(ProjectileBlueprint, WeaponMesh->GetSocketLocation("MuzzleSocket"), AimDirection.Rotation(), SpawnParams);
 		}
 	}
 }
 
-bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation) const
+bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const
 {
 	const FName TraceTag("WeaponTraceTag");
 	GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -171,7 +174,7 @@ bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation) const
 
 	FHitResult RV_Hit;	
 	FVector StartLocation = WeaponMesh->GetSocketLocation("MuzzleSocket");
-	FVector EndLocation = StartLocation + (GetAimDirection() * MaxRange);
+	FVector EndLocation = StartLocation + (AimDirection * MaxRange);
 
 	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
 	{

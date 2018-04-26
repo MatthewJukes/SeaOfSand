@@ -53,6 +53,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EWeaponState WeaponState;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
+	float WeaponDrawnSpeedMultiplier;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
+	float AimingSpeedMultiplier;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
@@ -106,15 +112,15 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	TSubclassOf<ABaseProjectile> ProjectileBlueprint;
 
-	void FireProjectile();
+	void FireProjectile(FVector AimDirection);
 
 	// Weapon trace
-	bool WeaponTrace(FVector& OutHitlocation) const;
+	bool WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const;
 	FVector GetAimDirection() const;	
 
 	// Controller and Player references
 	ABasePlayerController* PlayerController;
-	APlayerCharacter* Player;
+	APlayerCharacter* PlayerCharacter;
 
 	// Timer handles
 	FTimerHandle FireRateTimerHandle;

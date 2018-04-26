@@ -45,8 +45,6 @@ APlayerCharacter::APlayerCharacter()
 	// Configure character movement
 	BaseSpeed = 400.f;
 	SprintMultiplier = 1.6f;
-	AimMultiplier = 0.6f;
-	WeaponDrawnMultiplier = 0.8f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
@@ -61,9 +59,6 @@ APlayerCharacter::APlayerCharacter()
 	InteractTraceRange = 250.f;
 
 	// Set bools
-	bCanFire = false;
-	bIsAiming = false;
-	bWeaponIsDrawn = false;
 	bIsRolling = false;
 	bIsSprinting = false;
 	bIsDoubleJumping = false;
@@ -82,6 +77,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
 
+	PlayerInputComponent->BindAction("USe", IE_Pressed, this, &APlayerCharacter::Interact);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::SprintEnd);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::CrouchStart);
@@ -166,9 +162,9 @@ void APlayerCharacter::SprintStart()
 		SprintZoom(true); // Call BP timeline, playing forward
 		SetStaminaRate(-SprintStaminaDrainRate);
 
-		if (bWeaponIsDrawn)
+		if (PlayerInventory->bWeaponIsDrawn)
 		{
-			SetPlayerSpeed(WeaponDrawnMultiplier * SprintMultiplier);
+			SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier * SprintMultiplier);
 			SetPlayerMovementType(true, false);
 		}
 		else
@@ -187,9 +183,9 @@ void APlayerCharacter::SprintEnd()
 		SprintZoom(false); // Call BP timeline, playing backwards
 		SetStaminaRate(BaseStaminaRegenRate);
 
-		if (bWeaponIsDrawn)
+		if (PlayerInventory->bWeaponIsDrawn)
 		{
-			SetPlayerSpeed(WeaponDrawnMultiplier);
+			SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
 			SetPlayerMovementType(false, true);
 		}
 		else
@@ -211,10 +207,10 @@ void APlayerCharacter::CrouchEnd()
 void APlayerCharacter::AimStart()
 {
 	if (bIsSprinting) { SprintEnd(); }
-	if (!bWeaponIsDrawn) { PlayerInventory->HolsterUnholster(); }
+	if (!PlayerInventory->bWeaponIsDrawn) { PlayerInventory->HolsterUnholster(); }
 	bIsAiming = true;
 	AimZoom(true); // Call BP timeline, playing forward
-	SetPlayerSpeed(AimMultiplier);
+	SetPlayerSpeed(PlayerInventory->CurrentWeapon->AimingSpeedMultiplier);
 
 	if (PlayerInventory->CurrentWeapon) // Give weapon bonus accuracy
 	{
@@ -229,9 +225,9 @@ void APlayerCharacter::AimEnd()
 		bIsAiming = false;
 		AimZoom(false); // Call BP timeline, playing backwards
 
-		if (bWeaponIsDrawn)
+		if (PlayerInventory->bWeaponIsDrawn)
 		{
-			SetPlayerSpeed(WeaponDrawnMultiplier);
+			SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
 		}
 		else
 		{
@@ -338,7 +334,6 @@ void APlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
 	}
 }
 
-
 void APlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
 {
 	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
@@ -348,7 +343,7 @@ void APlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, boo
 	}
 }
 
-bool APlayerCharacter::Interact_Implementation()
+void APlayerCharacter::Interact()
 {
 	AActor* ActorHit = nullptr;
 	if (InteractTrace(ActorHit))
@@ -367,7 +362,6 @@ bool APlayerCharacter::Interact_Implementation()
 			PlayerController->ToggleVehicleHud();
 		}	
 	}
-	return false;
 }
 
 bool APlayerCharacter::InteractTrace(AActor* &OutActor) const

@@ -32,6 +32,29 @@ ABaseVehicle::ABaseVehicle()
 
 	// Socket names
 	DriverAttachPoint = TEXT("DriverSeatSocket");
+
+	// Health
+	MaxHealth = 1000.f;
+
+	// Movement
+	BaseForwardThrust = 2800000.f;
+	BaseTurningThrust = 45000000.f;
+
+	// Boost
+	BoostMultiplierRange = FVector2D(1.5f, 2.0f);
+
+	// Heat
+	HeatThresholds = { 40.f, 100.f, 140.f, 160.f, 180.f }; //  temperature min at idle, normal running temperature, temperature for max boost, damage threshold and soft cap, in celsius
+	HeatingRateRange = FVector(10.f, 8.f, 0.1f); // per second
+	CoolingRateRange = FVector(4.f, 6.f, 10.f); // per second
+	
+	// Corrections
+	RollOrientStrength = 12000000.f;
+	PitchOrientStrength = 30000000.f;
+
+	// Movement variables
+	float CurrentBoost = 1.f;
+	bool bIsBoosting = false;
 }
 
 // Called to bind functionality to input
@@ -45,6 +68,7 @@ void ABaseVehicle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("Turn", this, &ABaseVehicle::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &ABaseVehicle::AddControllerPitchInput);
 
+	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ABaseVehicle::ExitVehicle);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseVehicle::BoostStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseVehicle::BoostEnd);
 }
@@ -75,7 +99,7 @@ void ABaseVehicle::Tick(float DeltaTime)
 }
 
 // Exit vehicle
-bool ABaseVehicle::Interact_Implementation()
+void ABaseVehicle::ExitVehicle()
 {
 	// Possess player pawn
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
@@ -96,9 +120,7 @@ bool ABaseVehicle::Interact_Implementation()
 		PlayerController->Possess(CurrentDriver);
 		PlayerController->UpdateCurrentPawn();
 		PlayerController->ToggleVehicleHud();
-		return true;
 	}
-	return false;
 }
 
 void ABaseVehicle::MoveForward(float AxisValue)

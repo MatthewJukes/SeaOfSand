@@ -4,14 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
-#include "PlayerInputsInterface.h"
 #include "PlayerCharacter.generated.h"
 
 class ABasePlayerController;
 class UPlayerInventory;
 
 UCLASS()
-class SEAOFSAND_API APlayerCharacter : public ABaseCharacter , public IPlayerInputsInterface
+class SEAOFSAND_API APlayerCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 	
@@ -33,8 +32,6 @@ protected:
 
 public:
 
-	bool bCanFire;
-
 	// The player controller
 	UPROPERTY(BlueprintReadOnly, Category = "Controller")
 	ABasePlayerController* PlayerController;
@@ -43,22 +40,19 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Player")
 	UPlayerInventory* PlayerInventory;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsAiming;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
-	bool bWeaponIsDrawn;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsRolling;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsSprinting;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsDoubleJumping;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Movement")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bInVehicle;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Vitals")
@@ -74,12 +68,7 @@ public:
 	void AimZoom(bool Forward);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
-	void SprintZoom(bool Forward);	
-
-	// Player interaction/use objects in world
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction") // TODO learn way to do without BlueprintCallable,etc
-	bool Interact();
-	virtual bool Interact_Implementation() override;	
+	void SprintZoom(bool Forward);
 
 	// Turn collision back on
 	void EnableCollsion();
@@ -116,30 +105,37 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float SprintMultiplier;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float AimMultiplier;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float WeaponDrawnMultiplier;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
 
-	// Player vitals
 	void SetStaminaRate(float RatePerSecond);
 
 	UFUNCTION()
 	void IncrementStamina(float Amount);
 
-	// Player movement
+	UFUNCTION()
 	void MoveForward(float AxisValue);
+
+	UFUNCTION()
 	void MoveRight(float AxisValue);
+
+	UFUNCTION()
 	void SprintStart();	
+
+	UFUNCTION()
 	void CrouchStart();
+
+	UFUNCTION()
 	void CrouchEnd();
+
+	UFUNCTION()
 	void DoubleJump();
-	void ResetAirControl();
-	void StartRoll();		
+
+	UFUNCTION()
+	void StartRoll();
+
+	UFUNCTION()
+	void Interact(); // Player interaction/use objects in world
 
 	UFUNCTION()
 	void Roll(FVector DodgeDirection, bool OrientRotationToMovement);
@@ -147,7 +143,9 @@ private:
 	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
 
-	// Player firing
+	void ResetAirControl(); // Reset air control after preforming double jump
+
+	// Player aiming
 	void AimStart();
 	void AimEnd();
 

@@ -40,8 +40,6 @@ void UPlayerInventory::SpawnWeapon()
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams); // TODO make it handle multiple weapon types and add a selection sytem
 
 	AttachWeaponToSocket();
-
-	//if (PlayerController) { PlayerController->UpdateCurrentWeapon(CurrentWeapon); }
 }
 
 
@@ -72,11 +70,10 @@ void UPlayerInventory::HolsterUnholster()
 { 
 	if (CurrentWeapon && !PlayerCharacter->bIsAiming) // TODO refine and refactor this
 	{
-		if (PlayerCharacter->bWeaponIsDrawn) // Holster weapon
+		if (bWeaponIsDrawn) // Holster weapon
 		{
 			AttachWeaponToSocket();
-			PlayerCharacter->bCanFire = false;
-			PlayerCharacter->bWeaponIsDrawn = false;
+			bWeaponIsDrawn = false;
 			PlayerCharacter->OffsetCamera(false);
 
 			CurrentWeapon->InterruptReload();
@@ -88,12 +85,11 @@ void UPlayerInventory::HolsterUnholster()
 		else // Unholster weapon
 		{
 			AttachWeaponToSocket(true);
-			PlayerCharacter->bCanFire = true;
-			PlayerCharacter->bWeaponIsDrawn = true;
+			bWeaponIsDrawn = true;
 			PlayerCharacter->OffsetCamera(true);
 
 			// Update character movement settings
-			PlayerCharacter->SetPlayerSpeed(.8); // TODO move weapon movement speed multipliers to BaseWeapon
+			PlayerCharacter->SetPlayerSpeed(CurrentWeapon->WeaponDrawnSpeedMultiplier);
 			PlayerCharacter->SetPlayerMovementType(false, true);
 		}
 	} 

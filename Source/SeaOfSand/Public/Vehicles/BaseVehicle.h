@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "PlayerInputsInterface.h"
 #include "BaseVehicle.generated.h"
 
 class APlayerCharacter;
@@ -12,29 +11,29 @@ class UHoverComponent;
 class UArrowComponent;
 
 UCLASS()
-class SEAOFSAND_API ABaseVehicle : public APawn , public IPlayerInputsInterface
+class SEAOFSAND_API ABaseVehicle : public APawn
 {
 	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* VehicleMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = Hover)
+	UHoverComponent* HoverComponent1;
+
+	UPROPERTY(VisibleAnywhere, Category = Hover)
+	UHoverComponent* HoverComponent2;
+
+	UPROPERTY(VisibleAnywhere, Category = Hover)
+	UHoverComponent* HoverComponent3;
+
+	UPROPERTY(VisibleAnywhere, Category = Hover)
+	UHoverComponent* HoverComponent4;
 
 public:
 
 	// Sets default values for this pawn's properties
 	ABaseVehicle();
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh, meta = (AllowPrivateAccess = "true")) //TODO check if these still need to be BP accessable
-	UStaticMeshComponent* VehicleMesh;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent1;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent2;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent3;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hover, meta = (AllowPrivateAccess = "true"))
-	UHoverComponent* HoverComponent4;
 
 protected:	
 
@@ -65,60 +64,65 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	float CurrentHeat; // vehicles current heat exposed to BPs for HUD
 
-	// Interact while on vehicle/ exit vehicle
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
-	bool Interact();
-	virtual bool Interact_Implementation() override;	
-
 protected:	
 	
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
-	float MaxHealth = 1000.f;
+	float MaxHealth;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float BaseForwardThrust = 2800000.f;
+	float BaseForwardThrust;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float BaseTurningThrust = 45000000.f;
+	float BaseTurningThrust;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	UCurveFloat* InclineTractionCurve;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	FVector2D BoostMultiplierRange = FVector2D(1.5f, 2.0f);	
+	FVector2D BoostMultiplierRange;	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat") //TODO maybe change system to use curves
-	TArray<float> HeatThresholds = { 40.f, 100.f, 140.f, 160.f, 180.f }; //  temperature min at idle, normal running temperature, temperature for max boost, damage threshold and soft cap, in celsius
+	TArray<float> HeatThresholds;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat")
-	FVector HeatingRateRange = FVector(10.f, 8.f, 0.1f); // per second
+	FVector HeatingRateRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat")
-	FVector CoolingRateRange = FVector(4.f, 6.f, 10.f); // per second
+	FVector CoolingRateRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Heat")
 	UCurveFloat* DamageRateCurve;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Corrections")
-	float RollOrientStrength = 12000000.f;
+	float RollOrientStrength;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Corrections")
-	float PitchOrientStrength = 30000000.f;
-
+	float PitchOrientStrength;
 
 	// Movement variables
 	float CurrentForwardThrust;
 	float CurrentTurningThrust;
-	float CurrentBoost = 1.f;
-	bool bIsBoosting = false;
+	float CurrentBoost;
+	bool bIsBoosting;
+
+	UFUNCTION()
+	void ExitVehicle();
 
 	// Movement functions
+	UFUNCTION()
 	void MoveForward(float AxisValue);
+
+	UFUNCTION()
 	void MoveRight(float AxisValue);
+
+	UFUNCTION()
 	void BoostStart();
+
+	UFUNCTION()
 	void BoostEnd();
+
 	void Boost();
 	void SetDamping(); // Adjust linear damping based on traction
 

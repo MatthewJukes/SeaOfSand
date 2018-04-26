@@ -5,15 +5,3 @@
 
 // Add default functionality here for any IPlayerInputsInterface functions that are not pure virtual.
 
-
-/*void IPlayerInputsInterface::StartFiring()
-{
-}
-
-void IPlayerInputsInterface::StopFiring()
-{
-} 
-
-void IPlayerInputsInterface::Interact()
-{
-} */

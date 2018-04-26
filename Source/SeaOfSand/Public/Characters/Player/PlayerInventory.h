@@ -30,10 +30,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:		
 
-	// Weapon holstering
-	void HolsterUnholster();
+	void HolsterUnholster(); // Weapon holstering
+
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	bool bWeaponIsDrawn;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	ABaseWeapon* CurrentWeapon; // Currently selected weapon
@@ -51,7 +53,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ARifle> RifleBlueprint;
 	
-	UPROPERTY()
 	APlayerCharacter* PlayerCharacter; // Inventory owner
 
 	void SpawnWeapon();
