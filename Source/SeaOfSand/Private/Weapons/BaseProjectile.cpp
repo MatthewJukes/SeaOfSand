@@ -39,7 +39,7 @@ void ABaseProjectile::BeginPlay()
 void ABaseProjectile::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 								   int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	DestroyProjectile();
+	//DestroyProjectile();
 }
 
 void ABaseProjectile::DestroyProjectile()

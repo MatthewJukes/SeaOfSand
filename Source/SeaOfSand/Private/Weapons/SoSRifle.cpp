@@ -11,6 +11,7 @@ ASoSRifle::ASoSRifle()
 	FireRate = 0.075f;
 	MaxRange = 30000.f;
 	bIsAutomatic = true;
+	ProjectilesPerShot = 1;
 
 	// Aiming
 	BaseBulletSpread = 2.5f;

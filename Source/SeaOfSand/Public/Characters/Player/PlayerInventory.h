@@ -10,6 +10,7 @@ class APlayerCharacter;
 class ABaseWeapon;
 class ASoSRifle;
 class ASoSPistol;
+class ASoSShotgun;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API UPlayerInventory : public UActorComponent
@@ -49,11 +50,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName PistolHolsterAttachPoint;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
+	FName ShotgunHolsterAttachPoint;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ASoSRifle> RifleBlueprint;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ASoSPistol> PistolBlueprint;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	TSubclassOf<ASoSShotgun> ShotgunBlueprint;
 
 	int32 CurrentWeaponArrayID;
 

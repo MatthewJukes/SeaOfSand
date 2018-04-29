@@ -11,6 +11,7 @@ ASoSPistol::ASoSPistol()
 	FireRate = 0.1f;
 	MaxRange = 30000.f;
 	bIsAutomatic = false;
+	ProjectilesPerShot = 1;
 
 	// Aiming
 	BaseBulletSpread = 1.5f;

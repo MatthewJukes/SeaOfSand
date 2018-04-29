@@ -60,14 +60,17 @@ void ABaseWeapon::HandleFiring()
 		WeaponState = EWeaponState::Firing;
 		UseAmmo();
 
-		FVector HitLocation; // Store hit location		
-		FVector AimDirection = GetAimDirection();
-
-		FireProjectile(AimDirection);
-
-		if (WeaponTrace(HitLocation, AimDirection)) // Trace from muzzle to crosshair hit location
+		for (int i = 0; i < ProjectilesPerShot; i++)
 		{
-			// Hit something
+			FVector HitLocation; // Store hit location		
+			FVector AimDirection = GetAimDirection();
+
+			FireProjectile(AimDirection);
+
+			if (WeaponTrace(HitLocation, AimDirection)) // Trace from muzzle to crosshair hit location
+			{
+				// Hit something
+			}
 		}
 
 		// Play Audio
@@ -164,7 +167,7 @@ void ABaseWeapon::FireProjectile(FVector AimDirection)
 bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const
 {
 	const FName TraceTag("WeaponTraceTag");
-	GetWorld()->DebugDrawTraceTag = TraceTag;
+	//GetWorld()->DebugDrawTraceTag = TraceTag;
 
 	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
 	RV_TraceParams.bTraceComplex = true;

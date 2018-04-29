@@ -81,6 +81,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	bool bIsAutomatic;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
+	int32 ProjectilesPerShot;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
 	float BaseBulletSpread;
 
