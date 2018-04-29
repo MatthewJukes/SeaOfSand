@@ -2,7 +2,7 @@
 
 #include "BaseWeapon.h"
 #include "BaseProjectile.h"
-#include "BasePlayerController.h"
+#include "SoSPlayerController.h"
 #include "PlayerCharacter.h"
 #include "PlayerInventory.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -31,7 +31,7 @@ void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	PlayerController = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
 	PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
 
 	// Setup ammo

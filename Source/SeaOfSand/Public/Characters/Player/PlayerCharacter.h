@@ -6,7 +6,7 @@
 #include "BaseCharacter.h"
 #include "PlayerCharacter.generated.h"
 
-class ABasePlayerController;
+class ASoSPlayerController;
 class UPlayerInventory;
 
 UCLASS()
@@ -34,7 +34,7 @@ public:
 
 	// The player controller
 	UPROPERTY(BlueprintReadOnly, Category = "Controller")
-	ABasePlayerController* PlayerController;
+	ASoSPlayerController* PlayerController;
 
 	// The player inventory
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Player")
@@ -77,8 +77,11 @@ public:
 
 	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 
-	// stop/interrupt sprinting
-	void SprintEnd();
+	UFUNCTION() 
+	void SprintEnd(); // stop/interrupt sprinting
+
+	UFUNCTION()
+	void AimEnd(); // stop/interrupt aiming
 
 protected:
 
@@ -143,11 +146,10 @@ private:
 	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
 
-	void ResetAirControl(); // Reset air control after preforming double jump
-
-	// Player aiming
+	UFUNCTION()
 	void AimStart();
-	void AimEnd();
+
+	void ResetAirControl(); // Reset air control after preforming double jump
 
 	// Trace to see if hit interactable actor
 	bool InteractTrace(AActor* &OutActor) const;

@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "BasePlayerController.generated.h"
+#include "SoSPlayerController.generated.h"
 
 class IPlayerInputsInterface;
 class APlayerCharacter;
 class APlayerHUD;
 
 UCLASS()
-class SEAOFSAND_API ABasePlayerController : public APlayerController
+class SEAOFSAND_API ASoSPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 		
@@ -63,6 +63,12 @@ private:
 	
 	UFUNCTION()
 	void Reload(); // Reload Weapon
+
+	UFUNCTION()
+	void NextWeapon();
+
+	UFUNCTION()
+	void PrevWeapon();
 
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;

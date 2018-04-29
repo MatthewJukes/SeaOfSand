@@ -2,7 +2,7 @@
 
 #include "PlayerCharacter.h"
 #include "PlayerInventory.h"
-#include "BasePlayerController.h"
+#include "SoSPlayerController.h"
 #include "BaseVehicle.h"
 #include "BaseWeapon.h"
 #include "Camera/CameraComponent.h"
@@ -94,7 +94,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();	
 
 	// Get controller
-	PlayerController = Cast<ABasePlayerController>(GetController());
+	PlayerController = Cast<ASoSPlayerController>(GetController());
 
 	// Set default health and stamina values
 	CurrentHealth = MaxHealth;

@@ -2,7 +2,7 @@
 
 #include "BaseVehicle.h"
 #include "HoverComponent.h"
-#include "BasePlayerController.h"
+#include "SoSPlayerController.h"
 #include "PlayerCharacter.h"
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -102,7 +102,7 @@ void ABaseVehicle::Tick(float DeltaTime)
 void ABaseVehicle::ExitVehicle()
 {
 	// Possess player pawn
-	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(GetController());
+	ASoSPlayerController* PlayerController = Cast<ASoSPlayerController>(GetController());
 	if (PlayerController && CurrentDriver)
 	{
 		FTransform SpawnTransform = GetTransform();

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "BasePlayerController.h"
+#include "SoSPlayerController.h"
 #include "PlayerCharacter.h"
 #include "PlayerInventory.h"
 #include "PlayerHUD.h"
@@ -8,20 +8,22 @@
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
 
-void ABasePlayerController::SetupInputComponent()
+void ASoSPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 	if (InputComponent)
 	{
-		InputComponent->BindAction("Fire", IE_Pressed, this, &ABasePlayerController::StartFiring);
-		InputComponent->BindAction("Fire", IE_Released, this, &ABasePlayerController::StopFiring);
-		InputComponent->BindAction("Holster", IE_Pressed, this, &ABasePlayerController::HolsterUnholster);
-		InputComponent->BindAction("Reload", IE_Pressed, this, &ABasePlayerController::Reload);
+		InputComponent->BindAction("Fire", IE_Pressed, this, &ASoSPlayerController::StartFiring);
+		InputComponent->BindAction("Fire", IE_Released, this, &ASoSPlayerController::StopFiring);
+		InputComponent->BindAction("Holster", IE_Pressed, this, &ASoSPlayerController::HolsterUnholster);
+		InputComponent->BindAction("Reload", IE_Pressed, this, &ASoSPlayerController::Reload);
+		InputComponent->BindAction("NextWeapon", IE_Pressed, this, &ASoSPlayerController::NextWeapon);
+		InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &ASoSPlayerController::PrevWeapon);
 	}	
 }
 
 // Called when the game starts or when spawned
-void ABasePlayerController::BeginPlay()
+void ASoSPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -30,12 +32,12 @@ void ABasePlayerController::BeginPlay()
 	PlayerHUD = Cast<APlayerHUD>(GetHUD());
 }
 
-void ABasePlayerController::UpdateCurrentPawn()
+void ASoSPlayerController::UpdateCurrentPawn()
 {
 	CurrentPlayerPawn = GetPawn(); // Set current pawn
 }
 
-void ABasePlayerController::ToggleVehicleHud()
+void ASoSPlayerController::ToggleVehicleHud()
 {
 	if (PlayerHUD)
 	{
@@ -43,7 +45,7 @@ void ABasePlayerController::ToggleVehicleHud()
 	}
 }
 
-void ABasePlayerController::StartFiring()
+void ASoSPlayerController::StartFiring()
 {	 
 	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
@@ -59,7 +61,7 @@ void ABasePlayerController::StartFiring()
 	}
 }
 
-void ABasePlayerController::StopFiring()
+void ASoSPlayerController::StopFiring()
 {
 	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
@@ -67,7 +69,7 @@ void ABasePlayerController::StopFiring()
 	}
 }
 
-void ABasePlayerController::HolsterUnholster()
+void ASoSPlayerController::HolsterUnholster()
 {
 	if (PlayerCharacter->PlayerInventory)
 	{
@@ -75,7 +77,7 @@ void ABasePlayerController::HolsterUnholster()
 	}
 }
 
-void ABasePlayerController::Reload()
+void ASoSPlayerController::Reload()
 {
 	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
 	{
@@ -83,7 +85,17 @@ void ABasePlayerController::Reload()
 	}
 }
 
-FVector ABasePlayerController::GetCrosshairHitLocation() const
+void ASoSPlayerController::NextWeapon()
+{
+	PlayerCharacter->PlayerInventory->CycleWeapons();
+}
+
+void ASoSPlayerController::PrevWeapon()
+{
+	PlayerCharacter->PlayerInventory->CycleWeapons(false);
+}
+
+FVector ASoSPlayerController::GetCrosshairHitLocation() const
 {
 	// Find the crosshair position in pixel coordinates
 	int32 ViewportSizeX, ViewPortSizeY;
@@ -100,13 +112,13 @@ FVector ABasePlayerController::GetCrosshairHitLocation() const
 	return FVector(0.f,0.f,0.f);
 }
 
-bool ABasePlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
+bool ASoSPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
 {
 	FVector CameraWorldLocation; // To be discarded
 	return DeprojectScreenPositionToWorld(ScreenLocation.X,	ScreenLocation.Y, CameraWorldLocation, LookDirection);
 }
 
-FVector ABasePlayerController::GetLookVectorHitLocation(FVector LookDirection) const
+FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection) const
 {
 	const FName TraceTag("CrosshairTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -128,7 +140,7 @@ FVector ABasePlayerController::GetLookVectorHitLocation(FVector LookDirection) c
 	return EndLocation; // return end location if nothing hit
 }
 
-FRotator ABasePlayerController::GetAimOffsets() const
+FRotator ASoSPlayerController::GetAimOffsets() const
 {
 	const FVector AimDirWS = CurrentPlayerPawn->GetBaseAimRotation().Vector();
 	const FVector AimDirLS = CurrentPlayerPawn->ActorToWorld().InverseTransformVectorNoScale(AimDirWS);

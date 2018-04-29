@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Weapons/BaseWeapon.h"
-#include "Rifle.generated.h"
+#include "SoSRifle.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SEAOFSAND_API ARifle : public ABaseWeapon
+class SEAOFSAND_API ASoSRifle : public ABaseWeapon
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ARifle();
+	ASoSRifle();
 
 protected:
 

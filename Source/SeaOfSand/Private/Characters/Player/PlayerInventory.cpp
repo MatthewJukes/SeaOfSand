@@ -3,7 +3,8 @@
 #include "PlayerInventory.h"
 #include "PlayerCharacter.h"
 #include "BaseWeapon.h"
-#include "Rifle.h"
+#include "SoSRifle.h"
+#include "SoSPistol.h"
 
 // Sets default values for this component's properties
 UPlayerInventory::UPlayerInventory()
@@ -15,8 +16,7 @@ UPlayerInventory::UPlayerInventory()
 	// Socket names
 	RightHandAttachPoint = TEXT("RightHandSocket");
 	RifleHolsterAttachPoint = TEXT("RifleHolsterSocket");
-
-	CurrentWeaponType = ECurrentWeaponType::Rifle; // TODO make a proper system for this
+	PistolHolsterAttachPoint = TEXT("PistolHolsterSocket");
 }
 
 
@@ -30,35 +30,45 @@ void UPlayerInventory::BeginPlay()
 	if (PlayerCharacter)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Got Player"));
-		SpawnWeapon();
+		SpawnWeapon(PistolBlueprint);
+		SpawnWeapon(RifleBlueprint);	
+
+		CurrentWeapon = EquippedWeapons[0];
+		CurrentWeaponArrayID = 0;
 	}
 }
 
-void UPlayerInventory::SpawnWeapon()
+void UPlayerInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn)
 {
+	// Spawn new weapon
 	FActorSpawnParameters SpawnParams;
-	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(RifleBlueprint, SpawnParams); // TODO make it handle multiple weapon types and add a selection sytem
+	ABaseWeapon* NewWeapon = GetWorld()->SpawnActor<ABaseWeapon>(WeaponToSpawn, SpawnParams);
 
-	AttachWeaponToSocket();
+	// Add new weapon to array of equipped weapons
+	EquippedWeapons.Add(NewWeapon);
+
+	// Attach new weapon to appropriate holster
+	AttachWeaponToSocket(NewWeapon);
 }
 
 
-void UPlayerInventory::AttachWeaponToSocket(bool bDrawWeapon)
+void UPlayerInventory::AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapon)
 {
 	if (bDrawWeapon)
 	{
-		CurrentWeapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RightHandAttachPoint);
+		Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RightHandAttachPoint);
 	}
 	else
 	{
-		switch (CurrentWeaponType)
+		switch (Weapon->WeaponType)
 		{
-		case ECurrentWeaponType::Pistol:
+		case EWeaponType::Pistol:
+			Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, PistolHolsterAttachPoint);
 			break;
-		case ECurrentWeaponType::Rifle:
-			CurrentWeapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RifleHolsterAttachPoint);
+		case EWeaponType::Rifle:
+			Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RifleHolsterAttachPoint);
 			break;
-		case ECurrentWeaponType::Shotgun:
+		case EWeaponType::Shotgun:
 			break;
 		default:
 			break;
@@ -68,11 +78,12 @@ void UPlayerInventory::AttachWeaponToSocket(bool bDrawWeapon)
 
 void UPlayerInventory::HolsterUnholster()
 { 
-	if (CurrentWeapon && !PlayerCharacter->bIsAiming) // TODO refine and refactor this
+	if (CurrentWeapon) // TODO refine and refactor this
 	{
 		if (bWeaponIsDrawn) // Holster weapon
 		{
-			AttachWeaponToSocket();
+			if (PlayerCharacter->bIsAiming) { PlayerCharacter->AimEnd(); }
+			AttachWeaponToSocket(CurrentWeapon);
 			bWeaponIsDrawn = false;
 			PlayerCharacter->OffsetCamera(false);
 
@@ -84,7 +95,7 @@ void UPlayerInventory::HolsterUnholster()
 		}
 		else // Unholster weapon
 		{
-			AttachWeaponToSocket(true);
+			AttachWeaponToSocket(CurrentWeapon, true);
 			bWeaponIsDrawn = true;
 			PlayerCharacter->OffsetCamera(true);
 
@@ -93,4 +104,23 @@ void UPlayerInventory::HolsterUnholster()
 			PlayerCharacter->SetPlayerMovementType(false, true);
 		}
 	} 
+}
+
+void UPlayerInventory::CycleWeapons(bool bNextWeapon)
+{
+	bool bWeaponWasDrawn = bWeaponIsDrawn;
+	if (bWeaponIsDrawn) { HolsterUnholster(); }
+	
+	if (bNextWeapon) // Get next weapon
+	{
+		CurrentWeaponArrayID = (CurrentWeaponArrayID + 1) % EquippedWeapons.Num();
+		CurrentWeapon = EquippedWeapons[CurrentWeaponArrayID];
+	}
+	else // Get prev weapon
+	{
+		CurrentWeaponArrayID = FMath::Abs((CurrentWeaponArrayID - 1) % EquippedWeapons.Num());
+		CurrentWeapon = EquippedWeapons[CurrentWeaponArrayID];
+	}
+
+	if (bWeaponWasDrawn) { HolsterUnholster(); }
 }

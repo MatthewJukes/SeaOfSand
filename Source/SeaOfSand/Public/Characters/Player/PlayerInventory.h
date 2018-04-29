@@ -8,14 +8,8 @@
 
 class APlayerCharacter;
 class ABaseWeapon;
-class ARifle;
-
-enum class ECurrentWeaponType : uint8
-{
-	Pistol,
-	Rifle,
-	Shotgun,
-};
+class ASoSRifle;
+class ASoSPistol;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API UPlayerInventory : public UActorComponent
@@ -33,16 +27,18 @@ protected:
 public:		
 
 	void HolsterUnholster(); // Weapon holstering
+	void CycleWeapons(bool bNextWeapon = true);
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	bool bWeaponIsDrawn;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	bool bIsThing;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	ABaseWeapon* CurrentWeapon; // Currently selected weapon
 
 private:
-
-	ECurrentWeaponType CurrentWeaponType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName RightHandAttachPoint;
@@ -50,12 +46,22 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName RifleHolsterAttachPoint;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
+	FName PistolHolsterAttachPoint;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
-	TSubclassOf<ARifle> RifleBlueprint;
+	TSubclassOf<ASoSRifle> RifleBlueprint;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
+	TSubclassOf<ASoSPistol> PistolBlueprint;
+
+	int32 CurrentWeaponArrayID;
+
+	TArray<ABaseWeapon*> EquippedWeapons;
 	
 	APlayerCharacter* PlayerCharacter; // Inventory owner
 
-	void SpawnWeapon();
+	void SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn);
 
-	void AttachWeaponToSocket(bool bDrawWeapon = false);
+	void AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapon = false);
 };

@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseWeapon.generated.h"
 
-class ABasePlayerController;
+class ASoSPlayerController;
 class APlayerCharacter;
 class ABaseProjectile;
 
@@ -17,6 +17,14 @@ enum class EWeaponState : uint8
 	Firing,
 	Equipping,
 	Reloading,
+};
+
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Pistol,
+	Rifle,
+	Shotgun,
 };
 
 UCLASS()
@@ -50,8 +58,11 @@ public:
 
 	bool bCanReload;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	EWeaponState WeaponState;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	EWeaponType WeaponType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
 	float WeaponDrawnSpeedMultiplier;
@@ -119,7 +130,7 @@ private:
 	FVector GetAimDirection() const;	
 
 	// Controller and Player references
-	ABasePlayerController* PlayerController;
+	ASoSPlayerController* PlayerController;
 	APlayerCharacter* PlayerCharacter;
 
 	// Timer handles

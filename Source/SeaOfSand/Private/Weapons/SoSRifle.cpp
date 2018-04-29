@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Rifle.h"
+#include "SoSRifle.h"
 
 // Sets default values
-ARifle::ARifle()
+ASoSRifle::ASoSRifle()
 {
+	WeaponType = EWeaponType::Rifle;
+
 	// Firing
 	FireRate = 0.075f;
 	MaxRange = 30000.f;
