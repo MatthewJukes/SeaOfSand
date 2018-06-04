@@ -3,32 +3,36 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseCharacter.h"
-#include "PlayerCharacter.generated.h"
+#include "GameFramework/Character.h"
+#include "SoSPlayerCharacter.generated.h"
 
-class ASoSPlayerController;
+class UCameraComponent;
 class UPlayerInventory;
+class USpringArmComponent;
+class ASoSPlayerController;
 
 UCLASS()
-class SEAOFSAND_API APlayerCharacter : public ABaseCharacter
+class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
 {
-	GENERATED_BODY()
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
+	GENERATED_BODY()	
 
 public:
 	// Set defaults
-	APlayerCharacter();
+	ASoSPlayerCharacter();
+
+	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UCameraComponent* FollowCamera;
 
 public:
 
@@ -56,10 +60,14 @@ public:
 	bool bInVehicle;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Vitals")
-	float CurrentHealth; // Player health exposed to BPs for HUD
-
-	UPROPERTY(BlueprintReadOnly, Category = "Vitals")
 	float CurrentStamina; // Player stamina exposed to BPs for HUD
+
+	// Turn collision back on
+	void EnableCollsion();
+
+	void SetPlayerSpeed(float SpeedMultiplier);
+
+	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
@@ -70,13 +78,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);
 
-	// Turn collision back on
-	void EnableCollsion();
-
-	void SetPlayerSpeed(float SpeedMultiplier);
-
-	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
-
 	UFUNCTION() 
 	void SprintEnd(); // stop/interrupt sprinting
 
@@ -85,21 +86,22 @@ public:
 
 protected:
 
-private:
+	bool bCanDoubleJump;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
-	float MaxHealth;
+	bool bLastOrientRotationToMovement;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	FVector RollDirection;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
 	float MaxStamina;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
 	float BaseStaminaRegenRate;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
 	float SprintStaminaDrainRate;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Vitals")
+	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
 	float RollStaminaCost;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
@@ -155,18 +157,8 @@ private:
 	bool InteractTrace(AActor* &OutActor) const;
 	FVector GetTraceDirection(FVector StartLocation) const;
 
-	// Movement state bools
-	bool bCanDoubleJump;
-
 	//Timer handles
-	FTimerHandle DoubleJumpTimerHandle;
-	FTimerHandle DodgeTimerHandle;
-	FTimerHandle DodgeEndTimerHandle;
-	FTimerHandle StaminaTimerHandle;
-
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }	
+	FTimerHandle TimerHandle_DoubleJump;
+	FTimerHandle TimerHandle_DodgeEnd;
+	FTimerHandle TimerHandle_Stamina;	
 };

@@ -7,7 +7,7 @@
 #include "SoSPlayerController.generated.h"
 
 class IPlayerInputsInterface;
-class APlayerCharacter;
+class ASoSPlayerCharacter;
 class APlayerHUD;
 
 UCLASS()
@@ -31,7 +31,7 @@ public:
 
 	// The player character
 	UPROPERTY(BlueprintReadOnly, Category = "Player")
-	APlayerCharacter* PlayerCharacter;
+	ASoSPlayerCharacter* PlayerCharacter;
 
 	// Get Pitch/Yaw from current pawn camera
 	UFUNCTION(BlueprintCallable, Category = "Targeting")

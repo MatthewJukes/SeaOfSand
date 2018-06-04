@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PlayerInventory.generated.h"
 
-class APlayerCharacter;
+class ASoSPlayerCharacter;
 class ABaseWeapon;
 class ASoSRifle;
 class ASoSPistol;
@@ -66,7 +66,7 @@ private:
 
 	TArray<ABaseWeapon*> EquippedWeapons;
 	
-	APlayerCharacter* PlayerCharacter; // Inventory owner
+	ASoSPlayerCharacter* PlayerCharacter; // Inventory owner
 
 	void SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn);
 

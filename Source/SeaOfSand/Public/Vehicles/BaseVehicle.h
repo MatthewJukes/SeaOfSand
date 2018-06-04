@@ -6,7 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "BaseVehicle.generated.h"
 
-class APlayerCharacter;
+class ASoSPlayerCharacter;
 class UHoverComponent;
 class UArrowComponent;
 
@@ -50,7 +50,7 @@ public:
 
 public:
 
-	APlayerCharacter * CurrentDriver;
+	ASoSPlayerCharacter * CurrentDriver;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName DriverAttachPoint;

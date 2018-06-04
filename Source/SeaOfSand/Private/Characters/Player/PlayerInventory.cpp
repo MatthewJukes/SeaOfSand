@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerInventory.h"
-#include "PlayerCharacter.h"
+#include "SoSPlayerCharacter.h"
 #include "BaseWeapon.h"
 #include "SoSRifle.h"
 #include "SoSPistol.h"
@@ -28,7 +28,7 @@ void UPlayerInventory::BeginPlay()
 	Super::BeginPlay();
 
 	// Get the player character
-	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
 	if (PlayerCharacter)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Got Player"));

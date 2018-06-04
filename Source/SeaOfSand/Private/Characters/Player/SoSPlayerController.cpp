@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSPlayerController.h"
-#include "PlayerCharacter.h"
+#include "SoSPlayerCharacter.h"
 #include "PlayerInventory.h"
 #include "PlayerHUD.h"
 #include "BaseWeapon.h"
@@ -28,7 +28,7 @@ void ASoSPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	UpdateCurrentPawn();
-	PlayerCharacter = Cast<APlayerCharacter>(CurrentPlayerPawn);
+	PlayerCharacter = Cast<ASoSPlayerCharacter>(CurrentPlayerPawn);
 	PlayerHUD = Cast<APlayerHUD>(GetHUD());
 }
 

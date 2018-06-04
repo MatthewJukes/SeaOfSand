@@ -3,7 +3,7 @@
 #include "BaseWeapon.h"
 #include "BaseProjectile.h"
 #include "SoSPlayerController.h"
-#include "PlayerCharacter.h"
+#include "SoSPlayerCharacter.h"
 #include "PlayerInventory.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
@@ -32,7 +32,7 @@ void ABaseWeapon::BeginPlay()
 	Super::BeginPlay();
 	
 	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
-	PlayerCharacter = Cast<APlayerCharacter>(PlayerController->GetPawn());
+	PlayerCharacter = Cast<ASoSPlayerCharacter>(PlayerController->GetPawn());
 
 	// Setup ammo
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);

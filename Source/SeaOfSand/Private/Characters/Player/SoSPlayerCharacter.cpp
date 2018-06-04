@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PlayerCharacter.h"
+#include "SoSPlayerCharacter.h"
 #include "PlayerInventory.h"
 #include "SoSPlayerController.h"
 #include "BaseVehicle.h"
@@ -15,7 +15,7 @@
 
 
 // Set defaults
-APlayerCharacter::APlayerCharacter()
+ASoSPlayerCharacter::ASoSPlayerCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -36,7 +36,6 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Configure player vitals
-	MaxHealth = 250.f;
 	MaxStamina = 100.f;
 	BaseStaminaRegenRate = 6.f;
 	SprintStaminaDrainRate = 10.f;
@@ -67,29 +66,29 @@ APlayerCharacter::APlayerCharacter()
 }
 
 // Bind Inputs specific to player on foot
-void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ASoSPlayerCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ASoSPlayerCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Turn", this, &ASoSPlayerCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &ASoSPlayerCharacter::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("USe", IE_Pressed, this, &APlayerCharacter::Interact);
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &APlayerCharacter::SprintStart);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &APlayerCharacter::SprintEnd);
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::CrouchStart);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::CrouchEnd);
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &APlayerCharacter::AimStart);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &APlayerCharacter::AimEnd);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::DoubleJump);
-	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APlayerCharacter::StartRoll);
+	PlayerInputComponent->BindAction("USe", IE_Pressed, this, &ASoSPlayerCharacter::Interact);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASoSPlayerCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASoSPlayerCharacter::SprintEnd);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASoSPlayerCharacter::CrouchStart);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASoSPlayerCharacter::CrouchEnd);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ASoSPlayerCharacter::AimStart);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ASoSPlayerCharacter::AimEnd);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartRoll);
 }
 
 // Called when the game starts or when spawned
-void APlayerCharacter::BeginPlay()
+void ASoSPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();	
 
@@ -97,22 +96,31 @@ void APlayerCharacter::BeginPlay()
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
 	// Set default health and stamina values
-	CurrentHealth = MaxHealth;
 	CurrentStamina = MaxStamina;
 	SetStaminaRate(BaseStaminaRegenRate);
 }
 
-void APlayerCharacter::SetStaminaRate(float RatePerSecond)
+void ASoSPlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (bIsRolling)
+	{
+		Roll(RollDirection, bLastOrientRotationToMovement);
+	}
+}
+
+void ASoSPlayerCharacter::SetStaminaRate(float RatePerSecond)
 {
 	float TickRate = 0.25f;
 	
 	// Set timers
 	FTimerDelegate StaminaTimerDel;
 	StaminaTimerDel.BindUFunction(this, FName("IncrementStamina"), RatePerSecond * TickRate);
-	GetWorldTimerManager().SetTimer(StaminaTimerHandle, StaminaTimerDel, TickRate, true);
+	GetWorldTimerManager().SetTimer(TimerHandle_Stamina, StaminaTimerDel, TickRate, true);
 }
 
-void APlayerCharacter::IncrementStamina(float Amount)
+void ASoSPlayerCharacter::IncrementStamina(float Amount)
 {
 	CurrentStamina += Amount;
 	CurrentStamina = FMath::Clamp(CurrentStamina, 0.f, MaxStamina);
@@ -123,9 +131,14 @@ void APlayerCharacter::IncrementStamina(float Amount)
 	}
 }
 
-void APlayerCharacter::MoveForward(float AxisValue)
+void ASoSPlayerCharacter::MoveForward(float AxisValue)
 {
-	if ((Controller != NULL) && (AxisValue != 0.0f) && !bIsRolling)
+	if (bIsRolling || AxisValue == 0.0f)
+	{
+		return;
+	}
+
+	if (Controller)
 	{
 		// Find out which was is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -137,9 +150,14 @@ void APlayerCharacter::MoveForward(float AxisValue)
 	}
 }
 
-void APlayerCharacter::MoveRight(float AxisValue)
+void ASoSPlayerCharacter::MoveRight(float AxisValue)
 {
-	if ((Controller != NULL) && (AxisValue != 0.0f) && !bIsRolling)
+	if (bIsRolling || AxisValue == 0.0f)
+	{
+		return;
+	}
+
+	if (Controller)
 	{
 		// Find out which was is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -151,65 +169,71 @@ void APlayerCharacter::MoveRight(float AxisValue)
 	}
 }
 
-void APlayerCharacter::SprintStart()
+void ASoSPlayerCharacter::SprintStart()
 {
-	if (GetVelocity().Size() > 0.01 && !GetCharacterMovement()->IsFalling() && !bIsRolling && CurrentStamina >= 5.f)
+	if (bIsRolling || GetCharacterMovement()->IsFalling() || CurrentStamina <= 5.0f || GetVelocity().Size() < 0.01f)
 	{
-		if (bIsAiming) { AimEnd(); }
-		if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
+		return;
+	}
+	
+	// End aiming and reloading
+	if (bIsAiming) { AimEnd(); }
+	if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
 
-		bIsSprinting = true;
-		SprintZoom(true); // Call BP timeline, playing forward
-		SetStaminaRate(-SprintStaminaDrainRate);
+	bIsSprinting = true;
+	SprintZoom(true);
+	SetStaminaRate(-SprintStaminaDrainRate);
 
-		if (PlayerInventory->bWeaponIsDrawn)
-		{
-			SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier * SprintMultiplier);
-			SetPlayerMovementType(true, false);
-		}
-		else
-		{
-			SetPlayerSpeed(SprintMultiplier);
-		}
+	if (PlayerInventory->bWeaponIsDrawn)
+	{
+		SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier * SprintMultiplier);
+		SetPlayerMovementType(true, false);
+	}
+	else
+	{
+		SetPlayerSpeed(SprintMultiplier);
 	}
 }
 
-
-void APlayerCharacter::SprintEnd()
+void ASoSPlayerCharacter::SprintEnd()
 {
-	if (bIsSprinting) // Only execute if sprinting
+	if (!bIsSprinting)
 	{
-		bIsSprinting = false;
-		SprintZoom(false); // Call BP timeline, playing backwards
-		SetStaminaRate(BaseStaminaRegenRate);
-
-		if (PlayerInventory->bWeaponIsDrawn)
-		{
-			SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
-			SetPlayerMovementType(false, true);
-		}
-		else
-		{
-			SetPlayerSpeed(1.f);
-		}
+		return;
 	}
+
+	bIsSprinting = false;
+	SprintZoom(false);
+	SetStaminaRate(BaseStaminaRegenRate);
+
+	if (PlayerInventory->bWeaponIsDrawn)
+	{
+		SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
+		SetPlayerMovementType(false, true);
+	}
+	else
+	{
+		SetPlayerSpeed(1.f);
+	}	
 }
 
-void APlayerCharacter::CrouchStart()
+void ASoSPlayerCharacter::CrouchStart()
 {
 	// TODO add player crouching
 }
 
-void APlayerCharacter::CrouchEnd()
+void ASoSPlayerCharacter::CrouchEnd()
 {
 }
 
-void APlayerCharacter::AimStart()
+void ASoSPlayerCharacter::AimStart()
 {
+	// End sprint and reloading
 	if (bIsSprinting) { SprintEnd(); }
 	if (!PlayerInventory->bWeaponIsDrawn) { PlayerInventory->HolsterUnholster(); }
+
 	bIsAiming = true;
-	AimZoom(true); // Call BP timeline, playing forward
+	AimZoom(true);
 	SetPlayerSpeed(PlayerInventory->CurrentWeapon->AimingSpeedMultiplier);
 
 	if (PlayerInventory->CurrentWeapon) // Give weapon bonus accuracy
@@ -218,30 +242,32 @@ void APlayerCharacter::AimStart()
 	}
 }
 
-void APlayerCharacter::AimEnd()
+void ASoSPlayerCharacter::AimEnd()
 {
-	if (bIsAiming) // Only execute if aiming
+	if (!bIsAiming)
 	{
-		bIsAiming = false;
-		AimZoom(false); // Call BP timeline, playing backwards
+		return;
+	}
 
-		if (PlayerInventory->bWeaponIsDrawn)
-		{
-			SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
-		}
-		else
-		{
-			SetPlayerSpeed(1.f);
-		}
+	bIsAiming = false;
+	AimZoom(false);
 
-		if (PlayerInventory->CurrentWeapon) // Remove weapon bonus accuracy
-		{
-			PlayerInventory->CurrentWeapon->bAimingBonus = false;
-		}
+	if (PlayerInventory->bWeaponIsDrawn)
+	{
+		SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
+	}
+	else
+	{
+		SetPlayerSpeed(1.f);
+	}
+
+	if (PlayerInventory->CurrentWeapon) // Remove weapon bonus accuracy
+	{
+		PlayerInventory->CurrentWeapon->bAimingBonus = false;
 	}
 }
 
-void APlayerCharacter::DoubleJump()
+void ASoSPlayerCharacter::DoubleJump()
 {
 	if (!GetCharacterMovement()->IsFalling() && !bIsRolling)
 	{
@@ -255,50 +281,51 @@ void APlayerCharacter::DoubleJump()
 		GetCharacterMovement()->Velocity.Z = 0.f;
 		GetCharacterMovement()->AddImpulse(FVector(0.f, 0.f, 1.f) * 65000.f);
 		GetCharacterMovement()->AirControl = 1.f;
-		GetWorldTimerManager().SetTimer(DoubleJumpTimerHandle, this, &APlayerCharacter::ResetAirControl, .8f, false, .8f);
+		GetWorldTimerManager().SetTimer(TimerHandle_DoubleJump, this, &ASoSPlayerCharacter::ResetAirControl, .8f, false, .8f);
 	}	
 }
 
-void APlayerCharacter::ResetAirControl()
+void ASoSPlayerCharacter::ResetAirControl()
 {
 	bIsDoubleJumping = false;
 	GetCharacterMovement()->AirControl = 0.2f;
 }
 
-void APlayerCharacter::StartRoll()
+void ASoSPlayerCharacter::StartRoll()
 {
-	if (!GetCharacterMovement()->IsFalling() && !bIsRolling && CurrentStamina >= RollStaminaCost)
+	if (GetCharacterMovement()->IsFalling() && bIsRolling && CurrentStamina < RollStaminaCost)
 	{
-		bIsRolling = true;
-		if (bIsSprinting) { SprintEnd(); }
-		if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
-		IncrementStamina(-RollStaminaCost);
-
-		// Calculate dodge direction
-		FVector RollDirection = GetCharacterMovement()->Velocity;
-		RollDirection.Z = 0.f;
-		RollDirection.Normalize();
-		if (RollDirection.Size() < 0.01f) // If not moving roll forward
-		{
-			RollDirection = RootComponent->GetForwardVector();
-		}
-
-		// Set roll speed
-		SetPlayerSpeed(3.f);
-		bool bLastOrientRotationToMovement = GetCharacterMovement()->bOrientRotationToMovement;
-		SetPlayerMovementType(true, false);
-
-		// Set timers
-		FTimerDelegate RollTimerDel;
-		RollTimerDel.BindUFunction(this, FName("Roll"), RollDirection, bLastOrientRotationToMovement);
-		GetWorldTimerManager().SetTimer(DodgeTimerHandle, RollTimerDel, 1.f / 120.f, true);
-		FTimerDelegate RollEndTimerDel;
-		RollEndTimerDel.BindUFunction(this, FName("EndRoll"), bLastOrientRotationToMovement);
-		GetWorldTimerManager().SetTimer(DodgeEndTimerHandle, RollEndTimerDel, .75f, false);
+		return;
 	}
+
+	// End sprint and reloading
+	if (bIsSprinting) { SprintEnd(); }
+	if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
+	
+	bIsRolling = true;
+	IncrementStamina(-RollStaminaCost);
+	bLastOrientRotationToMovement = GetCharacterMovement()->bOrientRotationToMovement;
+
+	// Calculate dodge direction
+	RollDirection = GetCharacterMovement()->Velocity;
+	RollDirection.Z = 0.f;
+	RollDirection.Normalize();
+	if (RollDirection.Size() < 0.01f) // If not moving roll forward
+	{
+		RollDirection = RootComponent->GetForwardVector();
+	}
+
+	// Set roll speed
+	SetPlayerSpeed(3.f);
+	SetPlayerMovementType(true, false);
+
+	// Set timers
+	FTimerDelegate RollEndTimerDel;
+	RollEndTimerDel.BindUFunction(this, FName("EndRoll"), bLastOrientRotationToMovement);
+	GetWorldTimerManager().SetTimer(TimerHandle_DodgeEnd, RollEndTimerDel, .75f, false);
 }
 
-void APlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationToMovement)
+void ASoSPlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationToMovement)
 {
 	AddMovementInput(DodgeDirection, 1.f);
 
@@ -308,25 +335,21 @@ void APlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationToMo
 	}
 }
 
-void APlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
+void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 {
+	bIsRolling = false;
+
 	// Reset movement	
 	SetPlayerSpeed(1.f);
 	SetPlayerMovementType(bLastOrientRotationToMovement, !bLastOrientRotationToMovement);
-
-	// Clear roll timers
-	GetWorldTimerManager().ClearTimer(DodgeTimerHandle);
-	GetWorldTimerManager().ClearTimer(DodgeEndTimerHandle);
-
-	bIsRolling = false;
 }
 
-void APlayerCharacter::EnableCollsion()
+void ASoSPlayerCharacter::EnableCollsion()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
-void APlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
+void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
 {
 	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
 	{
@@ -334,7 +357,7 @@ void APlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
 	}
 }
 
-void APlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
+void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
 {
 	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
 	{
@@ -343,7 +366,7 @@ void APlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, boo
 	}
 }
 
-void APlayerCharacter::Interact()
+void ASoSPlayerCharacter::Interact()
 {
 	AActor* ActorHit = nullptr;
 	if (InteractTrace(ActorHit))
@@ -364,30 +387,30 @@ void APlayerCharacter::Interact()
 	}
 }
 
-bool APlayerCharacter::InteractTrace(AActor* &OutActor) const
+bool ASoSPlayerCharacter::InteractTrace(AActor* &OutActor) const
 {
 	const FName TraceTag("InteractTraceTag");
 	GetWorld()->DebugDrawTraceTag = TraceTag;
 
-	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	RV_TraceParams.bTraceComplex = true;
-	RV_TraceParams.bTraceAsyncScene = true;
-	RV_TraceParams.bReturnPhysicalMaterial = false;
-	RV_TraceParams.TraceTag = TraceTag;
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("TraceParams")), true, this);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = false;
+	TraceParams.TraceTag = TraceTag;
 
-	FHitResult RV_Hit;
+	FHitResult Hit;
 	FVector StartLocation = GetActorLocation() + FVector(0.f,0.f,40.f);
 	FVector EndLocation = StartLocation + (GetTraceDirection(StartLocation) * InteractTraceRange);
 
-	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Visibility, TraceParams))
 	{		
-		OutActor = RV_Hit.GetActor();
+		OutActor = Hit.GetActor();
 		return true;
 	}
 	return false; // Trace didn't hit anything
 }
 
-FVector APlayerCharacter::GetTraceDirection(FVector StartLocation) const
+FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 {
 	if (PlayerController)
 	{

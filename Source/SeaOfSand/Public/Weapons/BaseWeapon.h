@@ -7,7 +7,7 @@
 #include "BaseWeapon.generated.h"
 
 class ASoSPlayerController;
-class APlayerCharacter;
+class ASoSPlayerCharacter;
 class ABaseProjectile;
 
 UENUM(BlueprintType)
@@ -134,7 +134,7 @@ private:
 
 	// Controller and Player references
 	ASoSPlayerController* PlayerController;
-	APlayerCharacter* PlayerCharacter;
+	ASoSPlayerCharacter* PlayerCharacter;
 
 	// Timer handles
 	FTimerHandle FireRateTimerHandle;
