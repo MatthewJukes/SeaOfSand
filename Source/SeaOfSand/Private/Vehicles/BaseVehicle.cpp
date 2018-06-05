@@ -3,7 +3,7 @@
 #include "BaseVehicle.h"
 #include "HoverComponent.h"
 #include "SoSPlayerController.h"
-#include "PlayerCharacter.h"
+#include "SoSPlayerCharacter.h"
 #include "Components/InputComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
