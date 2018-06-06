@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PlayerInventory.generated.h"
+#include "SoSPlayerInventory.generated.h"
 
 class ASoSPlayerCharacter;
 class ABaseWeapon;
@@ -13,13 +13,13 @@ class ASoSPistol;
 class ASoSShotgun;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SEAOFSAND_API UPlayerInventory : public UActorComponent
+class SEAOFSAND_API USoSPlayerInventory : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UPlayerInventory();
+	USoSPlayerInventory();
 
 protected:
 	// Called when the game starts
@@ -27,8 +27,8 @@ protected:
 
 public:		
 
-	void HolsterUnholster(); // Weapon holstering
-	void CycleWeapons(bool bNextWeapon = true);
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	ABaseWeapon* CurrentWeapon; // Currently selected weapon
 
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	bool bWeaponIsDrawn;
@@ -36,10 +36,17 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	bool bIsThing;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	ABaseWeapon* CurrentWeapon; // Currently selected weapon
+	void HolsterUnholster(); // Weapon holstering
+
+	void CycleWeapons(bool bNextWeapon = true);
 
 private:
+
+	int32 CurrentWeaponArrayID;
+
+	TArray<ABaseWeapon*> EquippedWeapons;
+	
+	ASoSPlayerCharacter* PlayerCharacter; // Inventory owner
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName RightHandAttachPoint;
@@ -61,12 +68,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ASoSShotgun> ShotgunBlueprint;
-
-	int32 CurrentWeaponArrayID;
-
-	TArray<ABaseWeapon*> EquippedWeapons;
-	
-	ASoSPlayerCharacter* PlayerCharacter; // Inventory owner
 
 	void SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn);
 

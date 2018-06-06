@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PlayerInventory.h"
+#include "SoSPlayerInventory.h"
 #include "SoSPlayerCharacter.h"
 #include "BaseWeapon.h"
 #include "SoSRifle.h"
@@ -8,7 +8,7 @@
 #include "SoSShotgun.h"
 
 // Sets default values for this component's properties
-UPlayerInventory::UPlayerInventory()
+USoSPlayerInventory::USoSPlayerInventory()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -21,9 +21,8 @@ UPlayerInventory::UPlayerInventory()
 	ShotgunHolsterAttachPoint = TEXT("ShotgunHolsterSocket");
 }
 
-
 // Called when the game starts
-void UPlayerInventory::BeginPlay()
+void USoSPlayerInventory::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -41,21 +40,23 @@ void UPlayerInventory::BeginPlay()
 	}
 }
 
-void UPlayerInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn)
+void USoSPlayerInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn)
 {
 	// Spawn new weapon
 	FActorSpawnParameters SpawnParams;
 	ABaseWeapon* NewWeapon = GetWorld()->SpawnActor<ABaseWeapon>(WeaponToSpawn, SpawnParams);
+	
+	if (NewWeapon)
+	{
+		// Add new weapon to array of equipped weapons
+		EquippedWeapons.Add(NewWeapon);
 
-	// Add new weapon to array of equipped weapons
-	EquippedWeapons.Add(NewWeapon);
-
-	// Attach new weapon to appropriate holster
-	AttachWeaponToSocket(NewWeapon);
+		// Attach new weapon to appropriate holster
+		AttachWeaponToSocket(NewWeapon);
+	}
 }
 
-
-void UPlayerInventory::AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapon)
+void USoSPlayerInventory::AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapon)
 {
 	if (bDrawWeapon)
 	{
@@ -80,9 +81,9 @@ void UPlayerInventory::AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapo
 	}
 }
 
-void UPlayerInventory::HolsterUnholster()
+void USoSPlayerInventory::HolsterUnholster()
 { 
-	if (CurrentWeapon) // TODO refine and refactor this
+	if (CurrentWeapon)
 	{
 		if (bWeaponIsDrawn) // Holster weapon
 		{
@@ -110,7 +111,7 @@ void UPlayerInventory::HolsterUnholster()
 	} 
 }
 
-void UPlayerInventory::CycleWeapons(bool bNextWeapon)
+void USoSPlayerInventory::CycleWeapons(bool bNextWeapon)
 {
 	bool bWeaponWasDrawn = bWeaponIsDrawn;
 	if (bWeaponIsDrawn) { HolsterUnholster(); }

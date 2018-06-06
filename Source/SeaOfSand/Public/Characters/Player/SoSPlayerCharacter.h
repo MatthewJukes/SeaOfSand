@@ -7,7 +7,7 @@
 #include "SoSPlayerCharacter.generated.h"
 
 class UCameraComponent;
-class UPlayerInventory;
+class USoSPlayerInventory;
 class USpringArmComponent;
 class ASoSPlayerController;
 
@@ -42,7 +42,7 @@ public:
 
 	// The player inventory
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Player")
-	UPlayerInventory* PlayerInventory;
+	USoSPlayerInventory* PlayerInventory;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsAiming;
@@ -69,6 +69,10 @@ public:
 
 	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 
+	void SprintEnd(); // stop/interrupt sprinting
+
+	void AimEnd(); // stop/interrupt aiming
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -77,12 +81,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = SprintZoom))
 	void SprintZoom(bool Forward);
-
-	UFUNCTION() 
-	void SprintEnd(); // stop/interrupt sprinting
-
-	UFUNCTION()
-	void AimEnd(); // stop/interrupt aiming
 
 protected:
 
@@ -115,47 +113,39 @@ protected:
 
 	void SetStaminaRate(float RatePerSecond);
 
+	void MoveForward(float AxisValue);
+
+	void MoveRight(float AxisValue);
+
+	void SprintStart();
+
+	void CrouchStart();
+
+	void CrouchEnd();
+
+	void DoubleJump();
+
+	void StartRoll();
+
+	void Interact(); // Player interaction/use objects in world
+
+	void Roll(FVector DodgeDirection, bool OrientRotationToMovement);
+
+	void AimStart();
+
+	// Reset air control after preforming double jump
+	void ResetAirControl();
+
+	// Trace to see if hit interactable actor
+	bool InteractTrace(AActor* &OutActor) const;
+
+	FVector GetTraceDirection(FVector StartLocation) const;
+
 	UFUNCTION()
 	void IncrementStamina(float Amount);
 
 	UFUNCTION()
-	void MoveForward(float AxisValue);
-
-	UFUNCTION()
-	void MoveRight(float AxisValue);
-
-	UFUNCTION()
-	void SprintStart();	
-
-	UFUNCTION()
-	void CrouchStart();
-
-	UFUNCTION()
-	void CrouchEnd();
-
-	UFUNCTION()
-	void DoubleJump();
-
-	UFUNCTION()
-	void StartRoll();
-
-	UFUNCTION()
-	void Interact(); // Player interaction/use objects in world
-
-	UFUNCTION()
-	void Roll(FVector DodgeDirection, bool OrientRotationToMovement);
-
-	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
-
-	UFUNCTION()
-	void AimStart();
-
-	void ResetAirControl(); // Reset air control after preforming double jump
-
-	// Trace to see if hit interactable actor
-	bool InteractTrace(AActor* &OutActor) const;
-	FVector GetTraceDirection(FVector StartLocation) const;
 
 	//Timer handles
 	FTimerHandle TimerHandle_DoubleJump;

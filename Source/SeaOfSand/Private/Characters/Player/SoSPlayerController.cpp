@@ -2,7 +2,7 @@
 
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
-#include "PlayerInventory.h"
+#include "SoSPlayerInventory.h"
 #include "PlayerHUD.h"
 #include "BaseWeapon.h"
 #include "Engine/World.h"

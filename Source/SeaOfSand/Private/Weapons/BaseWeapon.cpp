@@ -4,7 +4,7 @@
 #include "BaseProjectile.h"
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
-#include "PlayerInventory.h"
+#include "SoSPlayerInventory.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Engine/World.h"

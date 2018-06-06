@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSPlayerCharacter.h"
-#include "PlayerInventory.h"
+#include "SoSPlayerInventory.h"
 #include "SoSPlayerController.h"
 #include "BaseVehicle.h"
 #include "BaseWeapon.h"
@@ -21,7 +21,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Setup inventory
-	PlayerInventory = CreateDefaultSubobject<UPlayerInventory>(TEXT("PlayerInventory"));
+	PlayerInventory = CreateDefaultSubobject<USoSPlayerInventory>(TEXT("PlayerInventory"));
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));

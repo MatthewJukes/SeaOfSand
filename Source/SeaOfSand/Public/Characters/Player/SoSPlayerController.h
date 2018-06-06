@@ -20,6 +20,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupInputComponent() override;
 
+	// The player character
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	ASoSPlayerCharacter* PlayerCharacter;
+
 	// Reference to the weapon the player has currently equipped
 	void UpdateCurrentPawn();
 
@@ -29,10 +33,6 @@ public:
 	// Return an OUT parameter
 	FVector GetCrosshairHitLocation() const;
 
-	// The player character
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
-	ASoSPlayerCharacter* PlayerCharacter;
-
 	// Get Pitch/Yaw from current pawn camera
 	UFUNCTION(BlueprintCallable, Category = "Targeting")
 	FRotator GetAimOffsets() const;
@@ -40,8 +40,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-private:
+
+	// Current Player pawn
+	APawn* CurrentPlayerPawn;
+
+	// Player HUD
+	APlayerHUD* PlayerHUD;
 
 	UPROPERTY(EditDefaultsOnly)
 	float CrossHairXLocation = 0.5;
@@ -52,34 +56,20 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float CrosshairTraceRange = 100000.f;
 
-	UFUNCTION()
 	void StartFiring();
 
-	UFUNCTION()
 	void StopFiring();
 	
-	UFUNCTION()
 	void HolsterUnholster(); // Holster Weapon
 	
-	UFUNCTION()
 	void Reload(); // Reload Weapon
 
-	UFUNCTION()
 	void NextWeapon();
 
-	UFUNCTION()
 	void PrevWeapon();
 
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
+
 	FVector GetLookVectorHitLocation(FVector LookDirection) const;
-
-	// Interface to handle inputs for both player and vehicles
-	IPlayerInputsInterface* InputInterface;
-
-	// Current Player pawn
-	APawn* CurrentPlayerPawn;	
-
-	// Player HUD
-	APlayerHUD* PlayerHUD;
 }; 
