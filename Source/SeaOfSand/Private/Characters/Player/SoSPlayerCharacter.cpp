@@ -4,7 +4,7 @@
 #include "SoSPlayerInventory.h"
 #include "SoSPlayerController.h"
 #include "BaseVehicle.h"
-#include "BaseWeapon.h"
+#include "SoSBaseWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -178,15 +178,15 @@ void ASoSPlayerCharacter::SprintStart()
 	
 	// End aiming and reloading
 	if (bIsAiming) { AimEnd(); }
-	if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
+	if (PlayerInventory->GetCurrentWeapon()) { PlayerInventory->GetCurrentWeapon()->InterruptReload(); }
 
 	bIsSprinting = true;
 	SprintZoom(true);
 	SetStaminaRate(-SprintStaminaDrainRate);
 
-	if (PlayerInventory->bWeaponIsDrawn)
+	if (PlayerInventory->GetCurrentWeapon())
 	{
-		SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier * SprintMultiplier);
+		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->WeaponDrawnSpeedMultiplier * SprintMultiplier);
 		SetPlayerMovementType(true, false);
 	}
 	else
@@ -206,9 +206,9 @@ void ASoSPlayerCharacter::SprintEnd()
 	SprintZoom(false);
 	SetStaminaRate(BaseStaminaRegenRate);
 
-	if (PlayerInventory->bWeaponIsDrawn)
+	if (PlayerInventory->GetWeaponIsDrawn())
 	{
-		SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
+		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->WeaponDrawnSpeedMultiplier);
 		SetPlayerMovementType(false, true);
 	}
 	else
@@ -230,15 +230,15 @@ void ASoSPlayerCharacter::AimStart()
 {
 	// End sprint and reloading
 	if (bIsSprinting) { SprintEnd(); }
-	if (!PlayerInventory->bWeaponIsDrawn) { PlayerInventory->HolsterUnholster(); }
+	if (!PlayerInventory->GetWeaponIsDrawn()) { PlayerInventory->HolsterUnholster(); }
 
 	bIsAiming = true;
 	AimZoom(true);
-	SetPlayerSpeed(PlayerInventory->CurrentWeapon->AimingSpeedMultiplier);
+	SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->AimingSpeedMultiplier);
 
-	if (PlayerInventory->CurrentWeapon) // Give weapon bonus accuracy
+	if (PlayerInventory->GetCurrentWeapon()) // Give weapon bonus accuracy
 	{
-		PlayerInventory->CurrentWeapon->bAimingBonus = true;
+		PlayerInventory->GetCurrentWeapon()->bAimingBonus = true;
 	}
 }
 
@@ -252,19 +252,24 @@ void ASoSPlayerCharacter::AimEnd()
 	bIsAiming = false;
 	AimZoom(false);
 
-	if (PlayerInventory->bWeaponIsDrawn)
+	if (PlayerInventory->GetWeaponIsDrawn())
 	{
-		SetPlayerSpeed(PlayerInventory->CurrentWeapon->WeaponDrawnSpeedMultiplier);
+		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->WeaponDrawnSpeedMultiplier);
 	}
 	else
 	{
 		SetPlayerSpeed(1.f);
 	}
 
-	if (PlayerInventory->CurrentWeapon) // Remove weapon bonus accuracy
+	if (PlayerInventory->GetCurrentWeapon()) // Remove weapon bonus accuracy
 	{
-		PlayerInventory->CurrentWeapon->bAimingBonus = false;
+		PlayerInventory->GetCurrentWeapon()->bAimingBonus = false;
 	}
+}
+
+float ASoSPlayerCharacter::GetStamina()
+{
+	return CurrentStamina;
 }
 
 void ASoSPlayerCharacter::DoubleJump()
@@ -300,7 +305,7 @@ void ASoSPlayerCharacter::StartRoll()
 
 	// End sprint and reloading
 	if (bIsSprinting) { SprintEnd(); }
-	if (PlayerInventory->CurrentWeapon) { PlayerInventory->CurrentWeapon->InterruptReload(); }
+	if (ASoSBaseWeapon* CurrentWeapon = PlayerInventory->GetCurrentWeapon()) { CurrentWeapon->InterruptReload(); }
 	
 	bIsRolling = true;
 	IncrementStamina(-RollStaminaCost);
@@ -419,4 +424,9 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 		return TraceDirection;
 	}
 	return FVector(0.f,0.f,0.f);
+}
+
+USoSPlayerInventory * ASoSPlayerCharacter::GetPlayerInventory()
+{
+	return PlayerInventory;
 }

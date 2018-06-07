@@ -7,7 +7,7 @@
 #include "SoSPlayerInventory.generated.h"
 
 class ASoSPlayerCharacter;
-class ABaseWeapon;
+class ASoSBaseWeapon;
 class ASoSRifle;
 class ASoSPistol;
 class ASoSShotgun;
@@ -25,28 +25,35 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:		
+public:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	ABaseWeapon* CurrentWeapon; // Currently selected weapon
+	ASoSBaseWeapon* GetCurrentWeapon();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	bool bWeaponIsDrawn;
+	bool GetWeaponIsDrawn();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	bool bIsThing;
+	void SetWeaponIsDrawn(bool WeaponIsDrawn);
 
-	void HolsterUnholster(); // Weapon holstering
+	void StartFiring();
+
+	void StopFiring();
+
+	void StartReload();
+
+	void HolsterUnholster();
 
 	void CycleWeapons(bool bNextWeapon = true);
 
 private:
 
+	bool bWeaponIsDrawn;
+
 	int32 CurrentWeaponArrayID;
 
-	TArray<ABaseWeapon*> EquippedWeapons;
+	TArray<ASoSBaseWeapon*> EquippedWeapons;
 	
-	ASoSPlayerCharacter* PlayerCharacter; // Inventory owner
+	ASoSPlayerCharacter* PlayerCharacter;
+
+	ASoSBaseWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName RightHandAttachPoint;
@@ -69,7 +76,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	TSubclassOf<ASoSShotgun> ShotgunBlueprint;
 
-	void SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn);
+	void SpawnWeapon(TSubclassOf<ASoSBaseWeapon> WeaponToSpawn);
 
-	void AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapon = false);
+	void AttachWeaponToSocket(ASoSBaseWeapon* Weapon, bool bDrawWeapon = false);
 };

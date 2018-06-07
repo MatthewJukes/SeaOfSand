@@ -4,7 +4,7 @@
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerInventory.h"
 #include "PlayerHUD.h"
-#include "BaseWeapon.h"
+#include "SoSBaseWeapon.h"
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
 
@@ -29,12 +29,13 @@ void ASoSPlayerController::BeginPlay()
 
 	UpdateCurrentPawn();
 	PlayerCharacter = Cast<ASoSPlayerCharacter>(CurrentPlayerPawn);
+	PlayerInventory = PlayerCharacter->GetPlayerInventory();
 	PlayerHUD = Cast<APlayerHUD>(GetHUD());
 }
 
 void ASoSPlayerController::UpdateCurrentPawn()
 {
-	CurrentPlayerPawn = GetPawn(); // Set current pawn
+	CurrentPlayerPawn = GetPawn();
 }
 
 void ASoSPlayerController::ToggleVehicleHud()
@@ -46,53 +47,53 @@ void ASoSPlayerController::ToggleVehicleHud()
 }
 
 void ASoSPlayerController::StartFiring()
-{	 
-	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
+{
+	if (PlayerInventory)
 	{
-		if (!PlayerCharacter->PlayerInventory->bWeaponIsDrawn) // Draw weapon is not drawn already
+		if (!PlayerInventory->GetWeaponIsDrawn()) // Draw weapon is not drawn already
 		{
-			PlayerCharacter->PlayerInventory->HolsterUnholster();
+			PlayerInventory->HolsterUnholster();
 		}
 		else
 		{
 			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
-			PlayerCharacter->PlayerInventory->CurrentWeapon->StartFiring();
+			PlayerInventory->StartFiring();
 		}		
 	}
 }
 
 void ASoSPlayerController::StopFiring()
 {
-	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
+	if (PlayerInventory)
 	{
-		PlayerCharacter->PlayerInventory->CurrentWeapon->StopFiring();
+		PlayerInventory->StopFiring();
 	}
 }
 
 void ASoSPlayerController::HolsterUnholster()
 {
-	if (PlayerCharacter->PlayerInventory)
+	if (PlayerInventory)
 	{
-		PlayerCharacter->PlayerInventory->HolsterUnholster();
+		PlayerInventory->HolsterUnholster();
 	}
 }
 
 void ASoSPlayerController::Reload()
 {
-	if (PlayerCharacter->PlayerInventory->CurrentWeapon)
+	if (PlayerInventory)
 	{
-		PlayerCharacter->PlayerInventory->CurrentWeapon->StartReload();
+		PlayerInventory->StartReload();
 	}
 }
 
 void ASoSPlayerController::NextWeapon()
 {
-	PlayerCharacter->PlayerInventory->CycleWeapons();
+	PlayerInventory->CycleWeapons();
 }
 
 void ASoSPlayerController::PrevWeapon()
 {
-	PlayerCharacter->PlayerInventory->CycleWeapons(false);
+	PlayerInventory->CycleWeapons(false);
 }
 
 FVector ASoSPlayerController::GetCrosshairHitLocation() const

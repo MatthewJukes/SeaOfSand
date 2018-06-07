@@ -8,6 +8,7 @@
 
 class IPlayerInputsInterface;
 class ASoSPlayerCharacter;
+class USoSPlayerInventory;
 class APlayerHUD;
 
 UCLASS()
@@ -17,20 +18,18 @@ class SEAOFSAND_API ASoSPlayerController : public APlayerController
 		
 public:
 
-	// Called to bind functionality to input
 	virtual void SetupInputComponent() override;
 
-	// The player character
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
-	ASoSPlayerCharacter* PlayerCharacter;
+protected:
 
-	// Reference to the weapon the player has currently equipped
+	virtual void BeginPlay() override;
+
+public:
+
 	void UpdateCurrentPawn();
 
-	// Toggle Vehicle HUD
 	void ToggleVehicleHud();
 
-	// Return an OUT parameter
 	FVector GetCrosshairHitLocation() const;
 
 	// Get Pitch/Yaw from current pawn camera
@@ -38,13 +37,13 @@ public:
 	FRotator GetAimOffsets() const;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
-	// Current Player pawn
 	APawn* CurrentPlayerPawn;
 
-	// Player HUD
+	ASoSPlayerCharacter* PlayerCharacter;
+
+	USoSPlayerInventory* PlayerInventory;
+
 	APlayerHUD* PlayerHUD;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -60,9 +59,9 @@ protected:
 
 	void StopFiring();
 	
-	void HolsterUnholster(); // Holster Weapon
+	void HolsterUnholster();
 	
-	void Reload(); // Reload Weapon
+	void Reload();
 
 	void NextWeapon();
 

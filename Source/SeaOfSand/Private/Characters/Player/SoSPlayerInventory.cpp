@@ -2,7 +2,7 @@
 
 #include "SoSPlayerInventory.h"
 #include "SoSPlayerCharacter.h"
-#include "BaseWeapon.h"
+#include "SoSBaseWeapon.h"
 #include "SoSRifle.h"
 #include "SoSPistol.h"
 #include "SoSShotgun.h"
@@ -40,11 +40,11 @@ void USoSPlayerInventory::BeginPlay()
 	}
 }
 
-void USoSPlayerInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn)
+void USoSPlayerInventory::SpawnWeapon(TSubclassOf<ASoSBaseWeapon> WeaponToSpawn)
 {
 	// Spawn new weapon
 	FActorSpawnParameters SpawnParams;
-	ABaseWeapon* NewWeapon = GetWorld()->SpawnActor<ABaseWeapon>(WeaponToSpawn, SpawnParams);
+	ASoSBaseWeapon* NewWeapon = GetWorld()->SpawnActor<ASoSBaseWeapon>(WeaponToSpawn, SpawnParams);
 	
 	if (NewWeapon)
 	{
@@ -56,7 +56,7 @@ void USoSPlayerInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> WeaponToSpawn)
 	}
 }
 
-void USoSPlayerInventory::AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWeapon)
+void USoSPlayerInventory::AttachWeaponToSocket(ASoSBaseWeapon* Weapon, bool bDrawWeapon)
 {
 	if (bDrawWeapon)
 	{
@@ -79,6 +79,21 @@ void USoSPlayerInventory::AttachWeaponToSocket(ABaseWeapon* Weapon, bool bDrawWe
 			break;
 		}
 	}
+}
+
+void USoSPlayerInventory::StartFiring()
+{
+	CurrentWeapon->StartFiring();
+}
+
+void USoSPlayerInventory::StopFiring()
+{
+	CurrentWeapon->StopFiring();
+}
+
+void USoSPlayerInventory::StartReload()
+{
+	CurrentWeapon->StartReload();
 }
 
 void USoSPlayerInventory::HolsterUnholster()
@@ -130,4 +145,19 @@ void USoSPlayerInventory::CycleWeapons(bool bNextWeapon)
 	}
 
 	if (bWeaponWasDrawn) { HolsterUnholster(); }
+}
+
+ASoSBaseWeapon* USoSPlayerInventory::GetCurrentWeapon()
+{
+	return CurrentWeapon;
+}
+
+bool USoSPlayerInventory::GetWeaponIsDrawn()
+{
+	return bWeaponIsDrawn;
+}
+
+void USoSPlayerInventory::SetWeaponIsDrawn(bool WeaponIsDrawn)
+{
+	bWeaponIsDrawn = WeaponIsDrawn;
 }

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "BaseWeapon.h"
+#include "SoSBaseWeapon.h"
 #include "BaseProjectile.h"
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
@@ -13,7 +13,7 @@
 
 
 // Sets default values
-ABaseWeapon::ABaseWeapon()
+ASoSBaseWeapon::ASoSBaseWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false; 
@@ -27,24 +27,24 @@ ABaseWeapon::ABaseWeapon()
 }
 
 // Called when the game starts or when spawned
-void ABaseWeapon::BeginPlay()
+void ASoSBaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
-	PlayerCharacter = Cast<ASoSPlayerCharacter>(PlayerController->GetPawn());
+	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
 
 	// Setup ammo
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, StartAmmo);
 }
 
-void ABaseWeapon::StartFiring()
+void ASoSBaseWeapon::StartFiring()
 {
-	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ABaseWeapon::HandleFiring, FireRate, bIsAutomatic, 0.0f);
+	GetWorldTimerManager().SetTimer(FireRateTimerHandle, this, &ASoSBaseWeapon::HandleFiring, FireRate, bIsAutomatic, 0.0f);
 }
 
-void ABaseWeapon::StopFiring()
+void ASoSBaseWeapon::StopFiring()
 {
 	GetWorldTimerManager().ClearTimer(FireRateTimerHandle);
 	if (WeaponState == EWeaponState::Firing)
@@ -53,7 +53,7 @@ void ABaseWeapon::StopFiring()
 	}
 }
 
-void ABaseWeapon::HandleFiring()
+void ASoSBaseWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire(FireRate))
 	{
@@ -82,7 +82,7 @@ void ABaseWeapon::HandleFiring()
 	}
 }
 
-bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate)
+bool ASoSBaseWeapon::CheckIfWeaponCanFire(float FireRate)
 {
 	if (PlayerCharacter)
 	{
@@ -100,7 +100,7 @@ bool ABaseWeapon::CheckIfWeaponCanFire(float FireRate)
 	return false;
 }
 
-float ABaseWeapon::CalculateBulletSpread()
+float ASoSBaseWeapon::CalculateBulletSpread()
 {
 	if (bAimingBonus)
 	{
@@ -112,26 +112,26 @@ float ABaseWeapon::CalculateBulletSpread()
 	}
 }
 
-void ABaseWeapon::UseAmmo()
+void ASoSBaseWeapon::UseAmmo()
 {
 	CurrentAmmo--;
 	CurrentAmmoInClip--;
 }
 
-void ABaseWeapon::StartReload()
+void ASoSBaseWeapon::StartReload()
 {
 	if (PlayerCharacter)
 	{
 		if (WeaponState != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && !PlayerCharacter->bIsRolling 
-			&& !PlayerCharacter->bIsSprinting && PlayerCharacter->PlayerInventory->bWeaponIsDrawn)
+			&& !PlayerCharacter->bIsSprinting && PlayerCharacter->GetPlayerInventory()->GetWeaponIsDrawn())
 		{
 			WeaponState = EWeaponState::Reloading;
-			GetWorldTimerManager().SetTimer(ReloadTimerHandle, this, &ABaseWeapon::ReloadWeapon, ReloadDuration, false);
+			GetWorldTimerManager().SetTimer(ReloadTimerHandle, this, &ASoSBaseWeapon::ReloadWeapon, ReloadDuration, false);
 		}
 	}
 }
 
-void ABaseWeapon::InterruptReload()
+void ASoSBaseWeapon::InterruptReload()
 {
 	if (WeaponState == EWeaponState::Reloading)
 	{
@@ -140,14 +140,14 @@ void ABaseWeapon::InterruptReload()
 	}
 }
 
-void ABaseWeapon::ReloadWeapon()
+void ASoSBaseWeapon::ReloadWeapon()
 {
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, CurrentAmmo);
 	GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 	WeaponState = EWeaponState::Idle;
 }
 
-void ABaseWeapon::FireProjectile(FVector AimDirection)
+void ASoSBaseWeapon::FireProjectile(FVector AimDirection)
 {
 	if (ProjectileBlueprint)
 	{
@@ -164,7 +164,7 @@ void ABaseWeapon::FireProjectile(FVector AimDirection)
 	}
 }
 
-bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const
+bool ASoSBaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const
 {
 	const FName TraceTag("WeaponTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -188,7 +188,7 @@ bool ABaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) con
 	return false; // Line-trace didn't hit anything
 }
 
-FVector ABaseWeapon::GetAimDirection() const
+FVector ASoSBaseWeapon::GetAimDirection() const
 {
 	FVector AimDirection = PlayerController->GetCrosshairHitLocation() - WeaponMesh->GetSocketLocation("MuzzleSocket");
 	AimDirection.Normalize();	

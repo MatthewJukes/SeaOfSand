@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "BaseWeapon.generated.h"
+#include "SoSBaseWeapon.generated.h"
 
 class ASoSPlayerController;
 class ASoSPlayerCharacter;
@@ -28,7 +28,7 @@ enum class EWeaponType : uint8
 };
 
 UCLASS()
-class SEAOFSAND_API ABaseWeapon : public AActor
+class SEAOFSAND_API ASoSBaseWeapon : public AActor
 {
 	GENERATED_BODY()
 
@@ -40,7 +40,7 @@ class SEAOFSAND_API ABaseWeapon : public AActor
 	
 public:	
 	// Sets default values for this actor's properties
-	ABaseWeapon();
+	ASoSBaseWeapon();
 
 protected:
 	// Called when the game starts or when spawned
@@ -49,8 +49,11 @@ protected:
 public:	
 
 	void StartFiring();
+
 	void StopFiring();
+
 	void StartReload();
+
 	void InterruptReload();
 
 	// Weapon is getting bonus accuracy from player aiming

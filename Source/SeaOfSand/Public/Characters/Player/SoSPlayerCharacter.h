@@ -36,14 +36,6 @@ protected:
 
 public:
 
-	// The player controller
-	UPROPERTY(BlueprintReadOnly, Category = "Controller")
-	ASoSPlayerController* PlayerController;
-
-	// The player inventory
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Player")
-	USoSPlayerInventory* PlayerInventory;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsAiming;
 
@@ -59,8 +51,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bInVehicle;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Vitals")
-	float CurrentStamina; // Player stamina exposed to BPs for HUD
+	USoSPlayerInventory* GetPlayerInventory();
 
 	// Turn collision back on
 	void EnableCollsion();
@@ -73,6 +64,9 @@ public:
 
 	void AimEnd(); // stop/interrupt aiming
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	float GetStamina();
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -84,11 +78,17 @@ public:
 
 protected:
 
+	ASoSPlayerController* PlayerController;
+
+	USoSPlayerInventory* PlayerInventory;
+
+	FVector RollDirection;
+
 	bool bCanDoubleJump;
 
 	bool bLastOrientRotationToMovement;
 
-	FVector RollDirection;
+	float CurrentStamina;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
 	float MaxStamina;
