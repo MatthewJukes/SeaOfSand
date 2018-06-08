@@ -186,7 +186,7 @@ void ASoSPlayerCharacter::SprintStart()
 
 	if (PlayerInventory->GetCurrentWeapon())
 	{
-		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->WeaponDrawnSpeedMultiplier * SprintMultiplier);
+		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier() * SprintMultiplier);
 		SetPlayerMovementType(true, false);
 	}
 	else
@@ -208,7 +208,7 @@ void ASoSPlayerCharacter::SprintEnd()
 
 	if (PlayerInventory->GetWeaponIsDrawn())
 	{
-		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->WeaponDrawnSpeedMultiplier);
+		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
 		SetPlayerMovementType(false, true);
 	}
 	else
@@ -234,11 +234,11 @@ void ASoSPlayerCharacter::AimStart()
 
 	bIsAiming = true;
 	AimZoom(true);
-	SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->AimingSpeedMultiplier);
+	SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetAimingSpeedMultiplier());
 
 	if (PlayerInventory->GetCurrentWeapon()) // Give weapon bonus accuracy
 	{
-		PlayerInventory->GetCurrentWeapon()->bAimingBonus = true;
+		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
 	}
 }
 
@@ -254,7 +254,7 @@ void ASoSPlayerCharacter::AimEnd()
 
 	if (PlayerInventory->GetWeaponIsDrawn())
 	{
-		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->WeaponDrawnSpeedMultiplier);
+		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
 	}
 	else
 	{
@@ -263,13 +263,8 @@ void ASoSPlayerCharacter::AimEnd()
 
 	if (PlayerInventory->GetCurrentWeapon()) // Remove weapon bonus accuracy
 	{
-		PlayerInventory->GetCurrentWeapon()->bAimingBonus = false;
+		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
 	}
-}
-
-float ASoSPlayerCharacter::GetStamina()
-{
-	return CurrentStamina;
 }
 
 void ASoSPlayerCharacter::DoubleJump()
@@ -354,23 +349,6 @@ void ASoSPlayerCharacter::EnableCollsion()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
-void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
-{
-	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
-	{
-		CharacterMovement->MaxWalkSpeed = BaseSpeed * SpeedMultiplier;
-	}
-}
-
-void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
-{
-	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
-	{
-		CharacterMovement->bOrientRotationToMovement = bOrientRotationToMovement;
-		CharacterMovement->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
-	}
-}
-
 void ASoSPlayerCharacter::Interact()
 {
 	AActor* ActorHit = nullptr;
@@ -415,6 +393,10 @@ bool ASoSPlayerCharacter::InteractTrace(AActor* &OutActor) const
 	return false; // Trace didn't hit anything
 }
 
+/////////////////////////
+/* Getters and Setters */
+/////////////////////////
+
 FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 {
 	if (PlayerController)
@@ -426,7 +408,29 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 	return FVector(0.f,0.f,0.f);
 }
 
-USoSPlayerInventory * ASoSPlayerCharacter::GetPlayerInventory()
+float ASoSPlayerCharacter::GetStamina() const
+{
+	return CurrentStamina;
+}
+
+void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
+{
+	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
+	{
+		CharacterMovement->MaxWalkSpeed = BaseSpeed * SpeedMultiplier;
+	}
+}
+
+void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
+{
+	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
+	{
+		CharacterMovement->bOrientRotationToMovement = bOrientRotationToMovement;
+		CharacterMovement->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
+	}
+}
+
+USoSPlayerInventory * ASoSPlayerCharacter::GetPlayerInventory() const
 {
 	return PlayerInventory;
 }

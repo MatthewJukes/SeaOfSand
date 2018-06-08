@@ -51,21 +51,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bInVehicle;
 
-	USoSPlayerInventory* GetPlayerInventory();
-
 	// Turn collision back on
 	void EnableCollsion();
-
-	void SetPlayerSpeed(float SpeedMultiplier);
-
-	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
-
+	
 	void SprintEnd(); // stop/interrupt sprinting
 
 	void AimEnd(); // stop/interrupt aiming
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	float GetStamina();
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
@@ -151,4 +142,18 @@ protected:
 	FTimerHandle TimerHandle_DoubleJump;
 	FTimerHandle TimerHandle_DodgeEnd;
 	FTimerHandle TimerHandle_Stamina;	
+
+public:
+
+	/* Getters and Setters */
+
+	void SetPlayerSpeed(float SpeedMultiplier);
+
+	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	USoSPlayerInventory* GetPlayerInventory() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	float GetStamina() const;
 };

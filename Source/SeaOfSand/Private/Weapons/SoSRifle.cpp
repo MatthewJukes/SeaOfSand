@@ -8,7 +8,7 @@ ASoSRifle::ASoSRifle()
 	WeaponType = EWeaponType::Rifle;
 
 	// Firing
-	FireRate = 0.075f;
+	FireRate = 600;
 	MaxRange = 30000.f;
 	bIsAutomatic = true;
 	ProjectilesPerShot = 1;

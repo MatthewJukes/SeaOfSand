@@ -57,7 +57,7 @@ void ASoSPlayerController::StartFiring()
 		else
 		{
 			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
-			PlayerInventory->StartFiring();
+			PlayerInventory->GetCurrentWeapon()->StartFiring();
 		}		
 	}
 }
@@ -66,7 +66,7 @@ void ASoSPlayerController::StopFiring()
 {
 	if (PlayerInventory)
 	{
-		PlayerInventory->StopFiring();
+		PlayerInventory->GetCurrentWeapon()->StopFiring();
 	}
 }
 
@@ -82,7 +82,7 @@ void ASoSPlayerController::Reload()
 {
 	if (PlayerInventory)
 	{
-		PlayerInventory->StartReload();
+		PlayerInventory->GetCurrentWeapon()->StartReload();
 	}
 }
 

@@ -64,7 +64,7 @@ void USoSPlayerInventory::AttachWeaponToSocket(ASoSBaseWeapon* Weapon, bool bDra
 	}
 	else
 	{
-		switch (Weapon->WeaponType)
+		switch (Weapon->GetWeaponType())
 		{
 		case EWeaponType::Pistol:
 			Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, PistolHolsterAttachPoint);
@@ -79,21 +79,6 @@ void USoSPlayerInventory::AttachWeaponToSocket(ASoSBaseWeapon* Weapon, bool bDra
 			break;
 		}
 	}
-}
-
-void USoSPlayerInventory::StartFiring()
-{
-	CurrentWeapon->StartFiring();
-}
-
-void USoSPlayerInventory::StopFiring()
-{
-	CurrentWeapon->StopFiring();
-}
-
-void USoSPlayerInventory::StartReload()
-{
-	CurrentWeapon->StartReload();
 }
 
 void USoSPlayerInventory::HolsterUnholster()
@@ -120,7 +105,7 @@ void USoSPlayerInventory::HolsterUnholster()
 			PlayerCharacter->OffsetCamera(true);
 
 			// Update character movement settings
-			PlayerCharacter->SetPlayerSpeed(CurrentWeapon->WeaponDrawnSpeedMultiplier);
+			PlayerCharacter->SetPlayerSpeed(CurrentWeapon->GetWeaponDrawnSpeedMultiplier());
 			PlayerCharacter->SetPlayerMovementType(false, true);
 		}
 	} 
@@ -147,12 +132,16 @@ void USoSPlayerInventory::CycleWeapons(bool bNextWeapon)
 	if (bWeaponWasDrawn) { HolsterUnholster(); }
 }
 
-ASoSBaseWeapon* USoSPlayerInventory::GetCurrentWeapon()
+/////////////////////////
+/* Getters and Setters */
+/////////////////////////
+
+ASoSBaseWeapon* USoSPlayerInventory::GetCurrentWeapon() const
 {
 	return CurrentWeapon;
 }
 
-bool USoSPlayerInventory::GetWeaponIsDrawn()
+bool USoSPlayerInventory::GetWeaponIsDrawn() const
 {
 	return bWeaponIsDrawn;
 }

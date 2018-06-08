@@ -8,7 +8,7 @@ ASoSShotgun::ASoSShotgun()
 	WeaponType = EWeaponType::Shotgun;
 
 	// Firing
-	FireRate = 0.2f;
+	FireRate = 120;
 	MaxRange = 10000.f;
 	bIsAutomatic = false;
 	ProjectilesPerShot = 6;

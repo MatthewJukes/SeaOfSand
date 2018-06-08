@@ -9,6 +9,7 @@
 class ASoSPlayerController;
 class ASoSPlayerCharacter;
 class ABaseProjectile;
+class UAudioComponent;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -31,12 +32,6 @@ UCLASS()
 class SEAOFSAND_API ASoSBaseWeapon : public AActor
 {
 	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* WeaponMesh;
-
-	UPROPERTY(VisibleAnywhere)
-	UAudioComponent* ShotAudioComponent;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -45,6 +40,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	USkeletalMeshComponent* WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	UAudioComponent* ShotAudioComponent;
 
 public:	
 
@@ -56,25 +57,29 @@ public:
 
 	void InterruptReload();
 
-	// Weapon is getting bonus accuracy from player aiming
-	bool bAimingBonus;
+protected:
+
+	ASoSPlayerController * PlayerController;
+
+	ASoSPlayerCharacter* PlayerCharacter;
+
+	int32 CurrentAmmo;
+
+	int32 CurrentAmmoInClip;
+
+	EWeaponState CurrentWeaponState;
+
+	EWeaponType WeaponType;
+
+	bool bGettingAccuracyBonus;
 
 	bool bCanReload;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	EWeaponState WeaponState;
+	float TimeBetweenShots;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	EWeaponType WeaponType;
+	float LastFireTime;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
-	float WeaponDrawnSpeedMultiplier;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
-	float AimingSpeedMultiplier;
-
-protected:
-
+	/* RPM - Bullet per minute fire by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	float FireRate;
 
@@ -86,6 +91,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	int32 ProjectilesPerShot;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
+	float WeaponDrawnSpeedMultiplier;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
+	float AimingSpeedMultiplier;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
 	float BaseBulletSpread;
@@ -105,42 +116,47 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	float ReloadDuration;
 
-	// Variables exposed to BP for UI 
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo")
-	int32 CurrentAmmo;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Ammo")
-	int32 CurrentAmmoInClip;
-
-private:	
-
 	void HandleFiring();
 
-	// Check if weapon/owner can fire the weapon
-	bool CheckIfWeaponCanFire(float FireRate);
+	bool CheckIfWeaponCanFire();
 
-	// Calculate the amount the bullets will deviate from the aim location
 	float CalculateBulletSpread();
 
 	void UseAmmo();
 	
 	void ReloadWeapon();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
-	TSubclassOf<ABaseProjectile> ProjectileBlueprint;
-
-	void FireProjectile(FVector AimDirection);
-
-	// Weapon trace
 	bool WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const;
+
 	FVector GetAimDirection() const;	
 
-	// Controller and Player references
-	ASoSPlayerController* PlayerController;
-	ASoSPlayerCharacter* PlayerCharacter;
+	/* Timer handles */
+	FTimerHandle TimerHandle_TimerBetweenShots;
+	FTimerHandle TimerHandle_ReloadTime;
 
-	// Timer handles
-	FTimerHandle FireRateTimerHandle;
-	FTimerHandle RefireTimerHandle;
-	FTimerHandle ReloadTimerHandle;
+public:
+
+	/* Getters and Setters */
+
+	void SetWeaponState(EWeaponState NewState);
+
+	float GetWeaponDrawnSpeedMultiplier() const;
+
+	float GetAimingSpeedMultiplier() const;
+
+	void SetGettingAccuracyBonus(bool bGettingBonus);
+
+	void SetCanReload(bool bReload);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	EWeaponType GetWeaponType() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	EWeaponState GetCurrentWeaponState() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	int32 GetCurrentAmmo() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	int32 GetCurrentAmmoInClip() const;
 };

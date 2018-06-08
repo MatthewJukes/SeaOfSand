@@ -27,18 +27,6 @@ protected:
 
 public:
 
-	ASoSBaseWeapon* GetCurrentWeapon();
-
-	bool GetWeaponIsDrawn();
-
-	void SetWeaponIsDrawn(bool WeaponIsDrawn);
-
-	void StartFiring();
-
-	void StopFiring();
-
-	void StartReload();
-
 	void HolsterUnholster();
 
 	void CycleWeapons(bool bNextWeapon = true);
@@ -79,4 +67,16 @@ private:
 	void SpawnWeapon(TSubclassOf<ASoSBaseWeapon> WeaponToSpawn);
 
 	void AttachWeaponToSocket(ASoSBaseWeapon* Weapon, bool bDrawWeapon = false);
+
+public:
+
+	/* Getters and Setters */
+
+	void SetWeaponIsDrawn(bool WeaponIsDrawn);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	ASoSBaseWeapon* GetCurrentWeapon() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	bool GetWeaponIsDrawn() const;
 };

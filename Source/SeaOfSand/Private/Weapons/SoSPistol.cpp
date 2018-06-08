@@ -8,7 +8,7 @@ ASoSPistol::ASoSPistol()
 	WeaponType = EWeaponType::Pistol;
 
 	// Firing
-	FireRate = 0.1f;
+	FireRate = 240;
 	MaxRange = 30000.f;
 	bIsAutomatic = false;
 	ProjectilesPerShot = 1;
