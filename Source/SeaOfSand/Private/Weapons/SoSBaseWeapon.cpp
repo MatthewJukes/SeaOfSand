@@ -1,12 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSBaseWeapon.h"
-#include "BaseProjectile.h"
+#include "SeaOfSand.h"
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerInventory.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Math/UnrealMath.h"
 #include "Public/TimerManager.h"
@@ -21,6 +25,9 @@ ASoSBaseWeapon::ASoSBaseWeapon()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
 	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShotAudio"));
+
+	MuzzleSocketName = "MuzzleSocket";
+	TracerTargetName = "Target";
 
 	bCanReload = true;
 	SetWeaponState(EWeaponState::Idle);
@@ -65,18 +72,31 @@ void ASoSBaseWeapon::HandleFiring()
 
 		for (int i = 0; i < ProjectilesPerShot; i++)
 		{
-			FVector HitLocation; // Store hit location		
-			FVector AimDirection = GetAimDirection();
+			FHitResult Hit; // Store hit
+			
+			FVector TraceStart = WeaponMesh->GetSocketLocation("MuzzleSocket");
+			FVector TraceEnd = TraceStart + (GetAimDirection() * MaxRange);
 
-			if (WeaponTrace(HitLocation, AimDirection)) // Trace from muzzle to crosshair hit location
+			EPhysicalSurface SurfaceType = SurfaceType_Default;
+
+			FVector TracerEndPoint = TraceEnd;
+
+			if (WeaponTrace(Hit, TraceStart, TraceEnd))
 			{
-				// Hit something
+				SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+				
+				PlayImpactEffect(SurfaceType, Hit.ImpactPoint);
+
+				TracerEndPoint = Hit.ImpactPoint;
 			}
+
+			PlayTracerEffect(TracerEndPoint);
 		}
 
 		LastFireTime = GetWorld()->TimeSeconds;
 
-		// Play Audio
+		PlayMuzzleEffect();
+
 		ShotAudioComponent->Play();
 	}
 	else if (CurrentAmmoInClip == 0 && bCanReload && CurrentAmmo > 0)
@@ -148,7 +168,55 @@ void ASoSBaseWeapon::ReloadWeapon()
 	SetWeaponState(EWeaponState::Idle);
 }
 
-bool ASoSBaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const
+void ASoSBaseWeapon::PlayMuzzleEffect()
+{
+	if (MuzzleEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, WeaponMesh, MuzzleSocketName);
+	}
+}
+
+void ASoSBaseWeapon::PlayTracerEffect(FVector TraceEnd)
+{
+	if (TracerEffect)
+	{
+		FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+
+		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
+		if (TracerComp)
+		{
+			TracerComp->SetVectorParameter(TracerTargetName, TraceEnd);
+		}
+	}
+}
+
+void ASoSBaseWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint)
+{
+	UParticleSystem* SelectedEffect = nullptr;
+
+	switch (SurfaceType)
+	{
+	case SURFACE_FLESHDEFAULT:
+	case SURFACE_FLESHVULNERABLE:
+		SelectedEffect = FleshImpactEffect;
+		break;
+	default:
+		SelectedEffect = DefaultImpactEffect;
+		break;
+	}
+
+	if (SelectedEffect)
+	{
+		FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+
+		FVector ShotDirection = ImpactPoint - MuzzleLocation;
+		ShotDirection.Normalize();
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
+	}
+}
+
+bool ASoSBaseWeapon::WeaponTrace(FHitResult& OutHit, FVector StartLocation, FVector EndLocation) const
 {
 	const FName TraceTag("WeaponTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -156,19 +224,13 @@ bool ASoSBaseWeapon::WeaponTrace(FVector& OutHitlocation, FVector AimDirection) 
 	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, this);
 	TraceParams.bTraceComplex = true;
 	TraceParams.bTraceAsyncScene = true;
-	TraceParams.bReturnPhysicalMaterial = false;
+	TraceParams.bReturnPhysicalMaterial = true;
 	TraceParams.TraceTag = TraceTag;
 
-	FHitResult Hit;	
-	FVector StartLocation = WeaponMesh->GetSocketLocation("MuzzleSocket");
-	FVector EndLocation = StartLocation + (AimDirection * MaxRange);
-
-	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Visibility, TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, ECC_Visibility, TraceParams))
 	{
-		OutHitlocation = Hit.Location;
 		return true;
 	}
-	OutHitlocation = EndLocation;
 	return false; // Line-trace didn't hit anything
 }
 

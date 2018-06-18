@@ -44,6 +44,9 @@ void USoSPlayerInventory::SpawnWeapon(TSubclassOf<ASoSBaseWeapon> WeaponToSpawn)
 {
 	// Spawn new weapon
 	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = PlayerCharacter;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 	ASoSBaseWeapon* NewWeapon = GetWorld()->SpawnActor<ASoSBaseWeapon>(WeaponToSpawn, SpawnParams);
 	
 	if (NewWeapon)

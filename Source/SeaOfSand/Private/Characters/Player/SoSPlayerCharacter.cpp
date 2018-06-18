@@ -17,6 +17,8 @@
 // Set defaults
 ASoSPlayerCharacter::ASoSPlayerCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -27,7 +29,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	CameraBoom->TargetArmLength = 450.f;
+	CameraBoom->TargetArmLength = 400.f;
 	CameraBoom->SocketOffset = FVector(0.f, 0.f, 40.f);
 
 	// Setup camera

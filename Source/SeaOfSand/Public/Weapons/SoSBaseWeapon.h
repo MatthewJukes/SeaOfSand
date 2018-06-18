@@ -116,6 +116,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	float ReloadDuration;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
+	FName MuzzleSocketName;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
+	FName TracerTargetName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
+	UParticleSystem* MuzzleEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
+	UParticleSystem* DefaultImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
+	UParticleSystem* FleshImpactEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
+	UParticleSystem* TracerEffect;
+
 	void HandleFiring();
 
 	bool CheckIfWeaponCanFire();
@@ -126,7 +144,13 @@ protected:
 	
 	void ReloadWeapon();
 
-	bool WeaponTrace(FVector& OutHitlocation, FVector AimDirection) const;
+	void PlayMuzzleEffect();
+
+	void PlayTracerEffect(FVector TraceEnd);
+
+	void PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint);
+
+	bool WeaponTrace(FHitResult& OutHitlocation, FVector StartLocation, FVector EndLocation) const;
 
 	FVector GetAimDirection() const;	
 

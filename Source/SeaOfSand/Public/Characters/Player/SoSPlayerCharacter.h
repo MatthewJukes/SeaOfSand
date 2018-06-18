@@ -28,11 +28,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	USoSPlayerInventory* PlayerInventory;
 
 public:
 
@@ -71,7 +74,6 @@ protected:
 
 	ASoSPlayerController* PlayerController;
 
-	USoSPlayerInventory* PlayerInventory;
 
 	FVector RollDirection;
 
