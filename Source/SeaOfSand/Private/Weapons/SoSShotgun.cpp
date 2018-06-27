@@ -8,14 +8,16 @@ ASoSShotgun::ASoSShotgun()
 	WeaponType = EWeaponType::Shotgun;
 
 	// Firing
-	FireRate = 120;
+	FireRate = 60;
+	BaseDamage = 4;
 	MaxRange = 10000.f;
 	bIsAutomatic = false;
-	ProjectilesPerShot = 6;
+	ProjectilesPerShot = 12;
 
 	// Aiming
-	BaseBulletSpread = 2.0f;
-	AimingSpreadMultiplier = 1.0f;
+	BaseBulletSpread = 4.0f;
+	AimingBulletSpread = 4.0f;
+	AimingBulletSpreadLerpTime = 1;
 
 	// Ammo
 	MaxAmmo = 999;

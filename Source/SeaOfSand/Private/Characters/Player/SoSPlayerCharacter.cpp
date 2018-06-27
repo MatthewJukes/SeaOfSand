@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSPlayerCharacter.h"
-#include "SoSPlayerInventory.h"
 #include "SoSPlayerController.h"
+#include "SoSPlayerInventory.h"
+#include "SoSHealthComponent.h"
 #include "BaseVehicle.h"
 #include "SoSBaseWeapon.h"
 #include "Camera/CameraComponent.h"
@@ -25,6 +26,9 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	// Setup inventory
 	PlayerInventory = CreateDefaultSubobject<USoSPlayerInventory>(TEXT("PlayerInventory"));
 
+	// Setup health component
+	PlayerHealth = CreateDefaultSubobject<USoSHealthComponent>(TEXT("PlayerHealth"));
+
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -37,7 +41,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Configure player vitals
+	// Configure player stamina
 	MaxStamina = 100.f;
 	BaseStaminaRegenRate = 6.f;
 	SprintStaminaDrainRate = 10.f;
@@ -413,6 +417,11 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 float ASoSPlayerCharacter::GetStamina() const
 {
 	return CurrentStamina;
+}
+
+ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
+{
+	return PlayerController;
 }
 
 void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)

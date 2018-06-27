@@ -8,19 +8,21 @@ ASoSRifle::ASoSRifle()
 	WeaponType = EWeaponType::Rifle;
 
 	// Firing
-	FireRate = 600;
+	FireRate = 60;
+	BaseDamage = 25;
 	MaxRange = 30000.f;
-	bIsAutomatic = true;
+	bIsAutomatic = false;
 	ProjectilesPerShot = 1;
 
 	// Aiming
-	BaseBulletSpread = 2.5f;
-	AimingSpreadMultiplier = 0.35f;
+	BaseBulletSpread = 3.0f;
+	AimingBulletSpread = 0.1f;
+	AimingBulletSpreadLerpTime = 1.8;
 
 	// Ammo
 	MaxAmmo = 999;
 	StartAmmo = 999;
-	MaxAmmoPerClip = 60;
+	MaxAmmoPerClip = 12;
 	ReloadDuration = 2.1f;
 
 	// Movement speed

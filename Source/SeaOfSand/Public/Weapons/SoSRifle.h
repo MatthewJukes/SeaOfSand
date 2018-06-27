@@ -20,6 +20,4 @@ public:
 
 protected:
 
-private:
-
 };

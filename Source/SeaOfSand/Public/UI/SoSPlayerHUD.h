@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "PlayerHUD.generated.h"
+#include "SoSPlayerHUD.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SEAOFSAND_API APlayerHUD : public AHUD
+class SEAOFSAND_API ASoSPlayerHUD : public AHUD
 {
 	GENERATED_BODY()
 	
@@ -18,4 +18,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = ToggleVehicleHud))
 	void ToggleVehicleHud();	
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = ToggleCrosshair))
+	void ToggleCrosshair();
 };

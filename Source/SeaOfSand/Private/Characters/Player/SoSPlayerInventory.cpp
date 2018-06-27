@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSPlayerInventory.h"
+#include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
+#include "SoSPlayerHUD.h"
 #include "SoSBaseWeapon.h"
 #include "SoSRifle.h"
 #include "SoSPistol.h"
@@ -100,6 +102,9 @@ void USoSPlayerInventory::HolsterUnholster()
 			// Update character movement settings
 			PlayerCharacter->SetPlayerSpeed(1.f);
 			PlayerCharacter->SetPlayerMovementType(true, false);
+
+			// Toggle crosshair
+			PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
 		}
 		else // Unholster weapon
 		{
@@ -110,6 +115,9 @@ void USoSPlayerInventory::HolsterUnholster()
 			// Update character movement settings
 			PlayerCharacter->SetPlayerSpeed(CurrentWeapon->GetWeaponDrawnSpeedMultiplier());
 			PlayerCharacter->SetPlayerMovementType(false, true);
+
+			// Toggle crosshair
+			PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
 		}
 	} 
 }

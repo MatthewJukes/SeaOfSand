@@ -49,9 +49,9 @@ void ASoSBaseWeapon::BeginPlay()
 
 void ASoSBaseWeapon::StartFiring()
 {
-	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->TimeSeconds, 0.0f);
+	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->GetTimeSeconds(), 0.0f);
 
-	GetWorldTimerManager().SetTimer(TimerHandle_TimerBetweenShots, this, &ASoSBaseWeapon::HandleFiring, TimeBetweenShots, bIsAutomatic, 0.0f);
+	GetWorldTimerManager().SetTimer(TimerHandle_TimerBetweenShots, this, &ASoSBaseWeapon::HandleFiring, TimeBetweenShots, bIsAutomatic, FirstDelay);
 }
 
 void ASoSBaseWeapon::StopFiring()
@@ -93,7 +93,7 @@ void ASoSBaseWeapon::HandleFiring()
 			PlayTracerEffect(TracerEndPoint);
 		}
 
-		LastFireTime = GetWorld()->TimeSeconds;
+		LastFireTime = GetWorld()->GetTimeSeconds();
 
 		PlayMuzzleEffect();
 
@@ -119,18 +119,6 @@ bool ASoSBaseWeapon::CheckIfWeaponCanFire()
 		}
 	}
 	return false;
-}
-
-float ASoSBaseWeapon::CalculateBulletSpread()
-{
-	if (bGettingAccuracyBonus)
-	{
-		return BaseBulletSpread * AimingSpreadMultiplier;
-	}
-	else
-	{
-		return BaseBulletSpread;
-	}
 }
 
 void ASoSBaseWeapon::UseAmmo()
@@ -234,17 +222,12 @@ bool ASoSBaseWeapon::WeaponTrace(FHitResult& OutHit, FVector StartLocation, FVec
 	return false; // Line-trace didn't hit anything
 }
 
-FVector ASoSBaseWeapon::GetAimDirection() const
+FVector ASoSBaseWeapon::GetAimDirection()
 {
 	FVector AimDirection = PlayerController->GetCrosshairHitLocation() - WeaponMesh->GetSocketLocation("MuzzleSocket");
 	AimDirection.Normalize();	
 
-	float BulletSpread = BaseBulletSpread;
-	if (bGettingAccuracyBonus)
-	{
-		BulletSpread = BaseBulletSpread * AimingSpreadMultiplier;
-	}
-	return FMath().VRandCone(AimDirection, FMath().DegreesToRadians(BulletSpread));
+	return FMath().VRandCone(AimDirection, FMath().DegreesToRadians(GetBulletSpread()));
 }
 
 /////////////////////////
@@ -293,11 +276,32 @@ float ASoSBaseWeapon::GetAimingSpeedMultiplier() const
 
 void ASoSBaseWeapon::SetGettingAccuracyBonus(bool bGettingBonus)
 {
+	if (bGettingBonus)
+	{
+		AimingStartTime = GetWorld()->GetTimeSeconds();
+	}
+
 	bGettingAccuracyBonus = bGettingBonus;
 }
 
 void ASoSBaseWeapon::SetCanReload(bool bReload)
 {
 	bCanReload = bReload;
+}
+
+float ASoSBaseWeapon::GetBulletSpread() const
+{
+	float BulletSpread = BaseBulletSpread;
+
+	if (bGettingAccuracyBonus)
+	{
+		FVector2D InputRange = FVector2D(0.0f, AimingBulletSpreadLerpTime);
+		FVector2D OutputRange = FVector2D(0.0f, 1.0f);
+
+		float Alpha = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetWorld()->GetTimeSeconds() - AimingStartTime);
+		BulletSpread = FMath::Lerp(BaseBulletSpread, AimingBulletSpread, Alpha);
+	}
+
+	return BulletSpread;
 }
 

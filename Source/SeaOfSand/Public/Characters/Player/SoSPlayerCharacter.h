@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USoSPlayerInventory;
+class USoSHealthComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
 
@@ -36,6 +37,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	USoSPlayerInventory* PlayerInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	USoSHealthComponent* PlayerHealth;
 
 public:
 
@@ -73,7 +77,6 @@ public:
 protected:
 
 	ASoSPlayerController* PlayerController;
-
 
 	FVector RollDirection;
 
@@ -158,4 +161,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	float GetStamina() const;
+
+	ASoSPlayerController* GetPlayerController() const;
 };

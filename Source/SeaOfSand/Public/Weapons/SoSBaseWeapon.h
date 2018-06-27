@@ -79,9 +79,14 @@ protected:
 
 	float LastFireTime;
 
+	float AimingStartTime;
+
 	/* RPM - Bullet per minute fire by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	float FireRate;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
+	float BaseDamage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	float MaxRange;
@@ -102,7 +107,10 @@ protected:
 	float BaseBulletSpread;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	float AimingSpreadMultiplier;
+	float AimingBulletSpread;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
+	float AimingBulletSpreadLerpTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	int32 MaxAmmo;
@@ -138,8 +146,6 @@ protected:
 
 	bool CheckIfWeaponCanFire();
 
-	float CalculateBulletSpread();
-
 	void UseAmmo();
 	
 	void ReloadWeapon();
@@ -152,7 +158,7 @@ protected:
 
 	bool WeaponTrace(FHitResult& OutHitlocation, FVector StartLocation, FVector EndLocation) const;
 
-	FVector GetAimDirection() const;	
+	FVector GetAimDirection();	
 
 	/* Timer handles */
 	FTimerHandle TimerHandle_TimerBetweenShots;
@@ -183,4 +189,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	int32 GetCurrentAmmoInClip() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	float GetBulletSpread() const;
 };

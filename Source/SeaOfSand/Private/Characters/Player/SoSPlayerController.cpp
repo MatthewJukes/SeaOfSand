@@ -3,7 +3,7 @@
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerInventory.h"
-#include "PlayerHUD.h"
+#include "SoSPlayerHUD.h"
 #include "SoSBaseWeapon.h"
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
@@ -30,7 +30,7 @@ void ASoSPlayerController::BeginPlay()
 	UpdateCurrentPawn();
 	PlayerCharacter = Cast<ASoSPlayerCharacter>(CurrentPlayerPawn);
 	PlayerInventory = PlayerCharacter->GetPlayerInventory();
-	PlayerHUD = Cast<APlayerHUD>(GetHUD());
+	PlayerHUD = Cast<ASoSPlayerHUD>(GetHUD());
 }
 
 void ASoSPlayerController::UpdateCurrentPawn()
@@ -139,6 +139,11 @@ FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection) co
 		return RV_Hit.Location;
 	}
 	return EndLocation; // return end location if nothing hit
+}
+
+ASoSPlayerHUD * ASoSPlayerController::GetPlayerHUD() const
+{
+	return PlayerHUD;
 }
 
 FRotator ASoSPlayerController::GetAimOffsets() const

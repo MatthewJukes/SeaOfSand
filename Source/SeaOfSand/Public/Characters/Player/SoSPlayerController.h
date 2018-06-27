@@ -9,7 +9,7 @@
 class IPlayerInputsInterface;
 class ASoSPlayerCharacter;
 class USoSPlayerInventory;
-class APlayerHUD;
+class ASoSPlayerHUD;
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerController : public APlayerController
@@ -44,7 +44,7 @@ protected:
 
 	USoSPlayerInventory* PlayerInventory;
 
-	APlayerHUD* PlayerHUD;
+	ASoSPlayerHUD* PlayerHUD;
 
 	UPROPERTY(EditDefaultsOnly)
 	float CrossHairXLocation = 0.5;
@@ -71,4 +71,8 @@ protected:
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
 
 	FVector GetLookVectorHitLocation(FVector LookDirection) const;
+
+public:
+
+	ASoSPlayerHUD* GetPlayerHUD() const;
 }; 
