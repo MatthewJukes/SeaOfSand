@@ -81,6 +81,8 @@ protected:
 
 	float AimingStartTime;
 
+	float CurrentRecoil;
+
 	/* RPM - Bullet per minute fire by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	float FireRate;
@@ -104,10 +106,16 @@ protected:
 	float AimingSpeedMultiplier;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	float BaseBulletSpread;
+	FVector2D BaseBulletSpreadRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	float AimingBulletSpread;
+	FVector2D AimingBulletSpreadRange;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
+	float RecoilAmount;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
+	float RecoilRecoveryTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
 	float AimingBulletSpreadLerpTime;
@@ -147,6 +155,8 @@ protected:
 	bool CheckIfWeaponCanFire();
 
 	void UseAmmo();
+
+	void UpdateRecoil();
 	
 	void ReloadWeapon();
 
@@ -163,6 +173,7 @@ protected:
 	/* Timer handles */
 	FTimerHandle TimerHandle_TimerBetweenShots;
 	FTimerHandle TimerHandle_ReloadTime;
+	FTimerHandle TimerHandle_ReduceRecoil;
 
 public:
 

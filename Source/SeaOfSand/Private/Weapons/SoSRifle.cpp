@@ -15,8 +15,10 @@ ASoSRifle::ASoSRifle()
 	ProjectilesPerShot = 1;
 
 	// Aiming
-	BaseBulletSpread = 3.0f;
-	AimingBulletSpread = 0.1f;
+	BaseBulletSpreadRange = FVector2D(2.0f, 4.0f);
+	AimingBulletSpreadRange = FVector2D(0.1f, 1.5f);
+	RecoilAmount = 0.5f;
+	RecoilRecoveryTime = 1.0f;
 	AimingBulletSpreadLerpTime = 1.8;
 
 	// Ammo

@@ -45,6 +45,8 @@ void ASoSBaseWeapon::BeginPlay()
 
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, StartAmmo);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_ReduceRecoil, this, &ASoSBaseWeapon::UpdateRecoil, 1.0f / 60.0f, true, 0.0f);
 }
 
 void ASoSBaseWeapon::StartFiring()
@@ -95,6 +97,9 @@ void ASoSBaseWeapon::HandleFiring()
 
 		LastFireTime = GetWorld()->GetTimeSeconds();
 
+		CurrentRecoil += RecoilAmount;
+		CurrentRecoil = FMath::Clamp(CurrentRecoil, 0.0f, 1.0f);
+
 		PlayMuzzleEffect();
 
 		ShotAudioComponent->Play();
@@ -125,6 +130,12 @@ void ASoSBaseWeapon::UseAmmo()
 {
 	CurrentAmmo--;
 	CurrentAmmoInClip--;
+}
+
+void ASoSBaseWeapon::UpdateRecoil()
+{
+	CurrentRecoil -= (1.0f / RecoilRecoveryTime) / 60;
+	CurrentRecoil = FMath::Clamp(CurrentRecoil, 0.0f, 1.0f);
 }
 
 void ASoSBaseWeapon::StartReload()
@@ -291,7 +302,7 @@ void ASoSBaseWeapon::SetCanReload(bool bReload)
 
 float ASoSBaseWeapon::GetBulletSpread() const
 {
-	float BulletSpread = BaseBulletSpread;
+	float BulletSpread = FMath::Lerp(BaseBulletSpreadRange.X, BaseBulletSpreadRange.Y, CurrentRecoil);
 
 	if (bGettingAccuracyBonus)
 	{
@@ -299,7 +310,7 @@ float ASoSBaseWeapon::GetBulletSpread() const
 		FVector2D OutputRange = FVector2D(0.0f, 1.0f);
 
 		float Alpha = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetWorld()->GetTimeSeconds() - AimingStartTime);
-		BulletSpread = FMath::Lerp(BaseBulletSpread, AimingBulletSpread, Alpha);
+		BulletSpread = FMath::Lerp(BulletSpread, FMath::Lerp(AimingBulletSpreadRange.X, AimingBulletSpreadRange.Y, CurrentRecoil), Alpha);
 	}
 
 	return BulletSpread;

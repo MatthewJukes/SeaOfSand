@@ -47,7 +47,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	SprintStaminaDrainRate = 10.f;
 	RollStaminaCost = 20.f;
 
-	// Configure character movement
+	// Configure character movement 
 	BaseSpeed = 400.f;
 	SprintMultiplier = 1.6f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -307,6 +307,12 @@ void ASoSPlayerCharacter::StartRoll()
 	// End sprint and reloading
 	if (bIsSprinting) { SprintEnd(); }
 	if (ASoSBaseWeapon* CurrentWeapon = PlayerInventory->GetCurrentWeapon()) { CurrentWeapon->InterruptReload(); }
+
+	// End aiming bonus if aiming
+	if (PlayerInventory->GetCurrentWeapon() && bIsAiming)
+	{
+		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
+	}
 	
 	bIsRolling = true;
 	IncrementStamina(-RollStaminaCost);
@@ -344,6 +350,12 @@ void ASoSPlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationT
 void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 {
 	bIsRolling = false;
+
+	// Re-enable aiming bonus if aiming
+	if (PlayerInventory->GetCurrentWeapon() && bIsAiming)
+	{
+		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
+	}
 
 	// Reset movement	
 	SetPlayerSpeed(1.f);
