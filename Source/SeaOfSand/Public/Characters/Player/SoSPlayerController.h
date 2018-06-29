@@ -30,7 +30,7 @@ public:
 
 	void ToggleVehicleHud();
 
-	FVector GetCrosshairHitLocation() const;
+	FVector GetCrosshairHitLocation(bool bOffsetFromCamera = false, FVector OffsetTarget = FVector(0, 0, 0)) const;
 
 	// Get Pitch/Yaw from current pawn camera
 	UFUNCTION(BlueprintCallable, Category = "Targeting")
@@ -70,7 +70,7 @@ protected:
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
 
-	FVector GetLookVectorHitLocation(FVector LookDirection) const;
+	FVector GetLookVectorHitLocation(FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const;
 
 public:
 

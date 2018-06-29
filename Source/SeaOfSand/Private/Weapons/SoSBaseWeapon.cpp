@@ -76,8 +76,9 @@ void ASoSBaseWeapon::HandleFiring()
 		{
 			FHitResult Hit; // Store hit
 			
+			FVector ShotDirection = GetAimDirection();
 			FVector TraceStart = WeaponMesh->GetSocketLocation("MuzzleSocket");
-			FVector TraceEnd = TraceStart + (GetAimDirection() * MaxRange);
+			FVector TraceEnd = TraceStart + (ShotDirection * MaxRange);
 
 			EPhysicalSurface SurfaceType = SurfaceType_Default;
 
@@ -85,7 +86,17 @@ void ASoSBaseWeapon::HandleFiring()
 
 			if (WeaponTrace(Hit, TraceStart, TraceEnd))
 			{
+				AActor* HitActor = Hit.GetActor();
+
 				SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+				float ActualDamage = BaseDamage;
+				if (SurfaceType == SURFACE_FLESHVULNERABLE)
+				{
+					ActualDamage *= 2.5f;
+				}
+
+				UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, PlayerController, PlayerCharacter, DamageType);
 				
 				PlayImpactEffect(SurfaceType, Hit.ImpactPoint);
 
@@ -206,9 +217,7 @@ void ASoSBaseWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector Impa
 
 	if (SelectedEffect)
 	{
-		FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
-
-		FVector ShotDirection = ImpactPoint - MuzzleLocation;
+		FVector ShotDirection = ImpactPoint - WeaponMesh->GetSocketLocation(MuzzleSocketName);
 		ShotDirection.Normalize();
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
@@ -226,7 +235,7 @@ bool ASoSBaseWeapon::WeaponTrace(FHitResult& OutHit, FVector StartLocation, FVec
 	TraceParams.bReturnPhysicalMaterial = true;
 	TraceParams.TraceTag = TraceTag;
 
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, ECC_Visibility, TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, COLLISION_WEAPON, TraceParams))
 	{
 		return true;
 	}
@@ -235,7 +244,9 @@ bool ASoSBaseWeapon::WeaponTrace(FHitResult& OutHit, FVector StartLocation, FVec
 
 FVector ASoSBaseWeapon::GetAimDirection()
 {
-	FVector AimDirection = PlayerController->GetCrosshairHitLocation() - WeaponMesh->GetSocketLocation("MuzzleSocket");
+	FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+
+	FVector AimDirection = PlayerController->GetCrosshairHitLocation(true, MuzzleLocation) - MuzzleLocation;
 	AimDirection.Normalize();	
 
 	return FMath().VRandCone(AimDirection, FMath().DegreesToRadians(GetBulletSpread()));

@@ -5,6 +5,7 @@
 #include "SoSPlayerInventory.h"
 #include "SoSPlayerHUD.h"
 #include "SoSBaseWeapon.h"
+#include "SeaOfSand.h"
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
 
@@ -96,7 +97,7 @@ void ASoSPlayerController::PrevWeapon()
 	PlayerInventory->CycleWeapons(false);
 }
 
-FVector ASoSPlayerController::GetCrosshairHitLocation() const
+FVector ASoSPlayerController::GetCrosshairHitLocation(bool bOffsetFromCamera, FVector OffsetTarget) const
 {
 	// Find the crosshair position in pixel coordinates
 	int32 ViewportSizeX, ViewPortSizeY;
@@ -108,7 +109,7 @@ FVector ASoSPlayerController::GetCrosshairHitLocation() const
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
 		// Line-trace along LookDirection, and see what we hit (up to max range)
-		return GetLookVectorHitLocation(LookDirection);
+		return GetLookVectorHitLocation(LookDirection, bOffsetFromCamera, OffsetTarget);
 	}
 	return FVector(0.f,0.f,0.f);
 }
@@ -119,24 +120,33 @@ bool ASoSPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& L
 	return DeprojectScreenPositionToWorld(ScreenLocation.X,	ScreenLocation.Y, CameraWorldLocation, LookDirection);
 }
 
-FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection) const
+FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const
 {
 	const FName TraceTag("CrosshairTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
 
-	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	RV_TraceParams.bTraceComplex = true;
-	RV_TraceParams.bTraceAsyncScene = true;
-	RV_TraceParams.bReturnPhysicalMaterial = false;
-	RV_TraceParams.TraceTag = TraceTag;
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, this);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = false;
+	TraceParams.TraceTag = TraceTag;
 
-	FHitResult RV_Hit;
-	FVector StartLocation = PlayerCameraManager->GetCameraLocation();
+	FHitResult Hit;
+
+	float Offset = 0.0f;
+
+	if (bOffsetFromCamera)
+	{
+		Offset = FVector::Dist(PlayerCameraManager->GetCameraLocation(), OffsetTarget);
+	}
+
+	FVector StartLocation = PlayerCameraManager->GetCameraLocation() + (LookDirection * Offset);
 	FVector EndLocation = StartLocation + (LookDirection * CrosshairTraceRange);
-	if (GetWorld()->LineTraceSingleByChannel(RV_Hit, StartLocation, EndLocation, ECC_Visibility, RV_TraceParams))
+
+	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, COLLISION_CROSSHAIR, TraceParams))
 	{
 		// Set hit location
-		return RV_Hit.Location;
+		return Hit.Location;
 	}
 	return EndLocation; // return end location if nothing hit
 }

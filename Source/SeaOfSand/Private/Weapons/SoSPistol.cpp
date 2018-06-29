@@ -15,11 +15,11 @@ ASoSPistol::ASoSPistol()
 	ProjectilesPerShot = 1;
 
 	// Aiming
-	BaseBulletSpreadRange = FVector2D(1.5f, 2.5f);
-	AimingBulletSpreadRange = FVector2D(0.25f, 1.5f);
-	RecoilAmount = 0.1f;
-	RecoilRecoveryTime = .5f;
-	AimingBulletSpreadLerpTime = 1;
+	BaseBulletSpreadRange = FVector2D(1.5f, 3.0f);
+	AimingBulletSpreadRange = FVector2D(0.25f, 2.0f);
+	RecoilAmount = 0.4f;
+	RecoilRecoveryTime = 1.2f;
+	AimingBulletSpreadLerpTime = 0.6f;
 
 	// Ammo
 	MaxAmmo = 999;

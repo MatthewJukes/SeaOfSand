@@ -59,7 +59,7 @@ public:
 
 protected:
 
-	ASoSPlayerController * PlayerController;
+	ASoSPlayerController* PlayerController;
 
 	ASoSPlayerCharacter* PlayerCharacter;
 
@@ -88,9 +88,6 @@ protected:
 	float FireRate;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
-	float BaseDamage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	float MaxRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
@@ -98,6 +95,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	int32 ProjectilesPerShot;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
+	float BaseDamage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
+	TSubclassOf<UDamageType> DamageType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
 	float WeaponDrawnSpeedMultiplier;

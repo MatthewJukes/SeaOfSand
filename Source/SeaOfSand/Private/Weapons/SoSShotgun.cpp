@@ -17,8 +17,8 @@ ASoSShotgun::ASoSShotgun()
 	// Aiming
 	BaseBulletSpreadRange = FVector2D(4.0f, 4.0f);
 	AimingBulletSpreadRange = FVector2D(4.0f, 4.0f);
-	RecoilAmount = 0.0f;
-	RecoilRecoveryTime = 0.0f;
+	RecoilAmount = 0;
+	RecoilRecoveryTime = 0;
 	AimingBulletSpreadLerpTime = 1;
 
 	// Ammo

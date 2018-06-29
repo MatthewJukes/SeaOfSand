@@ -24,14 +24,14 @@ void USoSHealthComponent::BeginPlay()
 	CurrentHealth = BaseHealth;
 }
 
-void USoSHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damage, const UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+void USoSHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Damage <= 0.0f || bIsDead)
 	{
 		return;
 	}
 
-	if (DamageCauser != DamagedActor && IsFriendly(DamagedActor, DamageCauser))
+	if (IsFriendly(DamagedActor, DamageCauser))
 	{
 		return;
 	}
@@ -39,7 +39,7 @@ void USoSHealthComponent::HandleTakeAnyDamage(AActor * DamagedActor, float Damag
 	// Update health clamped
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, BaseHealth);
 
-	UE_LOG(LogTemp, Log, TEXT("Health Changed: %s (-%s)"), *FString::SanitizeFloat(CurrentHealth), *FString::SanitizeFloat(Damage));
+	UE_LOG(LogTemp, Log, TEXT("%s Health Changed: %s (-%s), Damaged by %s"), *DamagedActor->GetName(), *FString::SanitizeFloat(CurrentHealth), *FString::SanitizeFloat(Damage), *DamageCauser->GetName());
 
 	bIsDead = CurrentHealth <= 0.0f;
 
@@ -94,4 +94,9 @@ bool USoSHealthComponent::IsFriendly(AActor * ActorA, AActor * ActorB)
 float USoSHealthComponent::GetCurrentHealth() const
 {
 	return CurrentHealth;
+}
+
+float USoSHealthComponent::GetBaseHealth() const
+{
+	return BaseHealth;
 }

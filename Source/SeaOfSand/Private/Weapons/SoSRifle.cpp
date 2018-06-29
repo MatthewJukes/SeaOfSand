@@ -15,11 +15,11 @@ ASoSRifle::ASoSRifle()
 	ProjectilesPerShot = 1;
 
 	// Aiming
-	BaseBulletSpreadRange = FVector2D(2.0f, 4.0f);
-	AimingBulletSpreadRange = FVector2D(0.1f, 1.5f);
-	RecoilAmount = 0.5f;
-	RecoilRecoveryTime = 1.0f;
-	AimingBulletSpreadLerpTime = 1.8;
+	BaseBulletSpreadRange = FVector2D(2.0f, 5.0f);
+	AimingBulletSpreadRange = FVector2D(0.1f, 2.5f);
+	RecoilAmount = 0.8f;
+	RecoilRecoveryTime = 2.0f;
+	AimingBulletSpreadLerpTime = 1.2;
 
 	// Ammo
 	MaxAmmo = 999;
