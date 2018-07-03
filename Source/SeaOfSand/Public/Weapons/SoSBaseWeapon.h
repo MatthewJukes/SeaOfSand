@@ -100,6 +100,9 @@ protected:
 	float BaseDamage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
+	float VulnerableHitBonusDamage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
 	TSubclassOf<UDamageType> DamageType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")

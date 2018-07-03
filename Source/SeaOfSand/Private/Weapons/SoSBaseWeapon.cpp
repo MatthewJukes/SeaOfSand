@@ -14,6 +14,7 @@
 #include "Engine/World.h"
 #include "Math/UnrealMath.h"
 #include "Public/TimerManager.h"
+#include "DrawDebugHelpers.h"
 
 
 // Sets default values
@@ -91,12 +92,17 @@ void ASoSBaseWeapon::HandleFiring()
 				SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
 				float ActualDamage = BaseDamage;
-				if (SurfaceType == SURFACE_FLESHVULNERABLE)
+				if (SurfaceType == SURFACE_FLESHVULNERABLE  || SurfaceType == SURFACE_CONSTRUCTVULNERABLE)
 				{
-					ActualDamage *= 2.5f;
-				}
+					ActualDamage *= VulnerableHitBonusDamage;
+				}				
 
 				UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, PlayerController, PlayerCharacter, DamageType);
+
+				if (SurfaceType != SurfaceType_Default)
+				{
+					DrawDebugString(GetWorld(), Hit.Location, FString::SanitizeFloat(ActualDamage), nullptr, FColor::White, 0.2f);
+				}
 				
 				PlayImpactEffect(SurfaceType, Hit.ImpactPoint);
 

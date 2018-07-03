@@ -285,7 +285,7 @@ void ASoSPlayerCharacter::DoubleJump()
 		bCanDoubleJump = false;
 		bIsDoubleJumping = true;
 		GetCharacterMovement()->Velocity.Z = 0.f;
-		GetCharacterMovement()->AddImpulse(FVector(0.f, 0.f, 1.f) * 65000.f);
+		GetCharacterMovement()->AddImpulse(FVector(0.f, 0.f, 1.f) * 60000.f);
 		GetCharacterMovement()->AirControl = 1.f;
 		GetWorldTimerManager().SetTimer(TimerHandle_DoubleJump, this, &ASoSPlayerCharacter::ResetAirControl, .8f, false, .8f);
 	}	

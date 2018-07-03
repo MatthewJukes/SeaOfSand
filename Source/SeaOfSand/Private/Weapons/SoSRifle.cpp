@@ -9,10 +9,13 @@ ASoSRifle::ASoSRifle()
 
 	// Firing
 	FireRate = 60;
-	BaseDamage = 25;
 	MaxRange = 30000.f;
 	bIsAutomatic = false;
 	ProjectilesPerShot = 1;
+
+	// Damage
+	BaseDamage = 25.0f;
+	VulnerableHitBonusDamage = 2.5f;
 
 	// Aiming
 	BaseBulletSpreadRange = FVector2D(2.0f, 5.0f);

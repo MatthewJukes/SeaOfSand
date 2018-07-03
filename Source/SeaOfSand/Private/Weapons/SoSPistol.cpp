@@ -9,10 +9,13 @@ ASoSPistol::ASoSPistol()
 
 	// Firing
 	FireRate = 240;
-	BaseDamage = 8;
 	MaxRange = 30000.f;
 	bIsAutomatic = false;
 	ProjectilesPerShot = 1;
+
+	// Damage
+	BaseDamage = 8.0f;
+	VulnerableHitBonusDamage = 2.0f;
 
 	// Aiming
 	BaseBulletSpreadRange = FVector2D(1.5f, 3.0f);

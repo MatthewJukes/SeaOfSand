@@ -9,10 +9,13 @@ ASoSShotgun::ASoSShotgun()
 
 	// Firing
 	FireRate = 60;
-	BaseDamage = 4;
 	MaxRange = 10000.f;
 	bIsAutomatic = false;
 	ProjectilesPerShot = 12;
+
+	// Damage
+	BaseDamage = 4.0f;
+	VulnerableHitBonusDamage = 1.5f;
 
 	// Aiming
 	BaseBulletSpreadRange = FVector2D(4.0f, 4.0f);
