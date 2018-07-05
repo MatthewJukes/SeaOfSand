@@ -6,7 +6,6 @@
 #include "GameFramework/Pawn.h"
 #include "SoSBaseEnemy.generated.h"
 
-class USoSHealthComponent;
 
 UCLASS()
 class SEAOFSAND_API ASoSBaseEnemy : public APawn
@@ -19,17 +18,6 @@ public:
 
 protected:
 	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USkeletalMeshComponent* MeshComp;
-
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSHealthComponent* EnemyHealth;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	
+	virtual void BeginPlay() override;	
 	
 };

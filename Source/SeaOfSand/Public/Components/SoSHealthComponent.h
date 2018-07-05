@@ -53,6 +53,7 @@ public:
 
 	/* Getters and Setters */
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetCurrentHealth() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")

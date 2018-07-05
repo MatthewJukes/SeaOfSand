@@ -3,14 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Enemies/SoSBaseEnemy.h"
+#include "GameFramework/Character.h"
 #include "SoSBaseConstruct.generated.h"
 
-class UCapsuleComponent;
-class UCharacterMovementComponent;
+class USoSHealthComponent;
 
 UCLASS()
-class SEAOFSAND_API ASoSBaseConstruct : public ASoSBaseEnemy
+class SEAOFSAND_API ASoSBaseConstruct : public ACharacter
 {
 	GENERATED_BODY()
 	
@@ -23,10 +22,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	UCapsuleComponent* CapsuleComp;
+	USoSHealthComponent* HealthComp;
 
-	//UPROPERTY(VisibleAnywhere, Category = "Component")
-	//UCharacterMovementComponent* MovementComp;
 
 public:
 

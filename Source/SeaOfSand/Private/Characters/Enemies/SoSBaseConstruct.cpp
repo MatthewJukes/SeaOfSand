@@ -1,21 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSBaseConstruct.h"
-#include "Components/CapsuleComponent.h"
+#include "SoSHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ASoSBaseConstruct::ASoSBaseConstruct()
 {
-	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-	RootComponent = CapsuleComp;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
 
-	//MovementComp = CreateDefaultSubobject<UCharacterMovementComponent>(TEXT("MovementComp"));
+	HealthComp = CreateDefaultSubobject<USoSHealthComponent>(TEXT("HealthComp"));
+
 }
 
 
 void ASoSBaseConstruct::BeginPlay()
 {
 	Super::BeginPlay();
+
 
 }
 
