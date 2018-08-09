@@ -8,7 +8,7 @@
 
 class IPlayerInputsInterface;
 class ASoSPlayerCharacter;
-class USoSPlayerInventory;
+class USoSInventoryComponent;
 class ASoSPlayerHUD;
 
 UCLASS()
@@ -42,7 +42,7 @@ protected:
 
 	ASoSPlayerCharacter* PlayerCharacter;
 
-	USoSPlayerInventory* PlayerInventory;
+	USoSInventoryComponent* PlayerInventory;
 
 	ASoSPlayerHUD* PlayerHUD;
 

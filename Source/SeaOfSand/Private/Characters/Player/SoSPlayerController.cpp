@@ -2,9 +2,9 @@
 
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
-#include "SoSPlayerInventory.h"
+#include "SoSInventoryComponent.h"
 #include "SoSPlayerHUD.h"
-#include "SoSBaseWeapon.h"
+#include "SoSRangedWeapon.h"
 #include "SeaOfSand.h"
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
@@ -51,14 +51,14 @@ void ASoSPlayerController::StartFiring()
 {
 	if (PlayerInventory)
 	{
-		if (!PlayerInventory->GetWeaponIsDrawn()) // Draw weapon is not drawn already
+		if (!PlayerInventory->GetWeaponIsDrawn()) // Draw weapon if not drawn already
 		{
 			PlayerInventory->HolsterUnholster();
 		}
 		else
 		{
 			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
-			PlayerInventory->GetCurrentWeapon()->StartFiring();
+			//PlayerInventory->GetCurrentWeapon()->StartFiring();
 		}		
 	}
 }
@@ -67,7 +67,7 @@ void ASoSPlayerController::StopFiring()
 {
 	if (PlayerInventory)
 	{
-		PlayerInventory->GetCurrentWeapon()->StopFiring();
+		//PlayerInventory->GetCurrentWeapon()->StopFiring();
 	}
 }
 
@@ -83,7 +83,7 @@ void ASoSPlayerController::Reload()
 {
 	if (PlayerInventory)
 	{
-		PlayerInventory->GetCurrentWeapon()->StartReload();
+		//PlayerInventory->GetCurrentWeapon()->StartReload();
 	}
 }
 

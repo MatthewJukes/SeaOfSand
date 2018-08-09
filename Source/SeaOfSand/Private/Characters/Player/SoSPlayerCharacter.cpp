@@ -2,10 +2,10 @@
 
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerController.h"
-#include "SoSPlayerInventory.h"
+#include "SoSInventoryComponent.h"
 #include "SoSHealthComponent.h"
 #include "BaseVehicle.h"
-#include "SoSBaseWeapon.h"
+#include "SoSRangedWeapon.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -24,10 +24,10 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Setup inventory
-	PlayerInventory = CreateDefaultSubobject<USoSPlayerInventory>(TEXT("PlayerInventory"));
+	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
 
 	// Setup health component
-	PlayerHealth = CreateDefaultSubobject<USoSHealthComponent>(TEXT("PlayerHealth"));
+	HealthComp = CreateDefaultSubobject<USoSHealthComponent>(TEXT("PlayerHealth"));
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -184,15 +184,15 @@ void ASoSPlayerCharacter::SprintStart()
 	
 	// End aiming and reloading
 	if (bIsAiming) { AimEnd(); }
-	if (PlayerInventory->GetCurrentWeapon()) { PlayerInventory->GetCurrentWeapon()->InterruptReload(); }
+	//if (InventoryComp->GetCurrentWeapon()) { InventoryComp->GetCurrentWeapon()->InterruptReload(); }
 
 	bIsSprinting = true;
 	SprintZoom(true);
 	SetStaminaRate(-SprintStaminaDrainRate);
 
-	if (PlayerInventory->GetCurrentWeapon())
+	if (InventoryComp->GetCurrentWeapon())
 	{
-		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier() * SprintMultiplier);
+		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier() * SprintMultiplier);
 		SetPlayerMovementType(true, false);
 	}
 	else
@@ -212,9 +212,9 @@ void ASoSPlayerCharacter::SprintEnd()
 	SprintZoom(false);
 	SetStaminaRate(BaseStaminaRegenRate);
 
-	if (PlayerInventory->GetWeaponIsDrawn())
+	if (InventoryComp->GetWeaponIsDrawn())
 	{
-		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
+		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
 		SetPlayerMovementType(false, true);
 	}
 	else
@@ -236,15 +236,15 @@ void ASoSPlayerCharacter::AimStart()
 {
 	// End sprint and reloading
 	if (bIsSprinting) { SprintEnd(); }
-	if (!PlayerInventory->GetWeaponIsDrawn()) { PlayerInventory->HolsterUnholster(); }
+	if (!InventoryComp->GetWeaponIsDrawn()) { InventoryComp->HolsterUnholster(); }
 
 	bIsAiming = true;
 	AimZoom(true);
-	SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetAimingSpeedMultiplier());
+	//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetAimingSpeedMultiplier());
 
-	if (PlayerInventory->GetCurrentWeapon()) // Give weapon bonus accuracy
+	if (InventoryComp->GetCurrentWeapon()) // Give weapon bonus accuracy
 	{
-		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
+		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
 	}
 }
 
@@ -258,18 +258,18 @@ void ASoSPlayerCharacter::AimEnd()
 	bIsAiming = false;
 	AimZoom(false);
 
-	if (PlayerInventory->GetWeaponIsDrawn())
+	if (InventoryComp->GetWeaponIsDrawn())
 	{
-		SetPlayerSpeed(PlayerInventory->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
+		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
 	}
 	else
 	{
 		SetPlayerSpeed(1.f);
 	}
 
-	if (PlayerInventory->GetCurrentWeapon()) // Remove weapon bonus accuracy
+	if (InventoryComp->GetCurrentWeapon()) // Remove weapon bonus accuracy
 	{
-		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
+		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
 	}
 }
 
@@ -306,12 +306,12 @@ void ASoSPlayerCharacter::StartRoll()
 
 	// End sprint and reloading
 	if (bIsSprinting) { SprintEnd(); }
-	if (ASoSBaseWeapon* CurrentWeapon = PlayerInventory->GetCurrentWeapon()) { CurrentWeapon->InterruptReload(); }
+	//if (ASoSRangedWeapon* CurrentWeapon = InventoryComp->GetCurrentWeapon()) { CurrentWeapon->InterruptReload(); }
 
 	// End aiming bonus if aiming
-	if (PlayerInventory->GetCurrentWeapon() && bIsAiming)
+	if (InventoryComp->GetCurrentWeapon() && bIsAiming)
 	{
-		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
+		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
 	}
 	
 	bIsRolling = true;
@@ -352,9 +352,9 @@ void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 	bIsRolling = false;
 
 	// Re-enable aiming bonus if aiming
-	if (PlayerInventory->GetCurrentWeapon() && bIsAiming)
+	if (InventoryComp->GetCurrentWeapon() && bIsAiming)
 	{
-		PlayerInventory->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
+		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
 	}
 
 	// Reset movement	
@@ -453,7 +453,7 @@ void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, 
 	}
 }
 
-USoSPlayerInventory * ASoSPlayerCharacter::GetPlayerInventory() const
+USoSInventoryComponent * ASoSPlayerCharacter::GetPlayerInventory() const
 {
-	return PlayerInventory;
+	return InventoryComp;
 }

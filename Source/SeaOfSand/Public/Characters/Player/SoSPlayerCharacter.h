@@ -7,7 +7,8 @@
 #include "SoSPlayerCharacter.generated.h"
 
 class UCameraComponent;
-class USoSPlayerInventory;
+class USoSInventoryComponent;
+class USoSCombatComponent;
 class USoSHealthComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
@@ -36,10 +37,13 @@ protected:
 	UCameraComponent* FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSPlayerInventory* PlayerInventory;
+	USoSInventoryComponent* InventoryComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSHealthComponent* PlayerHealth;
+	USoSCombatComponent* CombatComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	USoSHealthComponent* HealthComp;
 
 public:
 
@@ -157,7 +161,7 @@ public:
 	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
-	USoSPlayerInventory* GetPlayerInventory() const;
+	USoSInventoryComponent* GetPlayerInventory() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	float GetStamina() const;
