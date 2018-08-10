@@ -6,7 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "SoSASTasks.generated.h"
 
-class USoSASBuff;
+struct FASEffectData;
 
 UCLASS()
 class SEAOFSAND_API USoSASTasks : public UObject
@@ -15,6 +15,6 @@ class SEAOFSAND_API USoSASTasks : public UObject
 
 protected:
 
-	bool ApplyBuff(USoSASBuff* BuffToApply, AActor* Target, AActor* Instigator);	
+	bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
 	
 };

@@ -2,12 +2,12 @@
 
 #include "SoSASTasks.h"
 #include "SoSASComponent.h"
-#include "SoSASBuffBase.h"
+#include "SoSASEffect.h"
 
 
-bool USoSASTasks::ApplyBuff(USoSASBuff* BuffToApply, AActor* Target, AActor* Instigator)
+bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator)
 {
-	if (BuffToApply == nullptr || Target == nullptr || Instigator == nullptr)
+	if (Target == nullptr || Instigator == nullptr)
 	{
 		return false;
 	}
@@ -19,9 +19,7 @@ bool USoSASTasks::ApplyBuff(USoSASBuff* BuffToApply, AActor* Target, AActor* Ins
 		return false;
 	}
 
-	//USoSASBuffBase* Buff = Cast<USoSASBuffBase>(BuffToApply);
-
-	//Buff->ApplyBuff(TargetASComp);
+	TargetASComp->SetASAttribute(EffectToApply->AttributeToEffect, EffectToApply->Value, EffectToApply->Duration);
 
 	return true;
 } 
