@@ -6,6 +6,22 @@
 #include "SoSASAttributes.h"
 #include "SoSASEffect.generated.h"
 
+UENUM(BlueprintType)
+enum class EASEffectType : uint8
+{
+	Positive,
+	Neutral,
+	Negative
+};
+
+UENUM(BlueprintType)
+enum class EASEffectValueType : uint8
+{
+	Additive,
+	Multiplicative,
+	Subtractive
+};
+
 USTRUCT(BlueprintType)
 struct FASEffectData
 {
@@ -18,14 +34,17 @@ struct FASEffectData
 	EASAttributeName AttributeToEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
-	float Value;
+	EASEffectType EffectType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
-	float Duration;
+	EASEffectValueType EffectValueType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
+	float EffectValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
+	float EffectDuration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
 	int MaxStacks;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
-	bool bIsNegative;
 };

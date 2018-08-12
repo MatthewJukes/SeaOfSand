@@ -19,7 +19,40 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Targ
 		return false;
 	}
 
-	TargetASComp->SetASAttribute(EffectToApply->AttributeToEffect, EffectToApply->Value, EffectToApply->Duration);
+	switch (EffectToApply->EffectValueType)
+	{
+	case EASEffectValueType::Additive:
+		AddValueToASAttribute(TargetASComp, EffectToApply->AttributeToEffect, EffectToApply->EffectValue);
+		break;
+	case EASEffectValueType::Multiplicative:
+		break;
+	case EASEffectValueType::Subtractive:
+		break;
+	default:
+		break;
+	}
 
 	return true;
 } 
+
+void USoSASTasks::AddValueToASAttribute(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value)
+{
+	USoSASComponent* TargetASComp = Cast<USoSASComponent>(ASComponent);
+
+	if (TargetASComp == nullptr)
+	{
+		return;
+	}
+
+	TargetASComp->SetASAttribute(AttributeToEffect, Value);
+}
+
+void USoSASTasks::AddMultiplierToASAttribute(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value)
+{
+
+}
+
+void USoSASTasks::AddDividerToASAttribte(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value)
+{
+
+}

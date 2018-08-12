@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SoSASAttributes.h"
 #include "UObject/NoExportTypes.h"
 #include "SoSASTasks.generated.h"
 
+class USoSASComponent;
 struct FASEffectData;
 
 UCLASS()
@@ -17,4 +19,10 @@ protected:
 
 	bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
 	
+	void AddValueToASAttribute(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value);
+
+	void AddMultiplierToASAttribute(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value);
+
+	void AddDividerToASAttribte(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value);
+
 };

@@ -23,11 +23,19 @@ protected:
 
 public:
 
+	void AddASEffectToArray(FASEffectData* EffectToAdd);
+
 protected:
 
 	float HealthCurrentValue;
 
 	float SpeedCurrentValue;
+
+	TArray<FASEffectData*> CurrentPositiveEffects;
+
+	TArray<FASEffectData*> CurrentNeutralEffects;
+
+	TArray<FASEffectData*> CurrentNegativeEffects;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float HealthBaseValue;
@@ -37,8 +45,7 @@ protected:
 
 public:
 
-	void SetASAttribute(EASAttributeName AttributeToSet, float Value, float Duration);
-
 	float GetASAttribute(EASAttributeName AttributeToGet) const;
-	
+
+	void SetASAttribute(EASAttributeName AttributeToSet, float Value);
 };
