@@ -8,12 +8,13 @@
 UENUM(BlueprintType)
 enum class EASAttributeName : uint8
 {
-	HealthBase,
+	HealthMax,
 	HealthCurrent,
-	ArmourBase,
+	ArmourMax,
 	ArmourCurrent,
 	SpeedBase,
 	SpeedCurrent,
-	EnergyBase,
-	EnergyCurrent
+	EnergyMax,
+	EnergyCurrent,
+	EASATTRIBUTENAME_NR_ITEMS UMETA(Hidden)
 };

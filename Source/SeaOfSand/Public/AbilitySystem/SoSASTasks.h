@@ -18,11 +18,4 @@ class SEAOFSAND_API USoSASTasks : public UObject
 protected:
 
 	bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
-	
-	void AddValueToASAttribute(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value);
-
-	void AddMultiplierToASAttribute(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value);
-
-	void AddDividerToASAttribte(USoSASComponent* ASComponent, EASAttributeName AttributeToEffect, float Value);
-
 };
