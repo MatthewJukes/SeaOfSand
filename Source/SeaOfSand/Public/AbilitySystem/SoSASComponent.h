@@ -58,15 +58,17 @@ protected:
 
 	TArray<FASEffectData*> DefaultArray;
 
-	TArray<float> ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
-
 	TArray<float> ASAttributeTempAdditiveValues;
 
+	TArray<float> ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
+	
 	void LoopOverCurrentASEffectsArrays();
 
 	void CheckASEffectStatus(FASEffectData* Effect);
 
 	void CheckASEffectValue(FASEffectData* Effect);
+
+	void AddValueToASAttributeTempAdditiveValues(EASAttributeName Attribute, float Value);
 
 	void AddValueToASAttribute(EASAttributeName Attribute, float Value);
 

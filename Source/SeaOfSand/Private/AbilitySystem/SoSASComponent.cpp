@@ -31,8 +31,6 @@ void USoSASComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 void USoSASComponent::LoopOverCurrentASEffectsArrays()
 {
-	//float TotalAdditionValue = 0.0f;
-
 	for (FASEffectData* Effect : CurrentPositiveEffects)
 	{
 		CheckASEffectStatus(Effect);
@@ -103,6 +101,42 @@ void USoSASComponent::CheckASEffectValue(FASEffectData* Effect)
 }
 
 
+void USoSASComponent::AddValueToASAttributeTempAdditiveValues(EASAttributeName Attribute, float Value)
+{
+	switch (Attribute)
+	{
+	case EASAttributeName::HealthMax:
+		ASAttributeTempAdditiveValues[0] += Value;
+		break;
+	case EASAttributeName::HealthCurrent:
+		ASAttributeTempAdditiveValues[1] += Value;
+		break;
+	case EASAttributeName::ArmourMax:
+		ASAttributeTempAdditiveValues[2] += Value;
+		break;
+	case EASAttributeName::ArmourCurrent:
+		ASAttributeTempAdditiveValues[3] += Value;
+		break;
+	case EASAttributeName::SpeedBase:
+		ASAttributeTempAdditiveValues[4] += Value;
+		break;
+	case EASAttributeName::SpeedCurrent:
+		ASAttributeTempAdditiveValues[5] += Value;
+		break;
+	case EASAttributeName::EnergyMax:
+		ASAttributeTempAdditiveValues[6] += Value;
+		break;
+	case EASAttributeName::EnergyCurrent:
+		ASAttributeTempAdditiveValues[7] += Value;
+		break;
+	case EASAttributeName::EASATTRIBUTENAME_NR_ITEMS:
+		break;
+	default:
+		break;
+	}
+}
+
+
 void USoSASComponent::AddValueToASAttribute(EASAttributeName Attribute, float Value)
 {
 	switch (Attribute)
@@ -130,6 +164,7 @@ void USoSASComponent::AddValueToASAttribute(EASAttributeName Attribute, float Va
 		break;
 	}
 }
+
 
 void USoSASComponent::AddASEffectToArray(FASEffectData* EffectToAdd)
 {
