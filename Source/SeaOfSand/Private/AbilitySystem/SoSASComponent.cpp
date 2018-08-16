@@ -79,21 +79,37 @@ void USoSASComponent::CheckASEffectValue(FASEffectData* Effect)
 
 		if (Effect->bTemporaryModifier)
 		{
-
+			AddValueToASAttributeTempAdditiveValues(Effect->AttributeToEffect, NewValue);
 		}
 		else
 		{
-
+			
 		}
 
 		break;
 	case EASEffectValueType::Multiplicative:
 		Effect->TotalValue += NewValue;
+		
+		if (Effect->bTemporaryModifier)
+		{
+			AddValueToASAttributeTempMultiplierValues(Effect->AttributeToEffect, NewValue);
+		}
+		else
+		{
 
+		}
 		break;
 	case EASEffectValueType::Subtractive:
 		Effect->TotalValue += NewValue;
 
+		if (Effect->bTemporaryModifier)
+		{
+			AddValueToASAttributeTempMultiplierValues(Effect->AttributeToEffect, -NewValue);
+		}
+		else
+		{
+
+		}
 		break;
 	default:
 		break;
@@ -137,26 +153,69 @@ void USoSASComponent::AddValueToASAttributeTempAdditiveValues(EASAttributeName A
 }
 
 
-void USoSASComponent::AddValueToASAttribute(EASAttributeName Attribute, float Value)
+void USoSASComponent::AddValueToASAttributeTempMultiplierValues(EASAttributeName Attribute, float Value)
 {
 	switch (Attribute)
 	{
 	case EASAttributeName::HealthMax:
-		
+		ASAttributeTempMultiplierValues[0] += Value;
 		break;
 	case EASAttributeName::HealthCurrent:
+		ASAttributeTempMultiplierValues[1] += Value;
 		break;
 	case EASAttributeName::ArmourMax:
+		ASAttributeTempMultiplierValues[2] += Value;
 		break;
 	case EASAttributeName::ArmourCurrent:
+		ASAttributeTempMultiplierValues[3] += Value;
 		break;
 	case EASAttributeName::SpeedBase:
+		ASAttributeTempMultiplierValues[4] += Value;
 		break;
 	case EASAttributeName::SpeedCurrent:
+		ASAttributeTempMultiplierValues[5] += Value;
 		break;
 	case EASAttributeName::EnergyMax:
+		ASAttributeTempMultiplierValues[6] += Value;
 		break;
 	case EASAttributeName::EnergyCurrent:
+		ASAttributeTempMultiplierValues[7] += Value;
+		break;
+	case EASAttributeName::EASATTRIBUTENAME_NR_ITEMS:
+		break;
+	default:
+		break;
+	}
+}
+
+
+void USoSASComponent::AddValueToASAttribute(EASAttributeName Attribute, float Value)
+{
+	switch (Attribute)
+	{
+	case EASAttributeName::HealthMax:		
+		SetASAttribute(Attribute, CharacterData->HealthMaxValue + Value);
+		break;
+	case EASAttributeName::HealthCurrent:
+		SetASAttribute(Attribute, CharacterData->HealthCurrentValue + Value);
+		break;
+	case EASAttributeName::ArmourMax:
+		SetASAttribute(Attribute, CharacterData->ArmourMaxValue + Value);
+		break;
+	case EASAttributeName::ArmourCurrent:
+		SetASAttribute(Attribute, CharacterData->ArmourCurrentValue + Value);
+		break;
+	case EASAttributeName::SpeedBase:
+		SetASAttribute(Attribute, CharacterData->SpeedBaseValue + Value);
+		break;
+	case EASAttributeName::SpeedCurrent:
+		SetASAttribute(Attribute, CharacterData->SpeedCurrentValue + Value);
+		break;
+	case EASAttributeName::EnergyMax:
+		SetASAttribute(Attribute, CharacterData->EnergyMaxValue + Value);
+		break;
+	case EASAttributeName::EnergyCurrent:
+		SetASAttribute(Attribute, CharacterData->EnergyCurrentValue + Value);
 		break;
 	case EASAttributeName::EASATTRIBUTENAME_NR_ITEMS:
 		break;
@@ -206,7 +265,12 @@ void USoSASComponent::RemoveASEffectFromArray(FASEffectData* EffectToRemove)
 
 void USoSASComponent::EndASEffect(FASEffectData* EffectToEnd)
 {
+	if (EffectToEnd->bTemporaryModifier)
+	{
+		// TODO reset attribute
+	}
 
+	RemoveASEffectFromArray(EffectToEnd);
 }
 
 
@@ -219,24 +283,28 @@ void USoSASComponent::SetASAttribute(EASAttributeName AtrributeToSet, float Valu
 	switch (AtrributeToSet)
 	{
 	case EASAttributeName::HealthMax:
-		//HealthBaseValue = Value;
+		CharacterData->HealthMaxValue = FMath::Max(1.0f, Value);
 		break;
 	case EASAttributeName::HealthCurrent:
-		//HealthCurrentValue = Value;
+		CharacterData->HealthCurrentValue = FMath::Min(CharacterData->HealthMaxValue, Value);
 		break;
 	case EASAttributeName::ArmourMax:
+		CharacterData->ArmourMaxValue = FMath::Max(0.0f, Value);
 		break;
 	case EASAttributeName::ArmourCurrent:
+		CharacterData->ArmourCurrentValue = FMath::Min(CharacterData->ArmourMaxValue, Value);
 		break;
 	case EASAttributeName::SpeedBase:
-		//SpeedBaseValue = Value;
+		CharacterData->SpeedBaseValue = FMath::Max(0.0f, Value);
 		break;
 	case EASAttributeName::SpeedCurrent:
-		//SpeedCurrentValue = Value;
+		CharacterData->SpeedCurrentValue = FMath::Max(CharacterData->SpeedBaseValue*0.1f, Value);
 		break;
 	case EASAttributeName::EnergyMax:
+		CharacterData->EnergyMaxValue = FMath::Max(0.0f, Value);
 		break;
 	case EASAttributeName::EnergyCurrent:
+		CharacterData->EnergyCurrentValue = FMath::Min(CharacterData->EnergyMaxValue, Value);
 		break;
 	default:
 		break;
@@ -249,28 +317,28 @@ float USoSASComponent::GetASAttribute(EASAttributeName AttributeToGet) const
 	switch (AttributeToGet)
 	{
 	case EASAttributeName::HealthMax:
-		return 1;
+		return CharacterData->HealthMaxValue;
 		break;
 	case EASAttributeName::HealthCurrent:
-		return 1;
+		return CharacterData->HealthCurrentValue;
 		break;
 	case EASAttributeName::ArmourMax:
-		return 1;
+		return CharacterData->ArmourMaxValue;
 		break;
 	case EASAttributeName::ArmourCurrent:
-		return 1;
+		return CharacterData->ArmourCurrentValue;
 		break;
 	case EASAttributeName::SpeedBase:
-		return 1;
+		return CharacterData->SpeedBaseValue;
 		break;
 	case EASAttributeName::SpeedCurrent:
-		return 1;
+		return CharacterData->SpeedCurrentValue;
 		break;
 	case EASAttributeName::EnergyMax:
-		return 1;
+		return CharacterData->EnergyMaxValue;
 		break;
 	case EASAttributeName::EnergyCurrent:
-		return 1;
+		return CharacterData->EnergyCurrentValue;
 		break;
 	default:
 		return -1;

@@ -12,16 +12,27 @@
 USTRUCT(BlueprintType)
 struct FASCharacterData
 {
+	GENERATED_USTRUCT_BODY()
 
 	float HealthCurrentValue;
 
+	float ArmourCurrentValue;
+
 	float SpeedCurrentValue;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-		float HealthMaxValue;
+	float EnergyCurrentValue;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-		float SpeedBaseValue;
+	float HealthMaxValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float ArmourMaxValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float SpeedBaseValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float EnergyMaxValue;
 };
 
 
@@ -70,7 +81,12 @@ protected:
 
 	void AddValueToASAttributeTempAdditiveValues(EASAttributeName Attribute, float Value);
 
+	void AddValueToASAttributeTempMultiplierValues(EASAttributeName Attribute, float Value);
+
 	void AddValueToASAttribute(EASAttributeName Attribute, float Value);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	FASCharacterData* CharacterData;
 
 ////////////////////////////////////////////////
 // Getters and Setters
