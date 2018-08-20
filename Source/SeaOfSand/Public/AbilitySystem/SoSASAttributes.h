@@ -12,8 +12,7 @@ enum class EASAttributeName : uint8
 	HealthCurrent,
 	ArmourMax,
 	ArmourCurrent,
-	SpeedBase,
-	SpeedCurrent,
+	Speed,
 	EnergyMax,
 	EnergyCurrent,
 	EASATTRIBUTENAME_NR_ITEMS UMETA(Hidden)

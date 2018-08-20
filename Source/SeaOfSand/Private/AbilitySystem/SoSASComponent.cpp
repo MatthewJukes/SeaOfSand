@@ -7,8 +7,15 @@
 // Sets default values for this component's properties
 USoSASComponent::USoSASComponent()
 {
+	ASAttributeBaseValues.Init(0.0f, int32(EASAttributeName::EASATTRIBUTENAME_NR_ITEMS));
+	ASAttributeTotalValues.Init(0.0f, int32(EASAttributeName::EASATTRIBUTENAME_NR_ITEMS));
 	ASAttributeTempMultiplierValues.Init(0.0f, int32(EASAttributeName::EASATTRIBUTENAME_NR_ITEMS));
 	ASAttributeTempAdditiveValues.Init(0.0f, int32(EASAttributeName::EASATTRIBUTENAME_NR_ITEMS));
+
+	HealthMaxStartValue = 100;
+	ArmourMaxStartValue = 0;
+	SpeedStartValue = 400;
+	EnergyMaxStartValue = 100;
 }
 
 
@@ -133,17 +140,14 @@ void USoSASComponent::AddValueToASAttributeTempAdditiveValues(EASAttributeName A
 	case EASAttributeName::ArmourCurrent:
 		ASAttributeTempAdditiveValues[3] += Value;
 		break;
-	case EASAttributeName::SpeedBase:
+	case EASAttributeName::Speed:
 		ASAttributeTempAdditiveValues[4] += Value;
 		break;
-	case EASAttributeName::SpeedCurrent:
+	case EASAttributeName::EnergyMax:
 		ASAttributeTempAdditiveValues[5] += Value;
 		break;
-	case EASAttributeName::EnergyMax:
-		ASAttributeTempAdditiveValues[6] += Value;
-		break;
 	case EASAttributeName::EnergyCurrent:
-		ASAttributeTempAdditiveValues[7] += Value;
+		ASAttributeTempAdditiveValues[6] += Value;
 		break;
 	case EASAttributeName::EASATTRIBUTENAME_NR_ITEMS:
 		break;
@@ -169,17 +173,14 @@ void USoSASComponent::AddValueToASAttributeTempMultiplierValues(EASAttributeName
 	case EASAttributeName::ArmourCurrent:
 		ASAttributeTempMultiplierValues[3] += Value;
 		break;
-	case EASAttributeName::SpeedBase:
+	case EASAttributeName::Speed:
 		ASAttributeTempMultiplierValues[4] += Value;
 		break;
-	case EASAttributeName::SpeedCurrent:
+	case EASAttributeName::EnergyMax:
 		ASAttributeTempMultiplierValues[5] += Value;
 		break;
-	case EASAttributeName::EnergyMax:
-		ASAttributeTempMultiplierValues[6] += Value;
-		break;
 	case EASAttributeName::EnergyCurrent:
-		ASAttributeTempMultiplierValues[7] += Value;
+		ASAttributeTempMultiplierValues[6] += Value;
 		break;
 	case EASAttributeName::EASATTRIBUTENAME_NR_ITEMS:
 		break;
@@ -205,10 +206,7 @@ void USoSASComponent::AddValueToASAttribute(EASAttributeName Attribute, float Va
 	case EASAttributeName::ArmourCurrent:
 		SetASAttribute(Attribute, CharacterData->ArmourCurrentValue + Value);
 		break;
-	case EASAttributeName::SpeedBase:
-		SetASAttribute(Attribute, CharacterData->SpeedBaseValue + Value);
-		break;
-	case EASAttributeName::SpeedCurrent:
+	case EASAttributeName::Speed:
 		SetASAttribute(Attribute, CharacterData->SpeedCurrentValue + Value);
 		break;
 	case EASAttributeName::EnergyMax:
@@ -294,11 +292,8 @@ void USoSASComponent::SetASAttribute(EASAttributeName AtrributeToSet, float Valu
 	case EASAttributeName::ArmourCurrent:
 		CharacterData->ArmourCurrentValue = FMath::Min(CharacterData->ArmourMaxValue, Value);
 		break;
-	case EASAttributeName::SpeedBase:
-		CharacterData->SpeedBaseValue = FMath::Max(0.0f, Value);
-		break;
-	case EASAttributeName::SpeedCurrent:
-		CharacterData->SpeedCurrentValue = FMath::Max(CharacterData->SpeedBaseValue*0.1f, Value);
+	case EASAttributeName::Speed:
+		CharacterData->SpeedCurrentValue = FMath::Max(0.0f, Value);
 		break;
 	case EASAttributeName::EnergyMax:
 		CharacterData->EnergyMaxValue = FMath::Max(0.0f, Value);
@@ -328,10 +323,7 @@ float USoSASComponent::GetASAttribute(EASAttributeName AttributeToGet) const
 	case EASAttributeName::ArmourCurrent:
 		return CharacterData->ArmourCurrentValue;
 		break;
-	case EASAttributeName::SpeedBase:
-		return CharacterData->SpeedBaseValue;
-		break;
-	case EASAttributeName::SpeedCurrent:
+	case EASAttributeName::Speed:
 		return CharacterData->SpeedCurrentValue;
 		break;
 	case EASAttributeName::EnergyMax:

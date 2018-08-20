@@ -9,33 +9,6 @@
 #include "SoSASComponent.generated.h"
 
 
-USTRUCT(BlueprintType)
-struct FASCharacterData
-{
-	GENERATED_USTRUCT_BODY()
-
-	float HealthCurrentValue;
-
-	float ArmourCurrentValue;
-
-	float SpeedCurrentValue;
-
-	float EnergyCurrentValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	float HealthMaxValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	float ArmourMaxValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	float SpeedBaseValue;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	float EnergyMaxValue;
-};
-
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
 {
@@ -69,9 +42,25 @@ protected:
 
 	TArray<FASEffectData*> DefaultArray;
 
+	TArray<float> ASAttributeBaseValues;
+
+	TArray<float> ASAttributeTotalValues;
+
 	TArray<float> ASAttributeTempAdditiveValues;
 
 	TArray<float> ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float HealthMaxStartValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float ArmourMaxStartValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float SpeedStartValue;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	float EnergyMaxStartValue;
 	
 	void LoopOverCurrentASEffectsArrays();
 
@@ -84,9 +73,6 @@ protected:
 	void AddValueToASAttributeTempMultiplierValues(EASAttributeName Attribute, float Value);
 
 	void AddValueToASAttribute(EASAttributeName Attribute, float Value);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	FASCharacterData* CharacterData;
 
 ////////////////////////////////////////////////
 // Getters and Setters
