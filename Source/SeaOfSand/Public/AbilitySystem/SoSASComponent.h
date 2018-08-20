@@ -40,15 +40,15 @@ protected:
 
 	TArray<FASEffectData*> CurrentNegativeEffects;
 
-	TArray<FASEffectData*> DefaultArray;
+	TArray<FASEffectData*> DefaultArray; // Empty array for switch statements
 
-	TArray<float> ASAttributeBaseValues;
+	FASAttributeData* ASAttributeBaseValues;
 
-	TArray<float> ASAttributeTotalValues;
+	FASAttributeData* ASAttributeTotalValues;
 
-	TArray<float> ASAttributeTempAdditiveValues;
+	FASAttributeData* ASAttributeTempAdditiveValues;
 
-	TArray<float> ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
+	FASAttributeData* ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float HealthMaxStartValue;
@@ -57,10 +57,10 @@ protected:
 	float ArmourMaxStartValue;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	float SpeedStartValue;
+	float EnergyMaxStartValue;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	float EnergyMaxStartValue;
+	float SpeedStartValue;
 	
 	void LoopOverCurrentASEffectsArrays();
 
@@ -68,18 +68,16 @@ protected:
 
 	void CheckASEffectValue(FASEffectData* Effect);
 
-	void AddValueToASAttributeTempAdditiveValues(EASAttributeName Attribute, float Value);
+	void AddValueToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
 
-	void AddValueToASAttributeTempMultiplierValues(EASAttributeName Attribute, float Value);
-
-	void AddValueToASAttribute(EASAttributeName Attribute, float Value);
+	void AddMultiplierToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
 
 ////////////////////////////////////////////////
 // Getters and Setters
 
 public:
 
-	float GetASAttribute(EASAttributeName AttributeToGet) const;
+	float GetASAttribute(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const;
 
 	TArray<FASEffectData*>& GetCurrentEffectsArray(EASEffectType EffectType);
 

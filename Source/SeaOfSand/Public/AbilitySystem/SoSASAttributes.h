@@ -12,8 +12,27 @@ enum class EASAttributeName : uint8
 	HealthCurrent,
 	ArmourMax,
 	ArmourCurrent,
-	Speed,
 	EnergyMax,
 	EnergyCurrent,
-	EASATTRIBUTENAME_NR_ITEMS UMETA(Hidden)
+	Speed
+};
+
+USTRUCT(BlueprintType)
+struct FASAttributeData
+{
+	GENERATED_USTRUCT_BODY()
+
+	float HealthMaxValue;
+
+	float HealthCurrentValue;
+
+	float ArmourMaxValue;
+
+	float ArmourCurrentValue;
+
+	float EnergyMaxValue;
+
+	float EnergyCurrentValue;
+
+	float SpeedValue;
 };
