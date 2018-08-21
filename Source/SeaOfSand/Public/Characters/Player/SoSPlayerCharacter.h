@@ -12,6 +12,7 @@ class USoSCombatComponent;
 class USoSHealthComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
+class ASoSASEffect;
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
@@ -132,6 +133,8 @@ protected:
 	void Roll(FVector DodgeDirection, bool OrientRotationToMovement);
 
 	void AimStart();
+
+	void UseAbility();
 
 	// Reset air control after preforming double jump
 	void ResetAirControl();

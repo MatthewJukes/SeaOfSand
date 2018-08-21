@@ -20,7 +20,7 @@ enum class EASAttributeName : uint8
 USTRUCT(BlueprintType)
 struct FASAttributeData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	float HealthMaxValue;
 

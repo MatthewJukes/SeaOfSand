@@ -15,7 +15,7 @@ class SEAOFSAND_API USoSASTasks : public UObject
 {
 	GENERATED_BODY()
 
-protected:
+public:
 
 	bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
 };

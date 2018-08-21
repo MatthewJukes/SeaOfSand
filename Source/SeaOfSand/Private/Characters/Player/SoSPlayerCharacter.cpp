@@ -2,6 +2,7 @@
 
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerController.h"
+#include "SoSASTasks.h"
 #include "SoSInventoryComponent.h"
 #include "SoSHealthComponent.h"
 #include "BaseVehicle.h"
@@ -91,6 +92,8 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ASoSPlayerCharacter::AimEnd);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartRoll);
+
+	PlayerInputComponent->BindAction("Ability1", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility);
 }
 
 // Called when the game starts or when spawned
@@ -246,6 +249,11 @@ void ASoSPlayerCharacter::AimStart()
 	{
 		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
 	}
+}
+
+void ASoSPlayerCharacter::UseAbility()
+{
+	//ApplyEffectToTarget();
 }
 
 void ASoSPlayerCharacter::AimEnd()

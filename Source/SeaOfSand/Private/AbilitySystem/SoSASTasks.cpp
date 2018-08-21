@@ -48,13 +48,7 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Targ
 		}
 
 		// Set last tick time
-		EffectToApply->TimeSinceLastTick = GetWorld()->GetTimeSeconds() - EffectToApply->TickRate;
-
-		// Delay first tick
-		if (EffectToApply->bDelayFirstTick)
-		{
-			EffectToApply->TimeSinceLastTick = GetWorld()->GetTimeSeconds();
-		}
+		EffectToApply->TimeSinceLastTick = EffectToApply->bDelayFirstTick ? GetWorld()->GetTimeSeconds() - EffectToApply->TickRate : GetWorld()->GetTimeSeconds();
 
 		// Add effect to array
 		TargetASComp->AddASEffectToArray(EffectToApply);

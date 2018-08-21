@@ -18,13 +18,13 @@ public:
 
 	USoSASComponent();
 
-	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction);
-
 protected:
 
 	virtual void BeginPlay() override;
 
 public:
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	void AddASEffectToArray(FASEffectData* EffectToAdd);
 
@@ -42,13 +42,13 @@ protected:
 
 	TArray<FASEffectData*> DefaultArray; // Empty array for switch statements
 
-	FASAttributeData* ASAttributeBaseValues;
+	FASAttributeData ASAttributeBaseValues;
 
-	FASAttributeData* ASAttributeTotalValues;
+	FASAttributeData ASAttributeTotalValues;
 
-	FASAttributeData* ASAttributeTempAdditiveValues;
+	FASAttributeData ASAttributeTempAdditiveValues;
 
-	FASAttributeData* ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
+	FASAttributeData ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float HealthMaxStartValue;
@@ -66,11 +66,13 @@ protected:
 
 	void CheckASEffectStatus(FASEffectData* Effect);
 
-	void CheckASEffectValue(FASEffectData* Effect);
+	void HandleASEffectValue(FASEffectData* Effect, bool bUseTotalValue);
 
 	void AddValueToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
 
-	void AddMultiplierToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
+	void MultiplyASAttributeDataByValue(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
+
+	void CalculateASAttributeTotalValues();
 
 ////////////////////////////////////////////////
 // Getters and Setters
@@ -81,5 +83,4 @@ public:
 
 	TArray<FASEffectData*>& GetCurrentEffectsArray(EASEffectType EffectType);
 
-	void SetASAttribute(EASAttributeName AttributeToSet, float Value);
 };
