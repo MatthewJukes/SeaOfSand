@@ -17,5 +17,6 @@ class SEAOFSAND_API USoSASTasks : public UObject
 
 public:
 
+	UFUNCTION(BlueprintCallable)
 	bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
 };

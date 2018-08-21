@@ -2,7 +2,7 @@
 
 #include "SoSASTasks.h"
 #include "SoSASComponent.h"
-#include "SoSASEffect.h"
+#include "SoSASEffectData.h"
 #include "Engine/World.h"
 
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SoSASAttributes.h"
-#include "SoSASEffect.h"
+#include "SoSASEffectData.h"
 #include "Components/ActorComponent.h"
 #include "SoSASComponent.generated.h"
 

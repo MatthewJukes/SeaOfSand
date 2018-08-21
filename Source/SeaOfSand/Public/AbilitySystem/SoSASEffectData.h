@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SoSASAttributes.h"
-#include "GameFramework/Actor.h"
-#include "SoSASEffect.generated.h"
+#include "SoSASEffectData.generated.h"
 
 
 UENUM(BlueprintType)
@@ -82,16 +81,4 @@ struct FASEffectData
 	float TotalValue;
 
 	int CurrentStacks;
-};
-
-UCLASS()
-class SEAOFSAND_API ASoSASEffect : public AActor
-{
-	GENERATED_BODY()
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect")
-	FASEffectData Effect;
-
 };
