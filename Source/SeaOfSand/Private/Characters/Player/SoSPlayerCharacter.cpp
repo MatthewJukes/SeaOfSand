@@ -5,6 +5,7 @@
 #include "SoSASTasks.h"
 #include "SoSInventoryComponent.h"
 #include "SoSASComponent.h"
+#include "SoSASAbilityBase.h"
 #include "BaseVehicle.h"
 #include "SoSRangedWeapon.h"
 #include "Camera/CameraComponent.h"
@@ -378,38 +379,39 @@ void ASoSPlayerCharacter::UseAbility(int32 Index)
 	switch (Index)
 	{
 	case 1:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityOne);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne);
 		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"))
 		break;
 	case 2:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityTwo);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Two Cast"))
 		break;
 	case 3:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityThree);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityThree);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Three Cast"))
 		break;
 	case 4:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityFour);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFour);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Four Cast"))
 		break;
 	case 5:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityFive);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFive);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Five Cast"))
 		break;
 	case 6:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilitySix);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySix);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Six Cast"))
 		break;
 	case 7:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilitySeven);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySeven);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Seven Cast"))
 		break;
 	case 8:
-		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityEigth);
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
 		break;
 	default:
+		AbilityToUse = nullptr;
 		break;
 	}
 

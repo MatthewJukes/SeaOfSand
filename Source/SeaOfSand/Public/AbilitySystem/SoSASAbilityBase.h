@@ -6,9 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "SoSASAbilityBase.generated.h"
 
-/**
- * 
- */
+
 UCLASS(BlueprintType, Blueprintable)
 class SEAOFSAND_API USoSASAbilityBase : public UObject
 {

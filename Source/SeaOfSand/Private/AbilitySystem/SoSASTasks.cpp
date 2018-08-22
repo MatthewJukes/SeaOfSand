@@ -2,11 +2,12 @@
 
 #include "SoSASTasks.h"
 #include "SoSASComponent.h"
+#include "SoSASEffectData.h"
 #include "Engine/World.h"
 
-/*
-bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator)
-{
+
+void USoSASTasks::ApplyEffectToTarget(FTestData Test, AActor* Target, AActor* Instigator)
+{ /*
 	if (Target == nullptr || Instigator == nullptr)
 	{
 		return false;
@@ -51,7 +52,7 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Targ
 
 		// Add effect to array
 		TargetASComp->AddASEffectToArray(EffectToApply);
-	}
+	} */
 
-	return true;
-} */
+	//return true;
+} 

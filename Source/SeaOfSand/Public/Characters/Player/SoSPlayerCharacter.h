@@ -15,7 +15,6 @@ class USoSASAbilityBase;
 
 DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
 
-
 USTRUCT(BlueprintType)
 struct FPlayerASAbilitiesData
 {
