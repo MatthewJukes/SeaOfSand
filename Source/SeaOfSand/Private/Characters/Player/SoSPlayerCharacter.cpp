@@ -4,7 +4,7 @@
 #include "SoSPlayerController.h"
 #include "SoSASTasks.h"
 #include "SoSInventoryComponent.h"
-#include "SoSHealthComponent.h"
+#include "SoSASComponent.h"
 #include "BaseVehicle.h"
 #include "SoSRangedWeapon.h"
 #include "Camera/CameraComponent.h"
@@ -28,7 +28,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
 
 	// Setup health component
-	HealthComp = CreateDefaultSubobject<USoSHealthComponent>(TEXT("PlayerHealth"));
+	ASComp = CreateDefaultSubobject<USoSASComponent>(TEXT("ASComp"));
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -93,7 +93,14 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartRoll);
 
-	PlayerInputComponent->BindAction("Ability1", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 1);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 2);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 3);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 4);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 5);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 6);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 7);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 8);
 }
 
 // Called when the game starts or when spawned
@@ -251,11 +258,6 @@ void ASoSPlayerCharacter::AimStart()
 	}
 }
 
-void ASoSPlayerCharacter::UseAbility()
-{
-	//ApplyEffectToTarget();
-}
-
 void ASoSPlayerCharacter::AimEnd()
 {
 	if (!bIsAiming)
@@ -368,6 +370,50 @@ void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 	// Reset movement	
 	SetPlayerSpeed(1.f);
 	SetPlayerMovementType(bLastOrientRotationToMovement, !bLastOrientRotationToMovement);
+}
+
+void ASoSPlayerCharacter::UseAbility(int32 Index)
+{
+	USoSASAbilityBase* AbilityToUse;
+	switch (Index)
+	{
+	case 1:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityOne);
+		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"))
+		break;
+	case 2:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityTwo);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Two Cast"))
+		break;
+	case 3:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityThree);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Three Cast"))
+		break;
+	case 4:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityFour);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Four Cast"))
+		break;
+	case 5:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityFive);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Five Cast"))
+		break;
+	case 6:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilitySix);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Six Cast"))
+		break;
+	case 7:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilitySeven);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Seven Cast"))
+		break;
+	case 8:
+		AbilityToUse = Cast<USoSASAbilityBase>(AbilityBar.AbilityEigth);
+		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
+		break;
+	default:
+		break;
+	}
+
+	ASComp->UseAbility(AbilityToUse);
 }
 
 void ASoSPlayerCharacter::EnableCollsion()

@@ -66,7 +66,7 @@ void USoSASComponent::LoopOverCurrentASEffectsArrays()
 	}
 
 	CalculateASAttributeTotalValues();
-	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
+	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
 }
 
 
@@ -270,6 +270,14 @@ void USoSASComponent::EndASEffect(FASEffectData* EffectToEnd)
 	RemoveASEffectFromArray(EffectToEnd);
 }
 
+
+void USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
+{
+	if (Ability == nullptr)
+	{
+		return;
+	}
+}
 
 ////////////////////////////////////////////////
 // Getters and Setters

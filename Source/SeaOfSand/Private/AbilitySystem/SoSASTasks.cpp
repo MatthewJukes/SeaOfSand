@@ -2,10 +2,9 @@
 
 #include "SoSASTasks.h"
 #include "SoSASComponent.h"
-#include "SoSASEffectData.h"
 #include "Engine/World.h"
 
-
+/*
 bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator)
 {
 	if (Target == nullptr || Instigator == nullptr)
@@ -55,4 +54,4 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Targ
 	}
 
 	return true;
-} 
+} */

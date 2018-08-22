@@ -7,12 +7,44 @@
 #include "SoSPlayerCharacter.generated.h"
 
 class UCameraComponent;
-class USoSInventoryComponent;
-class USoSCombatComponent;
-class USoSHealthComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
-class ASoSASEffect;
+class USoSInventoryComponent;
+class USoSASComponent;
+class USoSASAbilityBase;
+
+DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
+
+
+USTRUCT(BlueprintType)
+struct FPlayerASAbilitiesData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityOne;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityTwo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityThree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityFour;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityFive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilitySix;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilitySeven;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityEigth;
+}; 
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
@@ -41,10 +73,7 @@ protected:
 	USoSInventoryComponent* InventoryComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSCombatComponent* CombatComp;
-
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSHealthComponent* HealthComp;
+	USoSASComponent* ASComp;
 
 public:
 
@@ -112,6 +141,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	FPlayerASAbilitiesData AbilityBar;
+
 	void SetStaminaRate(float RatePerSecond);
 
 	void MoveForward(float AxisValue);
@@ -134,15 +166,16 @@ protected:
 
 	void AimStart();
 
-	void UseAbility();
-
 	// Reset air control after preforming double jump
 	void ResetAirControl();
 
-	// Trace to see if hit interactable actor
+	// Trace to see if hit interact-able actor
 	bool InteractTrace(AActor* &OutActor) const;
 
 	FVector GetTraceDirection(FVector StartLocation) const;
+
+	UFUNCTION()
+	void UseAbility(int32 Index);
 
 	UFUNCTION()
 	void IncrementStamina(float Amount);

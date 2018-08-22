@@ -8,6 +8,7 @@
 #include "Components/ActorComponent.h"
 #include "SoSASComponent.generated.h"
 
+class USoSASAbilityBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
@@ -31,6 +32,8 @@ public:
 	void RemoveASEffectFromArray(FASEffectData* EffectToRemove);
 
 	void EndASEffect(FASEffectData* EffectToEnd);
+
+	void UseAbility(USoSASAbilityBase* Ability);
 
 protected:
 

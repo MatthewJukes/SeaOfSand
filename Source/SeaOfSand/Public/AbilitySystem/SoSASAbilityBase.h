@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS(BlueprintType, Blueprintable)
 class SEAOFSAND_API USoSASAbilityBase : public UObject
 {
 	GENERATED_BODY()

@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "SoSASAttributes.h"
+#include "SoSASEffectData.h"
 #include "UObject/NoExportTypes.h"
 #include "SoSASTasks.generated.h"
 
-class USoSASComponent;
-struct FASEffectData;
 
 UCLASS()
 class SEAOFSAND_API USoSASTasks : public UObject
@@ -17,6 +16,6 @@ class SEAOFSAND_API USoSASTasks : public UObject
 
 public:
 
-	UFUNCTION(BlueprintCallable)
-	bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
+	//UFUNCTION(BlueprintCallable)
+	//bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator);
 };
