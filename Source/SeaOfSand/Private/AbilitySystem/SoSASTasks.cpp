@@ -6,8 +6,8 @@
 #include "Engine/World.h"
 
 
-void USoSASTasks::ApplyEffectToTarget(FTestData Test, AActor* Target, AActor* Instigator)
-{ /*
+bool USoSASTasks::ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime)
+{ 
 	if (Target == nullptr || Instigator == nullptr)
 	{
 		return false;
@@ -26,13 +26,13 @@ void USoSASTasks::ApplyEffectToTarget(FTestData Test, AActor* Target, AActor* In
 	if (TargetCurrentEffectsArray.Find(EffectToApply, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		// Update effect status checkers
-		TargetCurrentEffectsArray[EffectIndex]->EffectStartTime = GetWorld()->GetTimeSeconds();
+		TargetCurrentEffectsArray[EffectIndex]->EffectStartTime = ApplicationTime;
 		TargetCurrentEffectsArray[EffectIndex]->CurrentStacks = FMath::Clamp(TargetCurrentEffectsArray[EffectIndex]->CurrentStacks + EffectToApply->StacksPerApplication, 1, EffectToApply->MaxStacks);
 	}
 	else // Apply effect to target
 	{
 		// Set effect status trackers
-		EffectToApply->EffectStartTime = GetWorld()->GetTimeSeconds();	
+		EffectToApply->EffectStartTime = ApplicationTime;
 		EffectToApply->CurrentStacks = FMath::Clamp(EffectToApply->StacksPerApplication, 1, EffectToApply->MaxStacks);
 
 		// Set duration to infinite for effects with no duration
@@ -48,11 +48,11 @@ void USoSASTasks::ApplyEffectToTarget(FTestData Test, AActor* Target, AActor* In
 		}
 
 		// Set last tick time
-		EffectToApply->TimeSinceLastTick = EffectToApply->bDelayFirstTick ? GetWorld()->GetTimeSeconds() - EffectToApply->TickRate : GetWorld()->GetTimeSeconds();
+		EffectToApply->TimeSinceLastTick = EffectToApply->bDelayFirstTick ? ApplicationTime - EffectToApply->TickRate : ApplicationTime;
 
 		// Add effect to array
 		TargetASComp->AddASEffectToArray(EffectToApply);
-	} */
+	} 
 
-	//return true;
+	return true;
 } 

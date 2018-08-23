@@ -4,24 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "SoSASAttributes.h"
-#include "UObject/NoExportTypes.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "SoSASTasks.generated.h"
 
-USTRUCT(BlueprintType)
-struct FTestData
-{
-	GENERATED_BODY();
-};
+struct FASEffectData;
 
 UCLASS()
-class SEAOFSAND_API USoSASTasks : public UObject
+class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
 
-	FTestData* Test;
-
-	UFUNCTION(BlueprintCallable)
-	void ApplyEffectToTarget(FTestData Test, AActor* Target, AActor* Instigator);
+	//UFUNCTION(BlueprintCallable)
+	static bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
 };
