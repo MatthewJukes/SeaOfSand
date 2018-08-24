@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SoSASAttributes.h"
+#include "SoSASEffectData.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SoSASTasks.generated.h"
 
-struct FASEffectData;
+//struct FASEffectData;
 
 UCLASS()
 class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
@@ -16,6 +16,6 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 
 public:
 
-	//UFUNCTION(BlueprintCallable)
-	static bool ApplyEffectToTarget(FASEffectData* EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool ApplyEffectToTarget(FASEffectData& EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
 };

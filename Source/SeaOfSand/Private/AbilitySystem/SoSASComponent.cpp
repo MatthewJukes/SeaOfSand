@@ -84,7 +84,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData* Effect)
 	if (TimeElapsedSinceLastTick >= Effect->TickRate)
 	{
 		Effect->TimeSinceLastTick = GetWorld()->GetTimeSeconds();
-
+		
 		HandleASEffectValue(Effect, false);
 	}
 }
