@@ -33,7 +33,7 @@ public:
 
 	void EndASEffect(FASEffectData* EffectToEnd);
 
-	void UseAbility(USoSASAbilityBase* Ability);
+	void UseAbility(USoSASAbilityBase* AbilityToUse);
 
 protected:
 

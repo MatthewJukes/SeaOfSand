@@ -12,4 +12,9 @@ class SEAOFSAND_API USoSASAbilityBase : public UObject
 {
 	GENERATED_BODY()
 
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
+	void StartAbility(AActor* CurrentTarget, AActor* Caster);
+
 };

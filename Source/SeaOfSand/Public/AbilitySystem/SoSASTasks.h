@@ -17,5 +17,5 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ApplyEffectToTarget(FASEffectData& EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
+	static bool ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
 };

@@ -5,7 +5,7 @@
 #include "Engine/World.h"
 
 
-bool USoSASTasks::ApplyEffectToTarget(FASEffectData& EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime)
+bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime)
 { 
 	if (Target == nullptr || Instigator == nullptr)
 	{

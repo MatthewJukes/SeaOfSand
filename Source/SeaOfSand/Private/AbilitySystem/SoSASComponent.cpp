@@ -271,12 +271,15 @@ void USoSASComponent::EndASEffect(FASEffectData* EffectToEnd)
 }
 
 
-void USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
+void USoSASComponent::UseAbility(USoSASAbilityBase* AbilityToUse)
 {
-	if (Ability == nullptr)
+	if (AbilityToUse == nullptr)
 	{
 		return;
 	}
+
+	USoSASAbilityBase* Ability = reinterpret_cast<USoSASAbilityBase*>(AbilityToUse);
+	//Ability->On
 }
 
 ////////////////////////////////////////////////
