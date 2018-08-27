@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSASComponent.h"
+#include "SoSASAbilityBase.h"
 #include "Engine/World.h"
 
 
@@ -278,8 +279,7 @@ void USoSASComponent::UseAbility(USoSASAbilityBase* AbilityToUse)
 		return;
 	}
 
-	USoSASAbilityBase* Ability = reinterpret_cast<USoSASAbilityBase*>(AbilityToUse);
-	//Ability->On
+	AbilityToUse->StartAbility(GetOwner(), GetOwner());
 }
 
 ////////////////////////////////////////////////

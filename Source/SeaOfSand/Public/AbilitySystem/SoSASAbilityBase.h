@@ -17,4 +17,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void StartAbility(AActor* CurrentTarget, AActor* Caster);
 
+	UFUNCTION(BlueprintCallable)
+	float GetGameTimeSeconds() const;
 };

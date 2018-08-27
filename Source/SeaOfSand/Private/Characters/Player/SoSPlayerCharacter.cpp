@@ -380,7 +380,7 @@ void ASoSPlayerCharacter::UseAbility(int32 Index)
 	{
 	case 1:
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne);
-		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"))
+		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast: %s"), *AbilityBar.AbilityOne->GetName());
 		break;
 	case 2:
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo);
@@ -416,6 +416,7 @@ void ASoSPlayerCharacter::UseAbility(int32 Index)
 	}
 
 	ASComp->UseAbility(AbilityToUse);
+	UE_LOG(LogTemp, Warning, TEXT("Ability One Cast: %s"), *AbilityToUse->GetName());
 }
 
 void ASoSPlayerCharacter::EnableCollsion()
