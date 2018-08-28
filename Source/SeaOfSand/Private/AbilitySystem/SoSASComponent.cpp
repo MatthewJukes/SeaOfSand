@@ -51,23 +51,23 @@ void USoSASComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 void USoSASComponent::LoopOverCurrentASEffectsArrays()
 {
-	for (FASEffectData* Effect : CurrentPositiveEffects)
+	for (FASEffectData Effect : CurrentPositiveEffects)
 	{
-		CheckASEffectStatus(Effect);
+		//CheckASEffectStatus(Effect);
 	}
 
-	for (FASEffectData* Effect : CurrentNeutralEffects)
+	for (FASEffectData Effect : CurrentNeutralEffects)
 	{
-		CheckASEffectStatus(Effect);
+		//CheckASEffectStatus(Effect);
 	}
 
-	for (FASEffectData* Effect : CurrentNegativeEffects)
+	for (FASEffectData Effect : CurrentNegativeEffects)
 	{
-		CheckASEffectStatus(Effect);
+		CheckASEffectStatus(&Effect);
 	}
 
 	CalculateASAttributeTotalValues();
-	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
 }
 
 
@@ -76,7 +76,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData* Effect)
 	// Check if effect should expire
 	float CurrentTime = GetWorld()->GetTimeSeconds();
 	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect->EffectStartTime;
-//	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *Effect->EffectName.ToString(), Effect->EffectDuration);
+	//UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *Effect->EffectName.ToString(), Effect->EffectDuration);
 	if (EffectElapsedTime >= Effect->EffectDuration)
 	{
 		//EndASEffect(Effect);
@@ -96,7 +96,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData* Effect)
 
 void USoSASComponent::HandleASEffectValue(FASEffectData* Effect, bool bUseTotalValue)
 {
-	float NewValue = bUseTotalValue ? Effect->EffectValue * Effect->CurrentStacks : Effect->TotalValue;
+	float NewValue = bUseTotalValue ? Effect->TotalValue : Effect->EffectValue * Effect->CurrentStacks;
 
 	switch (Effect->EffectValueType)
 	{
@@ -230,13 +230,13 @@ void USoSASComponent::AddASEffectToArray(FASEffectData* EffectToAdd)
 	switch (EffectToAdd->EffectType)
 	{
 	case EASEffectType::Positive:
-		CurrentPositiveEffects.Add(EffectToAdd);
+		CurrentPositiveEffects.Add(*EffectToAdd);
 		break;
 	case EASEffectType::Neutral:
-		CurrentNeutralEffects.Add(EffectToAdd);
+		CurrentNeutralEffects.Add(*EffectToAdd);
 		break;
 	case EASEffectType::Negative:
-		CurrentNegativeEffects.Add(EffectToAdd);
+		CurrentNegativeEffects.Add(*EffectToAdd);
 		break;
 	default:
 		break;
@@ -250,13 +250,13 @@ void USoSASComponent::RemoveASEffectFromArray(FASEffectData* EffectToRemove)
 	switch (EffectToRemove->EffectType)
 	{
 	case EASEffectType::Positive:
-		CurrentPositiveEffects.Remove(EffectToRemove);
+		//CurrentPositiveEffects.Remove(*EffectToRemove);
 		break;
 	case EASEffectType::Neutral:
-		CurrentNeutralEffects.Remove(EffectToRemove);
+		//CurrentNeutralEffects.Remove(*EffectToRemove);
 		break;
 	case EASEffectType::Negative:
-		CurrentNegativeEffects.Remove(EffectToRemove);
+		//CurrentNegativeEffects.Remove(*EffectToRemove);
 		break;
 	default:
 		break;
@@ -353,7 +353,7 @@ float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet)
 	}
 }
 
-TArray<FASEffectData*>& USoSASComponent::GetCurrentEffectsArray(EASEffectType EffectType)
+TArray<FASEffectData>& USoSASComponent::GetCurrentEffectsArray(EASEffectType EffectType)
 {
 	switch (EffectType)
 	{

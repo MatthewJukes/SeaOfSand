@@ -23,13 +23,13 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Targe
 	}
 
 	// Check to see if effect already exists on target
-	TArray<FASEffectData*>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(NewEffect->EffectType);
+	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(NewEffect->EffectType);
 	int EffectIndex;
-	if (TargetCurrentEffectsArray.Find(NewEffect, EffectIndex)) // Reapply effect and add stacks if appropriate
+	if (false) // Reapply effect and add stacks if appropriate TODO remake existing check
 	{
 		// Update effect status checkers
-		TargetCurrentEffectsArray[EffectIndex]->EffectStartTime = ApplicationTime;
-		TargetCurrentEffectsArray[EffectIndex]->CurrentStacks = FMath::Clamp(TargetCurrentEffectsArray[EffectIndex]->CurrentStacks + NewEffect->StacksPerApplication, 1, NewEffect->MaxStacks);
+		TargetCurrentEffectsArray[EffectIndex].EffectStartTime = ApplicationTime;
+		TargetCurrentEffectsArray[EffectIndex].CurrentStacks = FMath::Clamp(TargetCurrentEffectsArray[EffectIndex].CurrentStacks + NewEffect->StacksPerApplication, 1, NewEffect->MaxStacks);
 	}
 	else // Apply effect to target
 	{
@@ -50,7 +50,7 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Targe
 		}
 
 		// Set last tick time
-		NewEffect->TimeSinceLastTick = NewEffect->bDelayFirstTick ? ApplicationTime - NewEffect->TickRate : ApplicationTime;
+		NewEffect->TimeSinceLastTick = NewEffect->bDelayFirstTick ? ApplicationTime : ApplicationTime - NewEffect->TickRate;
 
 		// Add effect to array
 		TargetASComp->AddASEffectToArray(NewEffect);

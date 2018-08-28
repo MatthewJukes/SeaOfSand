@@ -37,13 +37,13 @@ public:
 
 protected:
 
-	TArray<FASEffectData*> CurrentPositiveEffects;
+	TArray<FASEffectData> CurrentPositiveEffects;
 
-	TArray<FASEffectData*> CurrentNeutralEffects;
+	TArray<FASEffectData> CurrentNeutralEffects;
 
-	TArray<FASEffectData*> CurrentNegativeEffects;
+	TArray<FASEffectData> CurrentNegativeEffects;
 
-	TArray<FASEffectData*> DefaultArray; // Empty array for switch statements
+	TArray<FASEffectData> DefaultArray; // Empty array for switch statements
 
 	FASAttributeData ASAttributeBaseValues;
 
@@ -88,6 +88,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetASAttributeTotalValue(EASAttributeName AttributeToGet) const;
 
-	TArray<FASEffectData*>& GetCurrentEffectsArray(EASEffectType EffectType);
+	TArray<FASEffectData>& GetCurrentEffectsArray(EASEffectType EffectType);
 
 };
