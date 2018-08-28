@@ -3,8 +3,3 @@
 #include "SoSASAbilityBase.h"
 #include "Engine/World.h"
 
-
-float USoSASAbilityBase::GetGameTimeSeconds() const
-{
-	return GetWorld()->GetTimeSeconds();
-}

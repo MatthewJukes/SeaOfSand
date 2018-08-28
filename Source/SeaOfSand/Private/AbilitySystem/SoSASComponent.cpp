@@ -74,10 +74,13 @@ void USoSASComponent::LoopOverCurrentASEffectsArrays()
 void USoSASComponent::CheckASEffectStatus(FASEffectData* Effect)
 {
 	// Check if effect should expire
+	float CurrentTime = GetWorld()->GetTimeSeconds();
 	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect->EffectStartTime;
+//	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *Effect->EffectName.ToString(), Effect->EffectDuration);
 	if (EffectElapsedTime >= Effect->EffectDuration)
 	{
-		EndASEffect(Effect);
+		//EndASEffect(Effect);
+		//return;
 	}
 
 	// Check if effect should tick
@@ -238,6 +241,7 @@ void USoSASComponent::AddASEffectToArray(FASEffectData* EffectToAdd)
 	default:
 		break;
 	}
+
 }
 
 
@@ -272,21 +276,21 @@ void USoSASComponent::EndASEffect(FASEffectData* EffectToEnd)
 }
 
 
-void USoSASComponent::UseAbility(USoSASAbilityBase* AbilityToUse)
+void USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 {
-	if (AbilityToUse == nullptr)
+	if (Ability == nullptr)
 	{
 		return;
 	}
 
-	AbilityToUse->StartAbility(GetOwner(), GetOwner());
+	Ability->StartAbility(GetOwner(), GetOwner(), GetWorld()->GetTimeSeconds());
 }
 
 ////////////////////////////////////////////////
 // Getters and Setters
 
 
-float USoSASComponent::GetASAttribute(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const
+float USoSASComponent::GetASAttributeDataValue(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const
 {
 	switch (AttributeToGet)
 	{
@@ -317,6 +321,37 @@ float USoSASComponent::GetASAttribute(FASAttributeData* AttributeData, EASAttrib
 	}
 }
 
+
+float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet) const
+{
+	switch (AttributeToGet)
+	{
+	case EASAttributeName::HealthMax:
+		return ASAttributeTotalValues.HealthMaxValue;
+		break;
+	case EASAttributeName::HealthCurrent:
+		return ASAttributeTotalValues.HealthCurrentValue;
+		break;
+	case EASAttributeName::ArmourMax:
+		return ASAttributeTotalValues.ArmourMaxValue;
+		break;
+	case EASAttributeName::ArmourCurrent:
+		return ASAttributeTotalValues.ArmourCurrentValue;
+		break;
+	case EASAttributeName::EnergyMax:
+		return ASAttributeTotalValues.EnergyMaxValue;
+		break;
+	case EASAttributeName::EnergyCurrent:
+		return ASAttributeTotalValues.EnergyCurrentValue;
+		break;
+	case EASAttributeName::Speed:
+		return ASAttributeTotalValues.SpeedValue;
+		break;
+	default:
+		return -1;
+		break;
+	}
+}
 
 TArray<FASEffectData*>& USoSASComponent::GetCurrentEffectsArray(EASEffectType EffectType)
 {

@@ -2,10 +2,9 @@
 
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerController.h"
-#include "SoSASTasks.h"
-#include "SoSInventoryComponent.h"
 #include "SoSASComponent.h"
 #include "SoSASAbilityBase.h"
+#include "SoSInventoryComponent.h"
 #include "BaseVehicle.h"
 #include "SoSRangedWeapon.h"
 #include "Camera/CameraComponent.h"
@@ -376,38 +375,48 @@ void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 void ASoSPlayerCharacter::UseAbility(int32 Index)
 {
 	USoSASAbilityBase* AbilityToUse;
+	UClass* AbilityClass;
+
 	switch (Index)
 	{
 	case 1:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne);
-		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast: %s"), *AbilityBar.AbilityOne->GetName());
+		AbilityClass = AbilityBar.AbilityOne.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne, AbilityClass);
+		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"));
 		break;
 	case 2:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo);
+		AbilityClass = AbilityBar.AbilityTwo.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Two Cast"))
 		break;
 	case 3:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityThree);
+		AbilityClass = AbilityBar.AbilityThree.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityThree, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Three Cast"))
 		break;
 	case 4:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFour);
+		AbilityClass = AbilityBar.AbilityFour.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFour, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Four Cast"))
 		break;
 	case 5:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFive);
+		AbilityClass = AbilityBar.AbilityFive.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFive, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Five Cast"))
 		break;
 	case 6:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySix);
+		AbilityClass = AbilityBar.AbilitySix.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySix, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Six Cast"))
 		break;
 	case 7:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySeven);
+		AbilityClass = AbilityBar.AbilitySeven.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySeven, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Seven Cast"))
 		break;
 	case 8:
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth);
+		AbilityClass = AbilityBar.AbilityEigth.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
 		break;
 	default:
@@ -415,8 +424,8 @@ void ASoSPlayerCharacter::UseAbility(int32 Index)
 		break;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *AbilityToUse->GetName());
 	ASComp->UseAbility(AbilityToUse);
-	UE_LOG(LogTemp, Warning, TEXT("Ability One Cast: %s"), *AbilityToUse->GetName());
 }
 
 void ASoSPlayerCharacter::EnableCollsion()

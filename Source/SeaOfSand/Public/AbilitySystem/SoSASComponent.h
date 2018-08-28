@@ -33,7 +33,7 @@ public:
 
 	void EndASEffect(FASEffectData* EffectToEnd);
 
-	void UseAbility(USoSASAbilityBase* AbilityToUse);
+	void UseAbility(USoSASAbilityBase* Ability);
 
 protected:
 
@@ -82,7 +82,11 @@ protected:
 
 public:
 
-	float GetASAttribute(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const;
+	
+	float GetASAttributeDataValue(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	float GetASAttributeTotalValue(EASAttributeName AttributeToGet) const;
 
 	TArray<FASEffectData*>& GetCurrentEffectsArray(EASEffectType EffectType);
 

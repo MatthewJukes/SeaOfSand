@@ -7,7 +7,10 @@
 
 bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime)
 { 
-	if (Target == nullptr || Instigator == nullptr)
+	FASEffectData* NewEffect = &EffectToApply;
+	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *NewEffect->EffectName.ToString(), NewEffect->EffectDuration);
+
+	if (NewEffect == nullptr || Target == nullptr || Instigator == nullptr)
 	{
 		return false;
 	}
@@ -20,38 +23,44 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Targe
 	}
 
 	// Check to see if effect already exists on target
-	TArray<FASEffectData*>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToApply.EffectType);
+	TArray<FASEffectData*>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(NewEffect->EffectType);
 	int EffectIndex;
-	if (TargetCurrentEffectsArray.Find(&EffectToApply, EffectIndex)) // Reapply effect and add stacks if appropriate
+	if (TargetCurrentEffectsArray.Find(NewEffect, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		// Update effect status checkers
 		TargetCurrentEffectsArray[EffectIndex]->EffectStartTime = ApplicationTime;
-		TargetCurrentEffectsArray[EffectIndex]->CurrentStacks = FMath::Clamp(TargetCurrentEffectsArray[EffectIndex]->CurrentStacks + EffectToApply.StacksPerApplication, 1, EffectToApply.MaxStacks);
+		TargetCurrentEffectsArray[EffectIndex]->CurrentStacks = FMath::Clamp(TargetCurrentEffectsArray[EffectIndex]->CurrentStacks + NewEffect->StacksPerApplication, 1, NewEffect->MaxStacks);
 	}
 	else // Apply effect to target
 	{
 		// Set effect status trackers
-		EffectToApply.EffectStartTime = ApplicationTime;
-		EffectToApply.CurrentStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 1, EffectToApply.MaxStacks);
+		NewEffect->EffectStartTime = ApplicationTime;
+		NewEffect->CurrentStacks = FMath::Clamp(NewEffect->StacksPerApplication, 1, NewEffect->MaxStacks);
 
 		// Set duration to infinite for effects with no duration
-		if (EffectToApply.EffectDuration == 0.0f)
+		if (NewEffect->EffectDuration == 0.0f)
 		{
-			EffectToApply.EffectDuration = INFINITY;
+			NewEffect->EffectDuration = INFINITY;
 		}
 
 		// Set tick rate to effect duration for effects with a tick rate of zero
-		if (EffectToApply.TickRate == 0.0f)
+		if (NewEffect->TickRate == 0.0f)
 		{
-			EffectToApply.TickRate = EffectToApply.EffectDuration;
+			NewEffect->TickRate = NewEffect->EffectDuration;
 		}
 
 		// Set last tick time
-		EffectToApply.TimeSinceLastTick = EffectToApply.bDelayFirstTick ? ApplicationTime - EffectToApply.TickRate : ApplicationTime;
+		NewEffect->TimeSinceLastTick = NewEffect->bDelayFirstTick ? ApplicationTime - NewEffect->TickRate : ApplicationTime;
 
 		// Add effect to array
-		TargetASComp->AddASEffectToArray(&EffectToApply);
+		TargetASComp->AddASEffectToArray(NewEffect);
 	} 
 
+	Test(NewEffect);
 	return true;
 } 
+
+void USoSASTasks::Test(FASEffectData* Test)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *Test->EffectName.ToString(), Test->EffectDuration);
+}
