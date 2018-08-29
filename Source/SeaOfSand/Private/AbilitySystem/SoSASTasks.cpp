@@ -50,7 +50,7 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Targe
 		}
 
 		// Set last tick time
-		NewEffect->TimeSinceLastTick = NewEffect->bDelayFirstTick ? ApplicationTime : ApplicationTime - NewEffect->TickRate;
+		NewEffect->LastTickTime = NewEffect->bDelayFirstTick ? ApplicationTime : ApplicationTime - NewEffect->TickRate;
 
 		// Add effect to array
 		TargetASComp->AddASEffectToArray(NewEffect);

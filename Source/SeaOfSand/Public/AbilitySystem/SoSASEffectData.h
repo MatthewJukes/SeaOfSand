@@ -76,7 +76,7 @@ struct FASEffectData
 
 	float EffectStartTime;
 
-	float TimeSinceLastTick;
+	float LastTickTime;
 
 	float TotalValue;
 

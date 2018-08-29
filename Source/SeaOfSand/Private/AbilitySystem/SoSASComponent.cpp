@@ -51,19 +51,19 @@ void USoSASComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 void USoSASComponent::LoopOverCurrentASEffectsArrays()
 {
-	for (FASEffectData Effect : CurrentPositiveEffects)
+	for (FASEffectData& Effect : CurrentPositiveEffects)
 	{
-		//CheckASEffectStatus(Effect);
+		CheckASEffectStatus(Effect);
 	}
 
-	for (FASEffectData Effect : CurrentNeutralEffects)
+	for (FASEffectData& Effect : CurrentNeutralEffects)
 	{
-		//CheckASEffectStatus(Effect);
+		CheckASEffectStatus(Effect);
 	}
 
-	for (FASEffectData Effect : CurrentNegativeEffects)
+	for (FASEffectData& Effect : CurrentNegativeEffects)
 	{
-		CheckASEffectStatus(&Effect);
+		CheckASEffectStatus(Effect);
 	}
 
 	CalculateASAttributeTotalValues();
@@ -71,72 +71,71 @@ void USoSASComponent::LoopOverCurrentASEffectsArrays()
 }
 
 
-void USoSASComponent::CheckASEffectStatus(FASEffectData* Effect)
+void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 {
 	// Check if effect should expire
 	float CurrentTime = GetWorld()->GetTimeSeconds();
-	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect->EffectStartTime;
-	//UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *Effect->EffectName.ToString(), Effect->EffectDuration);
-	if (EffectElapsedTime >= Effect->EffectDuration)
+	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect.EffectStartTime;
+	if (EffectElapsedTime >= Effect.EffectDuration)
 	{
-		//EndASEffect(Effect);
-		//return;
+		EndASEffect(Effect);
+		return;
 	}
 
 	// Check if effect should tick
-	float TimeElapsedSinceLastTick = GetWorld()->GetTimeSeconds() - Effect->TimeSinceLastTick;
-	if (TimeElapsedSinceLastTick >= Effect->TickRate)
+	float TimeElapsedSinceLastTick = GetWorld()->GetTimeSeconds() - Effect.LastTickTime;
+	if (TimeElapsedSinceLastTick >= Effect.TickRate)
 	{
-		Effect->TimeSinceLastTick = GetWorld()->GetTimeSeconds();
+		Effect.LastTickTime = GetWorld()->GetTimeSeconds();
 		
 		HandleASEffectValue(Effect, false);
 	}
 }
 
 
-void USoSASComponent::HandleASEffectValue(FASEffectData* Effect, bool bUseTotalValue)
+void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue)
 {
-	float NewValue = bUseTotalValue ? Effect->TotalValue : Effect->EffectValue * Effect->CurrentStacks;
+	float NewValue = bUseTotalValue ? Effect.TotalValue : Effect.EffectValue * Effect.CurrentStacks;
 
-	switch (Effect->EffectValueType)
+	switch (Effect.EffectValueType)
 	{
 	case EASEffectValueType::Additive:
-		Effect->TotalValue += NewValue;
+		Effect.TotalValue += NewValue;
 
-		if (Effect->bTemporaryModifier)
+		if (Effect.bTemporaryModifier)
 		{
-			AddValueToASAttributeData(&ASAttributeTempAdditiveValues, Effect->AttributeToEffect, NewValue);
+			AddValueToASAttributeData(&ASAttributeTempAdditiveValues, Effect.AttributeToEffect, NewValue);
 		}
 		else
 		{
-			AddValueToASAttributeData(&ASAttributeBaseValues, Effect->AttributeToEffect, NewValue);
+			AddValueToASAttributeData(&ASAttributeBaseValues, Effect.AttributeToEffect, NewValue);
 		}
 
 		break;
 	case EASEffectValueType::Multiplicative:
-		Effect->TotalValue += NewValue;
+		Effect.TotalValue += NewValue;
 		NewValue *= 0.1f;
 		
-		if (Effect->bTemporaryModifier)
+		if (Effect.bTemporaryModifier)
 		{
-			AddValueToASAttributeData(&ASAttributeTempMultiplierValues, Effect->AttributeToEffect, NewValue);
+			AddValueToASAttributeData(&ASAttributeTempMultiplierValues, Effect.AttributeToEffect, NewValue);
 		}
 		else
 		{
-			MultiplyASAttributeDataByValue(&ASAttributeBaseValues, Effect->AttributeToEffect, 1 + NewValue);
+			MultiplyASAttributeDataByValue(&ASAttributeBaseValues, Effect.AttributeToEffect, 1 + NewValue);
 		}
 		break;
 	case EASEffectValueType::Subtractive:
-		Effect->TotalValue += NewValue;
+		Effect.TotalValue += NewValue;
 		NewValue *= 0.1f;
 
-		if (Effect->bTemporaryModifier)
+		if (Effect.bTemporaryModifier)
 		{
-			AddValueToASAttributeData(&ASAttributeTempMultiplierValues, Effect->AttributeToEffect, -NewValue);
+			AddValueToASAttributeData(&ASAttributeTempMultiplierValues, Effect.AttributeToEffect, -NewValue);
 		}
 		else
 		{
-			MultiplyASAttributeDataByValue(&ASAttributeBaseValues, Effect->AttributeToEffect, 1 - NewValue);
+			MultiplyASAttributeDataByValue(&ASAttributeBaseValues, Effect.AttributeToEffect, 1 - NewValue);
 		}
 		break;
 	default:
@@ -211,15 +210,15 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 {
 	ASAttributeTotalValues.HealthMaxValue = FMath::Max(1.0f, ASAttributeBaseValues.HealthMaxValue * ASAttributeTempMultiplierValues.HealthMaxValue + ASAttributeTempAdditiveValues.HealthMaxValue);
 
-	ASAttributeTotalValues.HealthCurrentValue = FMath::Min(ASAttributeTotalValues.HealthMaxValue, ASAttributeBaseValues.HealthCurrentValue * ASAttributeTempMultiplierValues.HealthCurrentValue + ASAttributeTempAdditiveValues.HealthCurrentValue);
+	ASAttributeTotalValues.HealthCurrentValue = FMath::Clamp(ASAttributeBaseValues.HealthCurrentValue * ASAttributeTempMultiplierValues.HealthCurrentValue + ASAttributeTempAdditiveValues.HealthCurrentValue, 0.0f, ASAttributeTotalValues.HealthMaxValue);
 
 	ASAttributeTotalValues.ArmourMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.ArmourMaxValue * ASAttributeTempMultiplierValues.ArmourMaxValue + ASAttributeTempAdditiveValues.ArmourMaxValue);
 
-	ASAttributeTotalValues.ArmourCurrentValue = FMath::Min(ASAttributeTotalValues.ArmourMaxValue, ASAttributeBaseValues.ArmourCurrentValue * ASAttributeTempMultiplierValues.ArmourCurrentValue + ASAttributeTempAdditiveValues.ArmourCurrentValue);
+	ASAttributeTotalValues.ArmourCurrentValue = FMath::Clamp(ASAttributeBaseValues.ArmourCurrentValue * ASAttributeTempMultiplierValues.ArmourCurrentValue + ASAttributeTempAdditiveValues.ArmourCurrentValue, 0.0f, ASAttributeTotalValues.ArmourMaxValue);
 
 	ASAttributeTotalValues.EnergyMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.EnergyMaxValue * ASAttributeTempMultiplierValues.EnergyMaxValue + ASAttributeTempAdditiveValues.EnergyMaxValue);
 
-	ASAttributeTotalValues.EnergyCurrentValue = FMath::Min(ASAttributeTotalValues.EnergyMaxValue, ASAttributeBaseValues.EnergyCurrentValue * ASAttributeTempMultiplierValues.EnergyCurrentValue + ASAttributeTempAdditiveValues.EnergyCurrentValue);
+	ASAttributeTotalValues.EnergyCurrentValue = FMath::Clamp(ASAttributeBaseValues.EnergyCurrentValue * ASAttributeTempMultiplierValues.EnergyCurrentValue + ASAttributeTempAdditiveValues.EnergyCurrentValue, 0.0f, ASAttributeTotalValues.EnergyMaxValue);
 
 	ASAttributeTotalValues.SpeedValue = FMath::Max(0.0f, ASAttributeBaseValues.SpeedValue * ASAttributeTempMultiplierValues.SpeedValue + ASAttributeTempAdditiveValues.SpeedValue);
 }
@@ -245,18 +244,18 @@ void USoSASComponent::AddASEffectToArray(FASEffectData* EffectToAdd)
 }
 
 
-void USoSASComponent::RemoveASEffectFromArray(FASEffectData* EffectToRemove)
+void USoSASComponent::RemoveASEffectFromArray(EASEffectType EffectType, int32 Index)
 {
-	switch (EffectToRemove->EffectType)
+	switch (EffectType)
 	{
 	case EASEffectType::Positive:
-		//CurrentPositiveEffects.Remove(*EffectToRemove);
+		CurrentPositiveEffects.RemoveAt(Index);
 		break;
 	case EASEffectType::Neutral:
-		//CurrentNeutralEffects.Remove(*EffectToRemove);
+		CurrentNeutralEffects.RemoveAt(Index);
 		break;
 	case EASEffectType::Negative:
-		//CurrentNegativeEffects.Remove(*EffectToRemove);
+		CurrentNegativeEffects.RemoveAt(Index);
 		break;
 	default:
 		break;
@@ -264,11 +263,11 @@ void USoSASComponent::RemoveASEffectFromArray(FASEffectData* EffectToRemove)
 }
 
 
-void USoSASComponent::EndASEffect(FASEffectData* EffectToEnd)
+void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 {
-	if (EffectToEnd->bTemporaryModifier)
+	if (EffectToEnd.bTemporaryModifier)
 	{
-		EffectToEnd->TotalValue = -EffectToEnd->TotalValue;
+		EffectToEnd.TotalValue = -EffectToEnd.TotalValue;
 		HandleASEffectValue(EffectToEnd, true);
 	}
 

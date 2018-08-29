@@ -29,9 +29,9 @@ public:
 
 	void AddASEffectToArray(FASEffectData* EffectToAdd);
 
-	void RemoveASEffectFromArray(FASEffectData* EffectToRemove);
+	void RemoveASEffectFromArray(EASEffectType EffectType, int32 Index);
 
-	void EndASEffect(FASEffectData* EffectToEnd);
+	void EndASEffect(FASEffectData& EffectToEnd);
 
 	void UseAbility(USoSASAbilityBase* Ability);
 
@@ -67,9 +67,9 @@ protected:
 	
 	void LoopOverCurrentASEffectsArrays();
 
-	void CheckASEffectStatus(FASEffectData* Effect);
+	void CheckASEffectStatus(FASEffectData& Effect);
 
-	void HandleASEffectValue(FASEffectData* Effect, bool bUseTotalValue);
+	void HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue);
 
 	void AddValueToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
 
