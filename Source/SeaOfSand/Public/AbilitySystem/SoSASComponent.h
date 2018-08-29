@@ -29,7 +29,9 @@ public:
 
 	void AddASEffectToArray(FASEffectData* EffectToAdd);
 
-	void RemoveASEffectFromArray(EASEffectType EffectType, int32 Index);
+	void RemoveASEffectFromArrayByIndex(EASEffectType EffectType, int32 Index);
+
+	void RemoveASEffectFromArrayByIndexArray(EASEffectType EffectType, const TArray<int32>& EffectIndexesToRemove);
 
 	void EndASEffect(FASEffectData& EffectToEnd);
 

@@ -51,20 +51,44 @@ void USoSASComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, F
 
 void USoSASComponent::LoopOverCurrentASEffectsArrays()
 {
+	int32 Index = 0;
+	TArray<int32> EffectIndexToRemove;
 	for (FASEffectData& Effect : CurrentPositiveEffects)
 	{
+		Index++;
 		CheckASEffectStatus(Effect);
+		if (Effect.bExpired)
+		{
+			EffectIndexToRemove.Add(Index);
+		}
 	}
+	RemoveASEffectFromArrayByIndexArray(EASEffectType::Positive, EffectIndexToRemove);
 
+	Index = 0;
+	EffectIndexToRemove.Empty();
 	for (FASEffectData& Effect : CurrentNeutralEffects)
 	{
+		Index++;
 		CheckASEffectStatus(Effect);
+		if (Effect.bExpired)
+		{
+			EffectIndexToRemove.Add(Index);
+		}
 	}
+	RemoveASEffectFromArrayByIndexArray(EASEffectType::Positive, EffectIndexToRemove);
 
+	Index = 0;
+	EffectIndexToRemove.Empty();
 	for (FASEffectData& Effect : CurrentNegativeEffects)
 	{
+		Index++;
 		CheckASEffectStatus(Effect);
+		if (Effect.bExpired)
+		{
+			EffectIndexToRemove.Add(Index);
+		}
 	}
+	RemoveASEffectFromArrayByIndexArray(EASEffectType::Positive, EffectIndexToRemove);
 
 	CalculateASAttributeTotalValues();
 	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
@@ -79,6 +103,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 	if (EffectElapsedTime >= Effect.EffectDuration)
 	{
 		EndASEffect(Effect);
+		Effect.bExpired = true;
 		return;
 	}
 
@@ -244,7 +269,7 @@ void USoSASComponent::AddASEffectToArray(FASEffectData* EffectToAdd)
 }
 
 
-void USoSASComponent::RemoveASEffectFromArray(EASEffectType EffectType, int32 Index)
+void USoSASComponent::RemoveASEffectFromArrayByIndex(EASEffectType EffectType, int32 Index)
 {
 	switch (EffectType)
 	{
@@ -263,6 +288,28 @@ void USoSASComponent::RemoveASEffectFromArray(EASEffectType EffectType, int32 In
 }
 
 
+void USoSASComponent::RemoveASEffectFromArrayByIndexArray(EASEffectType EffectType, const TArray<int32>& EffectIndexesToRemove)
+{
+	for (int32 Index : EffectIndexesToRemove)
+	{
+		switch (EffectType)
+		{
+		case EASEffectType::Positive:
+			RemoveASEffectFromArrayByIndex(EASEffectType::Positive, Index);
+			break;
+		case EASEffectType::Neutral:
+			RemoveASEffectFromArrayByIndex(EASEffectType::Neutral, Index);
+			break;
+		case EASEffectType::Negative:
+			RemoveASEffectFromArrayByIndex(EASEffectType::Negative, Index);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+
 void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 {
 	if (EffectToEnd.bTemporaryModifier)
@@ -270,8 +317,6 @@ void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 		EffectToEnd.TotalValue = -EffectToEnd.TotalValue;
 		HandleASEffectValue(EffectToEnd, true);
 	}
-
-	RemoveASEffectFromArray(EffectToEnd);
 }
 
 

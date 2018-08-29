@@ -81,4 +81,6 @@ struct FASEffectData
 	float TotalValue;
 
 	int CurrentStacks;
+
+	bool bExpired = false;
 };
