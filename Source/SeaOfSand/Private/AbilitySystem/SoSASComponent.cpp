@@ -55,12 +55,12 @@ void USoSASComponent::LoopOverCurrentASEffectsArrays()
 	TArray<int32> EffectIndexToRemove;
 	for (FASEffectData& Effect : CurrentPositiveEffects)
 	{
-		Index++;
 		CheckASEffectStatus(Effect);
 		if (Effect.bExpired)
 		{
 			EffectIndexToRemove.Add(Index);
 		}
+		Index++;
 	}
 	RemoveASEffectFromArrayByIndexArray(EASEffectType::Positive, EffectIndexToRemove);
 
@@ -68,30 +68,31 @@ void USoSASComponent::LoopOverCurrentASEffectsArrays()
 	EffectIndexToRemove.Empty();
 	for (FASEffectData& Effect : CurrentNeutralEffects)
 	{
-		Index++;
 		CheckASEffectStatus(Effect);
 		if (Effect.bExpired)
 		{
 			EffectIndexToRemove.Add(Index);
 		}
+		Index++;
 	}
-	RemoveASEffectFromArrayByIndexArray(EASEffectType::Positive, EffectIndexToRemove);
+	RemoveASEffectFromArrayByIndexArray(EASEffectType::Neutral, EffectIndexToRemove);
 
 	Index = 0;
 	EffectIndexToRemove.Empty();
 	for (FASEffectData& Effect : CurrentNegativeEffects)
 	{
-		Index++;
 		CheckASEffectStatus(Effect);
 		if (Effect.bExpired)
 		{
 			EffectIndexToRemove.Add(Index);
 		}
+		Index++;
 	}
-	RemoveASEffectFromArrayByIndexArray(EASEffectType::Positive, EffectIndexToRemove);
+	RemoveASEffectFromArrayByIndexArray(EASEffectType::Negative, EffectIndexToRemove);
 
 	CalculateASAttributeTotalValues();
 	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
+	UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), ASAttributeTotalValues.HealthMaxValue);
 }
 
 
@@ -290,6 +291,11 @@ void USoSASComponent::RemoveASEffectFromArrayByIndex(EASEffectType EffectType, i
 
 void USoSASComponent::RemoveASEffectFromArrayByIndexArray(EASEffectType EffectType, const TArray<int32>& EffectIndexesToRemove)
 {
+	if (EffectIndexesToRemove.Num() == 0)
+	{
+		return;
+	}
+
 	for (int32 Index : EffectIndexesToRemove)
 	{
 		switch (EffectType)
