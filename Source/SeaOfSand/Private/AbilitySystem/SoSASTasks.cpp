@@ -56,11 +56,26 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Targe
 		TargetASComp->AddASEffectToArray(NewEffect);
 	} 
 
-	Test(NewEffect);
 	return true;
 } 
 
-void USoSASTasks::Test(FASEffectData* Test)
+bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32* OutIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *Test->EffectName.ToString(), Test->EffectDuration);
+	if (Target == nullptr)
+	{
+		return false;
+	}
+
+	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
+
+	if (TargetASComp == nullptr)
+	{
+		return false;
+	}
+
+	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToCheck.EffectType);
+	for (FASEffectData& Effect : TargetCurrentEffectsArray)
+	{
+
+	}
 }

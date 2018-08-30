@@ -19,5 +19,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
 
-	static void Test(FASEffectData* Test);
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32* OutIndex);
 };
