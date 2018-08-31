@@ -5,12 +5,11 @@
 #include "Engine/World.h"
 
 
-bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime)
+bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime)
 { 
-	FASEffectData* NewEffect = &EffectToApply;
-	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *NewEffect->EffectName.ToString(), NewEffect->EffectDuration);
+	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *EffectToApply.EffectName.ToString(), EffectToApply.EffectDuration);
 
-	if (NewEffect == nullptr || Target == nullptr || Instigator == nullptr)
+	if (Target == nullptr || Instigator == nullptr)
 	{
 		return false;
 	}
@@ -23,46 +22,45 @@ bool USoSASTasks::ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Targe
 	}
 
 	// Check to see if effect already exists on target
-	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(NewEffect->EffectType);
+	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToApply.EffectType);
 	int EffectIndex;
-	if (false) // Reapply effect and add stacks if appropriate TODO remake existing check
+	if (CheckIfTargetHasASEffectActive(EffectToApply, Target, EffectIndex)) // Reapply effect and add stacks if appropriate TODO remake existing check
 	{
-		// Update effect status checkers
-		TargetCurrentEffectsArray[EffectIndex].EffectStartTime = ApplicationTime;
-		TargetCurrentEffectsArray[EffectIndex].CurrentStacks = FMath::Clamp(TargetCurrentEffectsArray[EffectIndex].CurrentStacks + NewEffect->StacksPerApplication, 1, NewEffect->MaxStacks);
+		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply);
 	}
 	else // Apply effect to target
 	{
 		// Set effect status trackers
-		NewEffect->EffectStartTime = ApplicationTime;
-		NewEffect->CurrentStacks = FMath::Clamp(NewEffect->StacksPerApplication, 1, NewEffect->MaxStacks);
+		EffectToApply.EffectStartTime = ApplicationTime;
+		EffectToApply.CurrentStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 1, EffectToApply.MaxStacks);
 
 		// Set duration to infinite for effects with no duration
-		if (NewEffect->EffectDuration == 0.0f)
+		if (EffectToApply.EffectDuration == 0.0f)
 		{
-			NewEffect->EffectDuration = INFINITY;
+			EffectToApply.EffectDuration = INFINITY;
 		}
 
 		// Set tick rate to effect duration for effects with a tick rate of zero
-		if (NewEffect->TickRate == 0.0f)
+		if (EffectToApply.TickRate == 0.0f)
 		{
-			NewEffect->TickRate = NewEffect->EffectDuration;
+			EffectToApply.TickRate = EffectToApply.EffectDuration;
 		}
 
 		// Set last tick time
-		NewEffect->LastTickTime = NewEffect->bDelayFirstTick ? ApplicationTime : ApplicationTime - NewEffect->TickRate;
+		EffectToApply.LastTickTime = EffectToApply.bDelayFirstTick ? ApplicationTime : ApplicationTime - EffectToApply.TickRate;
 
 		// Add effect to array
-		TargetASComp->AddASEffectToArray(NewEffect);
+		TargetASComp->AddASEffectToArray(EffectToApply);
 	} 
 
 	return true;
 } 
 
-bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32* OutIndex)
+bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32& OutIndex)
 {
 	if (Target == nullptr)
 	{
+		OutIndex = -1;
 		return false;
 	}
 
@@ -70,12 +68,29 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, A
 
 	if (TargetASComp == nullptr)
 	{
+		OutIndex = -1;
 		return false;
 	}
 
+	OutIndex = 0;
 	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToCheck.EffectType);
 	for (FASEffectData& Effect : TargetCurrentEffectsArray)
 	{
+		if (Effect.EffectName == EffectToCheck.EffectName)
+		{
+			return true;
+		}
+		OutIndex++;
+	}
 
+	OutIndex = -1;
+	return false;
+}
+
+void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect)
+{
+	if (NewEffect.EffectValue > ExistingEffect.EffectValue)
+	{
+		//ExistingEffect.EffectValue = 
 	}
 }

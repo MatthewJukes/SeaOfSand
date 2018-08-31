@@ -17,8 +17,12 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ApplyEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
+	static bool ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float ApplicationTime);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32* OutIndex);
+	static bool CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32& OutIndex);
+
+private:
+
+	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect);
 };

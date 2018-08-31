@@ -27,7 +27,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	void AddASEffectToArray(FASEffectData* EffectToAdd);
+	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
 	void RemoveASEffectFromArrayByIndex(EASEffectType EffectType, int32 Index);
 

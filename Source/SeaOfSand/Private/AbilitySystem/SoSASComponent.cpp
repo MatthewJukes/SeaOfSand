@@ -250,18 +250,18 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 }
 
 
-void USoSASComponent::AddASEffectToArray(FASEffectData* EffectToAdd)
+void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 {
-	switch (EffectToAdd->EffectType)
+	switch (EffectToAdd.EffectType)
 	{
 	case EASEffectType::Positive:
-		CurrentPositiveEffects.Add(*EffectToAdd);
+		CurrentPositiveEffects.Add(EffectToAdd);
 		break;
 	case EASEffectType::Neutral:
-		CurrentNeutralEffects.Add(*EffectToAdd);
+		CurrentNeutralEffects.Add(EffectToAdd);
 		break;
 	case EASEffectType::Negative:
-		CurrentNegativeEffects.Add(*EffectToAdd);
+		CurrentNegativeEffects.Add(EffectToAdd);
 		break;
 	default:
 		break;
