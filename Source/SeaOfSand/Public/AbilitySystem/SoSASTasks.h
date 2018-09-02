@@ -24,5 +24,5 @@ public:
 
 private:
 
-	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect);
+	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, float ApplicationTime);
 };

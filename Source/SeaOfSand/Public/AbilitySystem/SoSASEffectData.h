@@ -62,15 +62,19 @@ struct FASEffectData
 
 	// Maximum number of times the effect can be applied to the same target at the same time
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "1"))
-	int MaxStacks = 1; 
+	int32 MaxStacks = 1;
 
 	// How many times the effect is applied to the target
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect", meta = (ClampMin = "1"))
-	int StacksPerApplication = 1;
+	int32 StacksPerApplication = 1;
 
 	// Is the effect a temporary stat modifier? Generally should be true when effect things like max health or speed and you want these to be restored when the effect end. False for an effect like draining current health or energy.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	bool bTemporaryModifier; 
+
+	// If reapplied, duration added to remaining duration;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	bool bAdditiveDuration;
 
 	// Effect status trackers
 
@@ -80,7 +84,7 @@ struct FASEffectData
 
 	float TotalValue;
 
-	int CurrentStacks;
+	int32 CurrentStacks;
 
 	bool bExpired = false;
 };

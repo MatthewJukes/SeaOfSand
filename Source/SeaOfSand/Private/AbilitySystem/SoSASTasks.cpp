@@ -26,7 +26,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	int EffectIndex;
 	if (CheckIfTargetHasASEffectActive(EffectToApply, Target, EffectIndex)) // Reapply effect and add stacks if appropriate TODO remake existing check
 	{
-		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply);
+		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, ApplicationTime);
 	}
 	else // Apply effect to target
 	{
@@ -87,10 +87,17 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, A
 	return false;
 }
 
-void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect)
+void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, float ApplicationTime)
 {
-	if (NewEffect.EffectValue > ExistingEffect.EffectValue)
+	if (NewEffect.bAdditiveDuration && ExistingEffect.bAdditiveDuration)
 	{
-		//ExistingEffect.EffectValue = 
+		ExistingEffect.EffectDuration += NewEffect.EffectDuration;
 	}
+	else if(NewEffect.EffectDuration > ApplicationTime - ExistingEffect.EffectStartTime)
+	{
+		ExistingEffect.EffectDuration = NewEffect.EffectDuration;
+		ExistingEffect.EffectStartTime = ApplicationTime;
+	}
+
+	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + NewEffect.StacksPerApplication, 1, NewEffect.MaxStacks);
 }
