@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "SoSASAttributes.h"
 #include "SoSASEffectData.generated.h"
 
@@ -26,7 +27,7 @@ enum class EASEffectValueType : uint8 // Attribute modification formula type
 
 
 USTRUCT(BlueprintType)
-struct FASEffectData
+struct FASEffectData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -47,10 +48,6 @@ struct FASEffectData
 	// Magnitude of the effect. Multiplicative and Subtractive should be given in percentage values. 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float EffectValue;
-
-	// Length of the effect in seconds, 0 means the duration is infinite
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect", meta = (ClampMin = "0"))
-	float EffectDuration; 
 
 	// The rate in seconds at which the value is reapplied over the duration of the effect, 0 means the effect will tick only once
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
@@ -77,6 +74,8 @@ struct FASEffectData
 	bool bAdditiveDuration;
 
 	// Effect status trackers
+
+	float EffectDuration; 
 
 	float EffectStartTime;
 
