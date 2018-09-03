@@ -7,7 +7,7 @@
 
 bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float EffectDuration, float ApplicationTime)
 { 
-	UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *EffectToApply.EffectName.ToString(), EffectToApply.EffectDuration);
+	//UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *EffectToApply.EffectName.ToString(), EffectToApply.EffectDuration);
 
 	if (Target == nullptr || Instigator == nullptr)
 	{

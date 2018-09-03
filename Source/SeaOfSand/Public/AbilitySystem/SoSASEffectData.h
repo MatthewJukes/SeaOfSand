@@ -9,6 +9,16 @@
 
 
 UENUM(BlueprintType)
+enum class EASEffectName : uint8
+{ 
+	RangedWeaponAiming_Neu          UMETA(DisplayName = "RangedWeaponAiming"),
+	RangedWeaponSlow_Neu            UMETA(DisplayName = "RangedWeaponSlow"),
+	Burning_Neg                     UMETA(DisplayName = "Burning")
+	
+};
+
+
+UENUM(BlueprintType)
 enum class EASEffectType : uint8
 {
 	Positive,
@@ -34,7 +44,7 @@ struct FASEffectData : public FTableRowBase
 	// Effect properties
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	FName EffectName;
+	EASEffectName EffectName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	EASAttributeName AttributeToEffect;
