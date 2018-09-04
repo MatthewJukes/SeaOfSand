@@ -7,15 +7,12 @@
 
 bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float EffectDuration, float ApplicationTime)
 { 
-	//UE_LOG(LogTemp, Warning, TEXT("Effect Name: %s Effect Duration: %f"), *EffectToApply.EffectName.ToString(), EffectToApply.EffectDuration);
-
 	if (Target == nullptr || Instigator == nullptr)
 	{
 		return false;
 	}
 
 	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
-
 	if (TargetASComp == nullptr)
 	{
 		return false;
@@ -27,7 +24,16 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	// Check to see if effect already exists on target
 	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToApply.EffectType);
 	int EffectIndex;
-	if (CheckIfTargetHasASEffectActive(EffectToApply, Target, EffectIndex)) // Reapply effect and add stacks if appropriate TODO remake existing check
+
+	for (EASEffectName EffectName : EffectToApply.EffectBlockedBy)
+	{
+		if (CheckIfTargetHasASEffectActive(EASEffectName))
+		{
+		}
+	}
+
+
+	if (CheckIfTargetHasASEffectActive(EffectToApply.EffectName, EffectToApply.EffectType, Target, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, ApplicationTime);
 	}
@@ -53,7 +59,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	return true;
 } 
 
-bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32& OutIndex)
+bool USoSASTasks::CheckIfTargetHasASEffectActive(EASEffectName EffectName, EASEffectType EffectType, AActor* Target, int32& OutIndex)
 {
 	if (Target == nullptr)
 	{
@@ -62,7 +68,6 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, A
 	}
 
 	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
-
 	if (TargetASComp == nullptr)
 	{
 		OutIndex = -1;
@@ -70,10 +75,10 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, A
 	}
 
 	OutIndex = 0;
-	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToCheck.EffectType);
+	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectType);
 	for (FASEffectData& Effect : TargetCurrentEffectsArray)
 	{
-		if (Effect.EffectName == EffectToCheck.EffectName)
+		if (Effect.EffectName == EffectName)
 		{
 			return true;
 		}

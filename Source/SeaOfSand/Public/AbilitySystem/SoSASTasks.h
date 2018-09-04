@@ -20,7 +20,7 @@ public:
 	static bool ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float EffectDuration, float ApplicationTime);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool CheckIfTargetHasASEffectActive(FASEffectData& EffectToCheck, AActor* Target, int32& OutIndex);
+	static bool CheckIfTargetHasASEffectActive(EASEffectName EffectName, EASEffectType EffectType, AActor* Target, int32& OutIndex);
 
 private:
 
