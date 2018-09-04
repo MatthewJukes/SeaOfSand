@@ -11,9 +11,14 @@
 UENUM(BlueprintType)
 enum class EASEffectName : uint8
 { 
-	RangedWeaponAiming_Neu          UMETA(DisplayName = "RangedWeaponAiming"),
-	RangedWeaponSlow_Neu            UMETA(DisplayName = "RangedWeaponSlow"),
-	Burning_Neg                     UMETA(DisplayName = "Burning")
+	//Positive
+
+	// Neutral
+	PlayerSprint,
+	PlayerPistolAiming,
+
+	//Negative
+	Burning                    
 	
 };
 
@@ -82,6 +87,15 @@ struct FASEffectData : public FTableRowBase
 	// If reapplied, duration added to remaining duration;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	bool bAdditiveDuration;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TArray<EASEffectName> EffectBlockedBy;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TArray<EASEffectName> EffectRemoves;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TArray<EASEffectName> EffectRequires;
 
 	// Effect status trackers
 
