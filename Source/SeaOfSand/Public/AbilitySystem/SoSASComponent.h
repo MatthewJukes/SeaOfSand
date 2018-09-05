@@ -88,4 +88,5 @@ public:
 
 	TArray<FASEffectData>& GetCurrentEffectsArray();
 
+	TArray<EASTag>& GetCurrentTags();
 };

@@ -18,16 +18,24 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 		return false;
 	}
 
-	// Check to see if effect is blocked by another effect
+	// Check blocked by tags
 	int EffectIndex;
-	for (EASTag EffectName : EffectToApply.EffectBlockedByTags)
+	TArray<EASTag>& TargetTags = TargetASComp->GetCurrentTags();
+	for (EASTag Tag : EffectToApply.EffectBlockedByTags)
 	{
-		
+		if (TargetTags.Contains(Tag))
+		{
+			return false;
+		}
 	}
 
-	for (EASTag EffectName : EffectToApply.EffectRequiresTags)
+	// Check required tags
+	for (EASTag Tag : EffectToApply.EffectRequiresTags)
 	{
-		
+		if (!TargetTags.Contains(Tag))
+		{
+			return false;
+		}
 	}
 
 	// Set duration to infinite for effects with no duration

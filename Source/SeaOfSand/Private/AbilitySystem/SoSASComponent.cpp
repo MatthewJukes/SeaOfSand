@@ -227,6 +227,10 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 {
 	CurrentEffects.Add(EffectToAdd);
+	for (EASTag Tag : EffectToAdd.EffectAppliesTags)
+	{
+		CurrentTags.Add(Tag);
+	}
 }
 
 
@@ -251,6 +255,11 @@ void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 	{
 		EffectToEnd.TotalValue = -EffectToEnd.TotalValue;
 		HandleASEffectValue(EffectToEnd, true);
+	}
+
+	for (EASTag Tag : EffectToEnd.EffectAppliesTags)
+	{
+		CurrentTags.Remove(Tag);
 	}
 }
 
@@ -335,5 +344,10 @@ float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet)
 TArray<FASEffectData>& USoSASComponent::GetCurrentEffectsArray()
 {
 	return CurrentEffects;
+}
+
+TArray<EASTag>& USoSASComponent::GetCurrentTags()
+{
+	return CurrentTags;
 }
 
