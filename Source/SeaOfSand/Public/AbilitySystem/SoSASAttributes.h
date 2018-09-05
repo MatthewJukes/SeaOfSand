@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SoSASAttributes.generated.h"
 
+
 UENUM(BlueprintType)
 enum class EASAttributeName : uint8
 {
@@ -35,4 +36,12 @@ struct FASAttributeData
 	float EnergyCurrentValue;
 
 	float SpeedValue;
+};
+
+UENUM(BlueprintType)
+enum class EASTag : uint8
+{
+	Sprinting,
+	Aiming, 
+	ImmuneToFire
 };

@@ -9,21 +9,6 @@
 
 
 UENUM(BlueprintType)
-enum class EASEffectName : uint8
-{ 
-	//Positive
-
-	// Neutral
-	PlayerSprint,
-	PlayerPistolAiming,
-
-	//Negative
-	Burning                    
-	
-};
-
-
-UENUM(BlueprintType)
 enum class EASEffectType : uint8
 {
 	Positive,
@@ -49,7 +34,7 @@ struct FASEffectData : public FTableRowBase
 	// Effect properties
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EASEffectName EffectName;
+	FName EffectName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	EASAttributeName AttributeToEffect;
@@ -89,13 +74,13 @@ struct FASEffectData : public FTableRowBase
 	bool bAdditiveDuration;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	TArray<EASEffectName> EffectBlockedBy;
+	TArray<EASTag> EffectAppliesTags;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	TArray<EASEffectName> EffectRemoves;
+	TArray<EASTag> EffectBlockedByTags;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	TArray<EASEffectName> EffectRequires;
+	TArray<EASTag> EffectRequiresTags;
 
 	// Effect status trackers
 

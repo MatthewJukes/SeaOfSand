@@ -29,9 +29,9 @@ public:
 
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
-	void RemoveASEffectFromArrayByIndex(EASEffectType EffectType, int32 Index);
+	void RemoveASEffectFromArrayByIndex(int32 Index);
 
-	void RemoveASEffectFromArrayByIndexArray(EASEffectType EffectType, const TArray<int32>& EffectIndexesToRemove);
+	void RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove);
 
 	void EndASEffect(FASEffectData& EffectToEnd);
 
@@ -39,13 +39,9 @@ public:
 
 protected:
 
-	TArray<FASEffectData> CurrentPositiveEffects;
+	TArray<FASEffectData> CurrentEffects;
 
-	TArray<FASEffectData> CurrentNeutralEffects;
-
-	TArray<FASEffectData> CurrentNegativeEffects;
-
-	TArray<FASEffectData> DefaultArray; // Empty array for switch statements
+	TArray<EASTag> CurrentTags;
 
 	FASAttributeData ASAttributeBaseValues;
 
@@ -67,7 +63,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float SpeedStartValue;
 	
-	void LoopOverCurrentASEffectsArrays();
+	void LoopOverCurrentASEffectsArray();
 
 	void CheckASEffectStatus(FASEffectData& Effect);
 
@@ -90,6 +86,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
 	float GetASAttributeTotalValue(EASAttributeName AttributeToGet) const;
 
-	TArray<FASEffectData>& GetCurrentEffectsArray(EASEffectType EffectType);
+	TArray<FASEffectData>& GetCurrentEffectsArray();
 
 };

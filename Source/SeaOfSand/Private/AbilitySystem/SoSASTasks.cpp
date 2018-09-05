@@ -18,22 +18,24 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 		return false;
 	}
 
+	// Check to see if effect is blocked by another effect
+	int EffectIndex;
+	for (EASTag EffectName : EffectToApply.EffectBlockedByTags)
+	{
+		
+	}
+
+	for (EASTag EffectName : EffectToApply.EffectRequiresTags)
+	{
+		
+	}
+
 	// Set duration to infinite for effects with no duration
 	EffectToApply.EffectDuration = EffectDuration == 0.0f ? INFINITY : EffectDuration;
 
 	// Check to see if effect already exists on target
-	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectToApply.EffectType);
-	int EffectIndex;
-
-	for (EASEffectName EffectName : EffectToApply.EffectBlockedBy)
-	{
-		if (CheckIfTargetHasASEffectActive(EASEffectName))
-		{
-		}
-	}
-
-
-	if (CheckIfTargetHasASEffectActive(EffectToApply.EffectName, EffectToApply.EffectType, Target, EffectIndex)) // Reapply effect and add stacks if appropriate
+	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
+	if (CheckIfTargetHasASEffectActive(EffectToApply.EffectName, Target, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, ApplicationTime);
 	}
@@ -59,7 +61,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	return true;
 } 
 
-bool USoSASTasks::CheckIfTargetHasASEffectActive(EASEffectName EffectName, EASEffectType EffectType, AActor* Target, int32& OutIndex)
+bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex)
 {
 	if (Target == nullptr)
 	{
@@ -75,7 +77,7 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(EASEffectName EffectName, EASEf
 	}
 
 	OutIndex = 0;
-	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray(EffectType);
+	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
 	for (FASEffectData& Effect : TargetCurrentEffectsArray)
 	{
 		if (Effect.EffectName == EffectName)
