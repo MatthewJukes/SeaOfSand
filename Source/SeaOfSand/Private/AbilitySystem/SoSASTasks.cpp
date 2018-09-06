@@ -54,10 +54,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 		EffectToApply.CurrentStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 1, EffectToApply.MaxStacks);
 
 		// Set tick rate to effect duration for effects with a tick rate of zero
-		if (EffectToApply.TickRate == 0.0f)
-		{
-			EffectToApply.TickRate = EffectToApply.EffectDuration;
-		}
+		EffectToApply.TickRate = EffectToApply.TickRate == 0.0f ? EffectToApply.EffectDuration : EffectToApply.TickRate;
 
 		// Set last tick time
 		EffectToApply.LastTickTime = EffectToApply.bDelayFirstTick ? ApplicationTime : ApplicationTime - EffectToApply.TickRate;
@@ -109,6 +106,12 @@ void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& 
 	{
 		ExistingEffect.EffectDuration = NewEffect.EffectDuration;
 		ExistingEffect.EffectStartTime = ApplicationTime;
+	}
+
+	if (NewEffect.TickRate == 0.0f)
+	{
+		ExistingEffect.TickRate = ExistingEffect.EffectDuration;
+		ExistingEffect.LastTickTime = ExistingEffect.bDelayFirstTick ? ApplicationTime : ApplicationTime - ExistingEffect.TickRate;
 	}
 
 	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + NewEffect.StacksPerApplication, 1, NewEffect.MaxStacks);

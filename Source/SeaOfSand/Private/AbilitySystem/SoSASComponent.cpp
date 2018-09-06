@@ -96,7 +96,8 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 
 void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue)
 {
-	float NewValue = bUseTotalValue ? Effect.TotalValue : Effect.EffectValue * Effect.CurrentStacks;
+	float PosNegMultiplier = Effect.EffectValue < 0 ? -1 : 1;
+	float NewValue = bUseTotalValue ? Effect.TotalValue : FMath::Abs(Effect.EffectValue) * Effect.CurrentStacks * PosNegMultiplier;
 
 	switch (Effect.EffectValueType)
 	{
