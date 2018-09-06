@@ -65,8 +65,9 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 	RemoveASEffectFromArrayByIndexArray(EffectIndexToRemove);
 
 	CalculateASAttributeTotalValues();
-	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
 	UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), ASAttributeTotalValues.HealthMaxValue);
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
+	UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
 }
 
 
@@ -114,7 +115,7 @@ void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalV
 		break;
 	case EASEffectValueType::Multiplicative:
 		Effect.TotalValue += NewValue;
-		NewValue *= 0.1f;
+		NewValue *= 0.01f;
 		
 		if (Effect.bTemporaryModifier)
 		{
@@ -127,7 +128,7 @@ void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalV
 		break;
 	case EASEffectValueType::Subtractive:
 		Effect.TotalValue += NewValue;
-		NewValue *= 0.1f;
+		NewValue *= 0.01f;
 
 		if (Effect.bTemporaryModifier)
 		{
@@ -211,6 +212,7 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 	ASAttributeTotalValues.HealthMaxValue = FMath::Max(1.0f, ASAttributeBaseValues.HealthMaxValue * ASAttributeTempMultiplierValues.HealthMaxValue + ASAttributeTempAdditiveValues.HealthMaxValue);
 
 	ASAttributeTotalValues.HealthCurrentValue = FMath::Clamp(ASAttributeBaseValues.HealthCurrentValue * ASAttributeTempMultiplierValues.HealthCurrentValue + ASAttributeTempAdditiveValues.HealthCurrentValue, 0.0f, ASAttributeTotalValues.HealthMaxValue);
+	ASAttributeBaseValues.HealthCurrentValue = FMath::Clamp(ASAttributeBaseValues.HealthCurrentValue, 0.0f, ASAttributeTotalValues.HealthMaxValue + (ASAttributeBaseValues.HealthCurrentValue - (ASAttributeBaseValues.HealthCurrentValue * ASAttributeTempMultiplierValues.HealthCurrentValue + ASAttributeTempAdditiveValues.HealthCurrentValue)));
 
 	ASAttributeTotalValues.ArmourMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.ArmourMaxValue * ASAttributeTempMultiplierValues.ArmourMaxValue + ASAttributeTempAdditiveValues.ArmourMaxValue);
 
