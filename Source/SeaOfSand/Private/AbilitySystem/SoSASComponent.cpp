@@ -2,6 +2,8 @@
 
 #include "SoSASComponent.h"
 #include "SoSASAbilityBase.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
 
 
@@ -38,6 +40,7 @@ void USoSASComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ComponentOwner = Cast<ACharacter>(GetOwner());
 }
 
 
@@ -68,6 +71,7 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 	UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), ASAttributeTotalValues.HealthMaxValue);
 	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
 	UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
+	UE_LOG(LogTemp, Warning, TEXT("Speed: %f"), ASAttributeTotalValues.SpeedValue);
 }
 
 
@@ -79,8 +83,16 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 	if (EffectElapsedTime >= Effect.EffectDuration)
 	{
 		EndASEffect(Effect);
-		Effect.bExpired = true;
 		return;
+	}
+
+	for (EASTag Tag : Effect.EffectBlockedByTags)
+	{
+		if (CurrentTags.Contains(Tag))
+		{
+			EndASEffect(Effect);
+			return;
+		}
 	}
 
 	// Check if effect should tick
@@ -97,7 +109,8 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue)
 {
 	float PosNegMultiplier = Effect.EffectValue < 0 ? -1 : 1;
-	float NewValue = bUseTotalValue ? Effect.TotalValue : FMath::Abs(Effect.EffectValue) * Effect.CurrentStacks * PosNegMultiplier;
+	float NewValue = Effect.bNonTicking ? FMath::Abs(Effect.EffectValue) * Effect.NewStacks * PosNegMultiplier : FMath::Abs(Effect.EffectValue) * Effect.CurrentStacks * PosNegMultiplier;
+	NewValue = bUseTotalValue ? Effect.TotalValue : NewValue;
 
 	switch (Effect.EffectValueType)
 	{
@@ -218,12 +231,24 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 	ASAttributeTotalValues.ArmourMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.ArmourMaxValue * ASAttributeTempMultiplierValues.ArmourMaxValue + ASAttributeTempAdditiveValues.ArmourMaxValue);
 
 	ASAttributeTotalValues.ArmourCurrentValue = FMath::Clamp(ASAttributeBaseValues.ArmourCurrentValue * ASAttributeTempMultiplierValues.ArmourCurrentValue + ASAttributeTempAdditiveValues.ArmourCurrentValue, 0.0f, ASAttributeTotalValues.ArmourMaxValue);
+	ASAttributeBaseValues.ArmourCurrentValue = FMath::Clamp(ASAttributeBaseValues.ArmourCurrentValue, 0.0f, ASAttributeTotalValues.ArmourMaxValue + (ASAttributeBaseValues.ArmourCurrentValue - (ASAttributeBaseValues.ArmourCurrentValue * ASAttributeTempMultiplierValues.ArmourCurrentValue + ASAttributeTempAdditiveValues.ArmourCurrentValue)));
 
 	ASAttributeTotalValues.EnergyMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.EnergyMaxValue * ASAttributeTempMultiplierValues.EnergyMaxValue + ASAttributeTempAdditiveValues.EnergyMaxValue);
 
 	ASAttributeTotalValues.EnergyCurrentValue = FMath::Clamp(ASAttributeBaseValues.EnergyCurrentValue * ASAttributeTempMultiplierValues.EnergyCurrentValue + ASAttributeTempAdditiveValues.EnergyCurrentValue, 0.0f, ASAttributeTotalValues.EnergyMaxValue);
+	ASAttributeBaseValues.EnergyCurrentValue = FMath::Clamp(ASAttributeBaseValues.EnergyCurrentValue, 0.0f, ASAttributeTotalValues.EnergyMaxValue + (ASAttributeBaseValues.EnergyCurrentValue - (ASAttributeBaseValues.EnergyCurrentValue * ASAttributeTempMultiplierValues.EnergyCurrentValue + ASAttributeTempAdditiveValues.EnergyCurrentValue)));
 
 	ASAttributeTotalValues.SpeedValue = FMath::Max(0.0f, ASAttributeBaseValues.SpeedValue * ASAttributeTempMultiplierValues.SpeedValue + ASAttributeTempAdditiveValues.SpeedValue);
+
+	if (ComponentOwner == nullptr)
+	{
+		return;
+	}
+
+	if (UCharacterMovementComponent* CharacterMovement = ComponentOwner->GetCharacterMovement())
+	{
+		CharacterMovement->MaxWalkSpeed = ASAttributeTotalValues.SpeedValue;
+	}
 }
 
 
@@ -254,6 +279,8 @@ void USoSASComponent::RemoveASEffectFromArrayByIndexArray(const TArray<int32>& E
 
 void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 {
+	EffectToEnd.bExpired = true;
+
 	if (EffectToEnd.bTemporaryModifier)
 	{
 		EffectToEnd.TotalValue = -EffectToEnd.TotalValue;

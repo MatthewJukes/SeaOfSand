@@ -187,6 +187,9 @@ void ASoSPlayerCharacter::MoveRight(float AxisValue)
 
 void ASoSPlayerCharacter::SprintStart()
 {
+	UseAbility(9);
+
+	/*
 	if (bIsRolling || GetCharacterMovement()->IsFalling() || CurrentStamina <= 5.0f || GetVelocity().Size() < 0.01f)
 	{
 		return;
@@ -207,12 +210,15 @@ void ASoSPlayerCharacter::SprintStart()
 	}
 	else
 	{
-		SetPlayerSpeed(SprintMultiplier);
-	}
+		
+	} */
 }
 
 void ASoSPlayerCharacter::SprintEnd()
 {
+	UseAbility(10);
+
+	/*
 	if (!bIsSprinting)
 	{
 		return;
@@ -230,7 +236,7 @@ void ASoSPlayerCharacter::SprintEnd()
 	else
 	{
 		SetPlayerSpeed(1.f);
-	}	
+	}	*/
 }
 
 void ASoSPlayerCharacter::CrouchStart()
@@ -418,6 +424,16 @@ void ASoSPlayerCharacter::UseAbility(int32 Index)
 		AbilityClass = AbilityBar.AbilityEigth.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
+		break;
+	case 9:
+		AbilityClass = AbilityBar.AbilitySprint.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprint, AbilityClass);
+		UE_LOG(LogTemp, Warning, TEXT("Sprint Cast"))
+		break;
+	case 10:
+		AbilityClass = AbilityBar.AbilitySprint.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprintEnd, AbilityClass);
+		UE_LOG(LogTemp, Warning, TEXT("Sprint End Cast"))
 		break;
 	default:
 		AbilityToUse = nullptr;

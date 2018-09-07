@@ -42,6 +42,7 @@ UENUM(BlueprintType)
 enum class EASTag : uint8
 {
 	Sprinting,
+	SprintEnd,
 	Aiming, 
 	ImmuneToFire
 };

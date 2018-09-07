@@ -51,9 +51,11 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	{
 		// Set effect status trackers
 		EffectToApply.EffectStartTime = ApplicationTime;
+		EffectToApply.NewStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 0, EffectToApply.MaxStacks);
 		EffectToApply.CurrentStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 1, EffectToApply.MaxStacks);
 
 		// Set tick rate to effect duration for effects with a tick rate of zero
+		EffectToApply.bNonTicking = EffectToApply.TickRate == 0.0f;
 		EffectToApply.TickRate = EffectToApply.TickRate == 0.0f ? EffectToApply.EffectDuration : EffectToApply.TickRate;
 
 		// Set last tick time
@@ -108,11 +110,12 @@ void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& 
 		ExistingEffect.EffectStartTime = ApplicationTime;
 	}
 
-	if (NewEffect.TickRate == 0.0f)
+	if (ExistingEffect.bNonTicking)
 	{
 		ExistingEffect.TickRate = ExistingEffect.EffectDuration;
 		ExistingEffect.LastTickTime = ExistingEffect.bDelayFirstTick ? ApplicationTime : ApplicationTime - ExistingEffect.TickRate;
 	}
 
-	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + NewEffect.StacksPerApplication, 1, NewEffect.MaxStacks);
+	ExistingEffect.NewStacks = FMath::Clamp(NewEffect.StacksPerApplication, 0, ExistingEffect.MaxStacks - ExistingEffect.CurrentStacks);
+	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + NewEffect.StacksPerApplication, 1, ExistingEffect.MaxStacks);
 }

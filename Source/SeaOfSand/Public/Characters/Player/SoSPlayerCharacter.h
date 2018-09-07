@@ -45,7 +45,10 @@ struct FPlayerASAbilitiesData
 	TSubclassOf<USoSASAbilityBase> AbilityEigth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySprint;
+	TSubclassOf<USoSASAbilityBase> AbilitySprint; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilitySprintEnd;
 }; 
 
 UCLASS()

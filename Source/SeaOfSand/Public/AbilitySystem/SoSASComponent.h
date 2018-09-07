@@ -9,6 +9,7 @@
 #include "SoSASComponent.generated.h"
 
 class USoSASAbilityBase;
+class ACharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
@@ -29,12 +30,6 @@ public:
 
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
-	void RemoveASEffectFromArrayByIndex(int32 Index);
-
-	void RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove);
-
-	void EndASEffect(FASEffectData& EffectToEnd);
-
 	void UseAbility(USoSASAbilityBase* Ability);
 
 protected:
@@ -49,7 +44,9 @@ protected:
 
 	FASAttributeData ASAttributeTempAdditiveValues;
 
-	FASAttributeData ASAttributeTempMultiplierValues; // Both Multiplicative and Subtractive values
+	FASAttributeData ASAttributeTempMultiplierValues;
+
+	ACharacter* ComponentOwner;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float HealthMaxStartValue;
@@ -74,6 +71,12 @@ protected:
 	void MultiplyASAttributeDataByValue(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
 
 	void CalculateASAttributeTotalValues();
+
+	void RemoveASEffectFromArrayByIndex(int32 Index);
+
+	void RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove);
+
+	void EndASEffect(FASEffectData& EffectToEnd);
 
 ////////////////////////////////////////////////
 // Getters and Setters

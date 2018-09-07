@@ -73,12 +73,19 @@ struct FASEffectData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	bool bAdditiveDuration;
 
+	// Tags to apply to target
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	TArray<EASTag> EffectAppliesTags;
 
+	// Tags that will stop the effect from being applied or remove it if in effect
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	TArray<EASTag> EffectBlockedByTags;
 
+	// Tags that will cause the effect to have no effect, but will not stop it's application or remove it
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TArray<EASTag> EffectNegatedByTags;
+
+	// Tags required for the effect to to be applied, effect will not be removed if the tag is removed/expires
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	TArray<EASTag> EffectRequiresTags;
 
@@ -93,6 +100,10 @@ struct FASEffectData : public FTableRowBase
 	float TotalValue;
 
 	int32 CurrentStacks;
+
+	int32 NewStacks;
+
+	bool bNonTicking;
 
 	bool bExpired = false;
 };
