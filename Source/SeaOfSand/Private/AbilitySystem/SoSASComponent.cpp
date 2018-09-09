@@ -95,6 +95,14 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 		}
 	}
 
+	for (EASTag Tag : Effect.EffectNegatedByTags)
+	{
+		if (CurrentTags.Contains(Tag))
+		{
+			return;
+		}
+	}
+
 	// Check if effect should tick
 	float TimeElapsedSinceLastTick = GetWorld()->GetTimeSeconds() - Effect.LastTickTime;
 	if (TimeElapsedSinceLastTick >= Effect.TickRate)

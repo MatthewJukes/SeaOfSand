@@ -431,7 +431,7 @@ void ASoSPlayerCharacter::UseAbility(int32 Index)
 		UE_LOG(LogTemp, Warning, TEXT("Sprint Cast"))
 		break;
 	case 10:
-		AbilityClass = AbilityBar.AbilitySprint.Get();
+		AbilityClass = AbilityBar.AbilitySprintEnd.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprintEnd, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Sprint End Cast"))
 		break;
