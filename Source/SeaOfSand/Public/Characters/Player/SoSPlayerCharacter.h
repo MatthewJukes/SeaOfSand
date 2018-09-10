@@ -13,7 +13,22 @@ class USoSInventoryComponent;
 class USoSASComponent;
 class USoSASAbilityBase;
 
-DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
+UENUM(BlueprintType)
+enum class EASAbilityIndex : uint8
+{
+	ASAbilityOne,
+	ASAbilityTwo,
+	ASAbilityThree,
+	ASAbilityFour,
+	ASAbilityFive,
+	ASAbilitySix,
+	ASAbilitySeven,
+	ASAbilityEight,
+	ASSprint,
+	ASSprintEnd,
+	ASAim,
+	ASAimEnd
+};
 
 USTRUCT(BlueprintType)
 struct FPlayerASAbilitiesData
@@ -49,7 +64,15 @@ struct FPlayerASAbilitiesData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilitySprintEnd;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityAim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityAimEnd;
 }; 
+
+DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, EASAbilityIndex);
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
@@ -123,20 +146,6 @@ protected:
 
 	bool bLastOrientRotationToMovement;
 
-	float CurrentStamina;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
-	float MaxStamina;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
-	float BaseStaminaRegenRate;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
-	float SprintStaminaDrainRate;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Stamina")
-	float RollStaminaCost;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float BaseSpeed;
 
@@ -148,8 +157,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	FPlayerASAbilitiesData AbilityBar;
-
-	void SetStaminaRate(float RatePerSecond);
 
 	void MoveForward(float AxisValue);
 
@@ -180,10 +187,7 @@ protected:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	UFUNCTION()
-	void UseAbility(int32 Index);
-
-	UFUNCTION()
-	void IncrementStamina(float Amount);
+	void UseAbility(EASAbilityIndex Index);
 
 	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
@@ -191,7 +195,6 @@ protected:
 	//Timer handles
 	FTimerHandle TimerHandle_DoubleJump;
 	FTimerHandle TimerHandle_DodgeEnd;
-	FTimerHandle TimerHandle_Stamina;	
 
 public:
 
@@ -203,9 +206,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	USoSInventoryComponent* GetPlayerInventory() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	float GetStamina() const;
 
 	ASoSPlayerController* GetPlayerController() const;
 };

@@ -99,6 +99,13 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 	{
 		if (CurrentTags.Contains(Tag))
 		{
+			if (Effect.bNonTicking && Effect.bTemporaryModifier && Effect.TotalValue != 0.0)
+			{
+				Effect.TotalValue = -Effect.TotalValue;
+				HandleASEffectValue(Effect, true);
+				Effect.TotalValue = 0.0f;
+				Effect.LastTickTime = GetWorld()->GetTimeSeconds() - Effect.TickRate;
+			}
 			return;
 		}
 	}
@@ -379,13 +386,21 @@ float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet)
 	}
 }
 
+
 TArray<FASEffectData>& USoSASComponent::GetCurrentEffectsArray()
 {
 	return CurrentEffects;
 }
 
+
 TArray<EASTag>& USoSASComponent::GetCurrentTags()
 {
 	return CurrentTags;
+}
+
+
+EASOwnerState USoSASComponent::GetASOwnerState() const
+{
+	return OwnerState;
 }
 

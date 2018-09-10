@@ -11,6 +11,16 @@
 class USoSASAbilityBase;
 class ACharacter;
 
+UENUM(BlueprintType)
+enum class EASOwnerState : uint8
+{
+	Normal,
+	Sprinting,
+	Aiming,
+	Dashing,
+	Dead
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
 {
@@ -45,6 +55,8 @@ protected:
 	FASAttributeData ASAttributeTempAdditiveValues;
 
 	FASAttributeData ASAttributeTempMultiplierValues;
+
+	EASOwnerState OwnerState;
 
 	ACharacter* ComponentOwner;
 
@@ -92,4 +104,6 @@ public:
 	TArray<FASEffectData>& GetCurrentEffectsArray();
 
 	TArray<EASTag>& GetCurrentTags();
+
+	EASOwnerState GetASOwnerState() const;
 };

@@ -42,12 +42,6 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Configure player stamina
-	MaxStamina = 100.f;
-	BaseStaminaRegenRate = 6.f;
-	SprintStaminaDrainRate = 10.f;
-	RollStaminaCost = 20.f;
-
 	// Configure character movement 
 	BaseSpeed = 400.f;
 	SprintMultiplier = 1.6f;
@@ -93,14 +87,14 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartRoll);
 
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 1);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 2);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 3);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 4);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 5);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 6);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 7);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, 8);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityOne);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityTwo);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityThree);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityFour);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityFive);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilitySix);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilitySeven);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityEight);
 }
 
 // Called when the game starts or when spawned
@@ -110,11 +104,8 @@ void ASoSPlayerCharacter::BeginPlay()
 
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
-
-	// Set default health and stamina values
-	CurrentStamina = MaxStamina;
-	SetStaminaRate(BaseStaminaRegenRate);
 }
+
 
 void ASoSPlayerCharacter::Tick(float DeltaTime)
 {
@@ -126,26 +117,6 @@ void ASoSPlayerCharacter::Tick(float DeltaTime)
 	}
 }
 
-void ASoSPlayerCharacter::SetStaminaRate(float RatePerSecond)
-{
-	float TickRate = 0.25f;
-	
-	// Set timers
-	FTimerDelegate StaminaTimerDel;
-	StaminaTimerDel.BindUFunction(this, FName("IncrementStamina"), RatePerSecond * TickRate);
-	GetWorldTimerManager().SetTimer(TimerHandle_Stamina, StaminaTimerDel, TickRate, true);
-}
-
-void ASoSPlayerCharacter::IncrementStamina(float Amount)
-{
-	CurrentStamina += Amount;
-	CurrentStamina = FMath::Clamp(CurrentStamina, 0.f, MaxStamina);
-
-	if (CurrentStamina <= 0.1f)
-	{
-		if (bIsSprinting) { SprintEnd(); }
-	}
-}
 
 void ASoSPlayerCharacter::MoveForward(float AxisValue)
 {
@@ -187,21 +158,19 @@ void ASoSPlayerCharacter::MoveRight(float AxisValue)
 
 void ASoSPlayerCharacter::SprintStart()
 {
-	UseAbility(9);
-
-	/*
-	if (bIsRolling || GetCharacterMovement()->IsFalling() || CurrentStamina <= 5.0f || GetVelocity().Size() < 0.01f)
+	if (ASComp->GetASOwnerState() == EASOwnerState::Dashing || GetCharacterMovement()->IsFalling() || GetVelocity().Size() < 0.01f)
 	{
 		return;
 	}
-	
-	// End aiming and reloading
-	if (bIsAiming) { AimEnd(); }
-	//if (InventoryComp->GetCurrentWeapon()) { InventoryComp->GetCurrentWeapon()->InterruptReload(); }
 
-	bIsSprinting = true;
+	AimEnd();
+	UseAbility(EASAbilityIndex::ASSprint);
+
 	SprintZoom(true);
-	SetStaminaRate(-SprintStaminaDrainRate);
+
+	/*
+
+	//if (InventoryComp->GetCurrentWeapon()) { InventoryComp->GetCurrentWeapon()->InterruptReload(); }
 
 	if (InventoryComp->GetCurrentWeapon())
 	{
@@ -216,18 +185,16 @@ void ASoSPlayerCharacter::SprintStart()
 
 void ASoSPlayerCharacter::SprintEnd()
 {
-	UseAbility(10);
-
-	/*
-	if (!bIsSprinting)
+	if (ASComp->GetASOwnerState() != EASOwnerState::Sprinting)
 	{
 		return;
 	}
 
-	bIsSprinting = false;
-	SprintZoom(false);
-	SetStaminaRate(BaseStaminaRegenRate);
+	UseAbility(EASAbilityIndex::ASSprintEnd);
 
+	SprintZoom(false);
+
+	/*
 	if (InventoryComp->GetWeaponIsDrawn())
 	{
 		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
@@ -250,30 +217,33 @@ void ASoSPlayerCharacter::CrouchEnd()
 
 void ASoSPlayerCharacter::AimStart()
 {
-	// End sprint and reloading
-	if (bIsSprinting) { SprintEnd(); }
+	SprintEnd();
+	UseAbility(EASAbilityIndex::ASAim);
+	
+	AimZoom(true);
+	/*
 	if (!InventoryComp->GetWeaponIsDrawn()) { InventoryComp->HolsterUnholster(); }
 
-	bIsAiming = true;
-	AimZoom(true);
 	//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetAimingSpeedMultiplier());
 
 	if (InventoryComp->GetCurrentWeapon()) // Give weapon bonus accuracy
 	{
 		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
-	}
+	} */
 }
 
 void ASoSPlayerCharacter::AimEnd()
 {
-	if (!bIsAiming)
+	if (ASComp->GetASOwnerState() != EASOwnerState::Aiming)
 	{
 		return;
 	}
 
-	bIsAiming = false;
-	AimZoom(false);
+	UseAbility(EASAbilityIndex::ASAimEnd);
 
+	AimZoom(false);
+	
+	/*		
 	if (InventoryComp->GetWeaponIsDrawn())
 	{
 		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
@@ -286,7 +256,7 @@ void ASoSPlayerCharacter::AimEnd()
 	if (InventoryComp->GetCurrentWeapon()) // Remove weapon bonus accuracy
 	{
 		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
-	}
+	} */
 }
 
 void ASoSPlayerCharacter::DoubleJump()
@@ -315,7 +285,7 @@ void ASoSPlayerCharacter::ResetAirControl()
 
 void ASoSPlayerCharacter::StartRoll()
 {
-	if (GetCharacterMovement()->IsFalling() && bIsRolling && CurrentStamina < RollStaminaCost)
+	if (GetCharacterMovement()->IsFalling() && bIsRolling)
 	{
 		return;
 	}
@@ -331,7 +301,6 @@ void ASoSPlayerCharacter::StartRoll()
 	}
 	
 	bIsRolling = true;
-	IncrementStamina(-RollStaminaCost);
 	bLastOrientRotationToMovement = GetCharacterMovement()->bOrientRotationToMovement;
 
 	// Calculate dodge direction
@@ -378,62 +347,84 @@ void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 	SetPlayerMovementType(bLastOrientRotationToMovement, !bLastOrientRotationToMovement);
 }
 
-void ASoSPlayerCharacter::UseAbility(int32 Index)
+void ASoSPlayerCharacter::UseAbility(EASAbilityIndex Index)
 {
 	USoSASAbilityBase* AbilityToUse;
 	UClass* AbilityClass;
 
 	switch (Index)
 	{
-	case 1:
+	case EASAbilityIndex::ASAbilityOne:
+		if (AbilityBar.AbilityOne == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilityOne.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"));
 		break;
-	case 2:
+	case EASAbilityIndex::ASAbilityTwo:
+		if (AbilityBar.AbilityTwo == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilityTwo.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Two Cast"))
 		break;
-	case 3:
+	case EASAbilityIndex::ASAbilityThree:
+		if (AbilityBar.AbilityEigth == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilityThree.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityThree, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Three Cast"))
 		break;
-	case 4:
+	case EASAbilityIndex::ASAbilityFour:
+		if (AbilityBar.AbilityFour == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilityFour.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFour, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Four Cast"))
 		break;
-	case 5:
+	case EASAbilityIndex::ASAbilityFive:
+		if (AbilityBar.AbilityFive == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilityFive.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFive, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Five Cast"))
 		break;
-	case 6:
+	case EASAbilityIndex::ASAbilitySix:
+		if (AbilityBar.AbilitySix == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilitySix.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySix, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Six Cast"))
 		break;
-	case 7:
+	case EASAbilityIndex::ASAbilitySeven:
+		if (AbilityBar.AbilitySeven == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilitySeven.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySeven, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Seven Cast"))
 		break;
-	case 8:
+	case EASAbilityIndex::ASAbilityEight:
+		if (AbilityBar.AbilityEigth == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilityEigth.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
 		break;
-	case 9:
+	case EASAbilityIndex::ASSprint:
+		if (AbilityBar.AbilitySprint == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilitySprint.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprint, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Sprint Cast"))
 		break;
-	case 10:
+	case EASAbilityIndex::ASSprintEnd:
+		if (AbilityBar.AbilitySprintEnd == nullptr) { return; }
 		AbilityClass = AbilityBar.AbilitySprintEnd.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprintEnd, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Sprint End Cast"))
+		break;
+	case EASAbilityIndex::ASAim:
+		if (AbilityBar.AbilityAim == nullptr) { return; }
+		AbilityClass = AbilityBar.AbilityAim.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityAim, AbilityClass);
+		UE_LOG(LogTemp, Warning, TEXT("Aim Cast"))
+		break;
+	case EASAbilityIndex::ASAimEnd:
+		if (AbilityBar.AbilityAim == nullptr) { return; }
+		AbilityClass = AbilityBar.AbilityAimEnd.Get();
+		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityAimEnd, AbilityClass);
+		UE_LOG(LogTemp, Warning, TEXT("Aim End Cast"))
 		break;
 	default:
 		AbilityToUse = nullptr;
@@ -506,11 +497,6 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 		return TraceDirection;
 	}
 	return FVector(0.f,0.f,0.f);
-}
-
-float ASoSPlayerCharacter::GetStamina() const
-{
-	return CurrentStamina;
 }
 
 ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
