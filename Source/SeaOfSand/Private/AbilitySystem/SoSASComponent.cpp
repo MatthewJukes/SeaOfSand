@@ -56,7 +56,7 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 {
 	int32 Index = 0;
 	TArray<int32> EffectIndexToRemove;
-	for (FASEffectData& Effect : CurrentEffects)
+	for (FASEffectData& Effect : CurrentASEffects)
 	{
 		CheckASEffectStatus(Effect);
 		if (Effect.bExpired)
@@ -88,7 +88,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 
 	for (EASTag Tag : Effect.EffectBlockedByTags)
 	{
-		if (CurrentTags.Contains(Tag))
+		if (CurrentASEffectTags.Contains(Tag))
 		{
 			EndASEffect(Effect);
 			return;
@@ -97,7 +97,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 
 	for (EASTag Tag : Effect.EffectNegatedByTags)
 	{
-		if (CurrentTags.Contains(Tag))
+		if (CurrentASEffectTags.Contains(Tag))
 		{
 			if (Effect.bNonTicking && Effect.bTemporaryModifier && Effect.TotalValue != 0.0)
 			{
@@ -269,17 +269,17 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 
 void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 {
-	CurrentEffects.Add(EffectToAdd);
+	CurrentASEffects.Add(EffectToAdd);
 	for (EASTag Tag : EffectToAdd.EffectAppliesTags)
 	{
-		CurrentTags.Add(Tag);
+		CurrentASEffectTags.Add(Tag);
 	}
 }
 
 
 void USoSASComponent::RemoveASEffectFromArrayByIndex(int32 Index)
 {
-	CurrentEffects.RemoveAt(Index);
+	CurrentASEffects.RemoveAt(Index);
 }
 
 
@@ -304,19 +304,19 @@ void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 
 	for (EASTag Tag : EffectToEnd.EffectAppliesTags)
 	{
-		CurrentTags.Remove(Tag);
+		CurrentASEffectTags.Remove(Tag);
 	}
 }
 
 
-void USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
+bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 {
 	if (Ability == nullptr)
 	{
-		return;
+		return false;
 	}
 
-	Ability->StartAbility(GetOwner(), GetOwner(), GetWorld()->GetTimeSeconds());
+	return Ability->StartAbility(GetOwner(), GetOwner(), GetWorld()->GetTimeSeconds());
 }
 
 ////////////////////////////////////////////////
@@ -389,18 +389,23 @@ float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet)
 
 TArray<FASEffectData>& USoSASComponent::GetCurrentEffectsArray()
 {
-	return CurrentEffects;
+	return CurrentASEffects;
 }
 
 
-TArray<EASTag>& USoSASComponent::GetCurrentTags()
+TArray<EASTag>& USoSASComponent::GetCurrentASEffectTags()
 {
-	return CurrentTags;
+	return CurrentASEffectTags;
 }
 
 
 EASOwnerState USoSASComponent::GetASOwnerState() const
 {
 	return OwnerState;
+}
+
+void USoSASComponent::SetASOwnerState(EASOwnerState NewState)
+{
+	OwnerState = NewState;
 }
 

@@ -10,8 +10,6 @@
 // Sets default values for this component's properties
 USoSInventoryComponent::USoSInventoryComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
 	// Socket names
@@ -84,7 +82,7 @@ void USoSInventoryComponent::HolsterUnholster()
 	{
 		if (bWeaponIsDrawn) // Holster weapon
 		{
-			if (PlayerCharacter->bIsAiming) { PlayerCharacter->AimEnd(); }
+			//if (PlayerCharacter->bIsAiming) { PlayerCharacter->AimEnd(); }
 			AttachWeaponToSocket(CurrentWeapon);
 			bWeaponIsDrawn = false;
 			PlayerCharacter->OffsetCamera(false);

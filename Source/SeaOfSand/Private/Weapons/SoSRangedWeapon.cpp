@@ -125,7 +125,7 @@ bool ASoSRangedWeapon::CheckIfWeaponCanFire()
 {
 	if (PlayerCharacter)
 	{
-		if (PlayerCharacter->bIsRolling || GetCurrentWeaponState() == EWeaponState::Reloading || CurrentAmmoInClip == 0)
+		if (GetCurrentWeaponState() == EWeaponState::Reloading || CurrentAmmoInClip == 0)
 		{
 			return false;
 		}
@@ -153,8 +153,8 @@ void ASoSRangedWeapon::StartReload()
 {
 	if (PlayerCharacter)
 	{
-		if (GetCurrentWeaponState() != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && !PlayerCharacter->bIsRolling 
-			&& !PlayerCharacter->bIsSprinting && PlayerCharacter->GetPlayerInventory()->GetWeaponIsDrawn())
+		if (GetCurrentWeaponState() != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip
+			&& PlayerCharacter->GetPlayerInventory()->GetWeaponIsDrawn())
 		{
 			SetWeaponState(EWeaponState::Reloading);
 			GetWorldTimerManager().SetTimer(TimerHandle_ReloadTime, this, &ASoSRangedWeapon::ReloadWeapon, ReloadDuration, false);

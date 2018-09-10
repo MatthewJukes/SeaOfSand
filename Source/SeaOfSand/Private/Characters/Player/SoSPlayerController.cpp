@@ -57,7 +57,7 @@ void ASoSPlayerController::StartFiring()
 		}
 		else
 		{
-			if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
+			//if (PlayerCharacter->bIsSprinting) { PlayerCharacter->SprintEnd(); }
 			//PlayerInventory->GetCurrentWeapon()->StartFiring();
 		}		
 	}

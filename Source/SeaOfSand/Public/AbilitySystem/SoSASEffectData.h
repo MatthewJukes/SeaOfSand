@@ -81,7 +81,7 @@ struct FASEffectData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	TArray<EASTag> EffectBlockedByTags;
 
-	// Tags that will cause the effect to have no effect, but will not stop it's application or remove it
+	// Tags that will cause the effect to have no effect, but will not stop it's application or remove it or it's tags
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	TArray<EASTag> EffectNegatedByTags;
 

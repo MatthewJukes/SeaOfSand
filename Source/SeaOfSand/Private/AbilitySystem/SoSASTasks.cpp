@@ -20,7 +20,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 
 	// Check blocked by tags
 	int EffectIndex;
-	TArray<EASTag>& TargetTags = TargetASComp->GetCurrentTags();
+	TArray<EASTag>& TargetTags = TargetASComp->GetCurrentASEffectTags();
 	for (EASTag Tag : EffectToApply.EffectBlockedByTags)
 	{
 		if (TargetTags.Contains(Tag))

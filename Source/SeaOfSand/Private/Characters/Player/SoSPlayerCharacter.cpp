@@ -59,8 +59,6 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	InteractTraceRange = 250.f;
 
 	// Set bools
-	bIsRolling = false;
-	bIsSprinting = false;
 	bIsDoubleJumping = false;
 	bCanDoubleJump = true;
 	bInVehicle = false;
@@ -87,14 +85,14 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartRoll);
 
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityOne);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityTwo);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityThree);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityFour);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityFive);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilitySix);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilitySeven);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbility, EASAbilityIndex::ASAbilityEight);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityOne);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityTwo);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityThree);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityFour);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityFive);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilitySix);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilitySeven);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityEight);
 }
 
 // Called when the game starts or when spawned
@@ -111,16 +109,16 @@ void ASoSPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsRolling)
+	if (ASComp->GetASOwnerState() == EASOwnerState::Dashing)
 	{
-		Roll(RollDirection, bLastOrientRotationToMovement);
+		//Roll(RollDirection, bLastOrientRotationToMovement);
 	}
 }
 
 
 void ASoSPlayerCharacter::MoveForward(float AxisValue)
 {
-	if (bIsRolling || AxisValue == 0.0f)
+	if (ASComp->GetASOwnerState() == EASOwnerState::Dashing || AxisValue == 0.0f)
 	{
 		return;
 	}
@@ -139,7 +137,7 @@ void ASoSPlayerCharacter::MoveForward(float AxisValue)
 
 void ASoSPlayerCharacter::MoveRight(float AxisValue)
 {
-	if (bIsRolling || AxisValue == 0.0f)
+	if (ASComp->GetASOwnerState() == EASOwnerState::Dashing || AxisValue == 0.0f)
 	{
 		return;
 	}
@@ -163,10 +161,12 @@ void ASoSPlayerCharacter::SprintStart()
 		return;
 	}
 
+	if (UseAbility(EASAbilityIndex::ASSprint))
+	{
 	AimEnd();
-	UseAbility(EASAbilityIndex::ASSprint);
-
 	SprintZoom(true);
+	ASComp->SetASOwnerState(EASOwnerState::Sprinting);
+	}
 
 	/*
 
@@ -190,9 +190,13 @@ void ASoSPlayerCharacter::SprintEnd()
 		return;
 	}
 
-	UseAbility(EASAbilityIndex::ASSprintEnd);
-
+	if (UseAbility(EASAbilityIndex::ASSprintEnd))
+	{
 	SprintZoom(false);
+	ASComp->SetASOwnerState(EASOwnerState::Normal);
+	}
+	
+
 
 	/*
 	if (InventoryComp->GetWeaponIsDrawn())
@@ -213,14 +217,18 @@ void ASoSPlayerCharacter::CrouchStart()
 
 void ASoSPlayerCharacter::CrouchEnd()
 {
+
 }
 
 void ASoSPlayerCharacter::AimStart()
 {
+	if (UseAbility(EASAbilityIndex::ASAim))
+	{
 	SprintEnd();
-	UseAbility(EASAbilityIndex::ASAim);
-	
 	AimZoom(true);
+	ASComp->SetASOwnerState(EASOwnerState::Aiming);
+	}	
+	
 	/*
 	if (!InventoryComp->GetWeaponIsDrawn()) { InventoryComp->HolsterUnholster(); }
 
@@ -239,9 +247,13 @@ void ASoSPlayerCharacter::AimEnd()
 		return;
 	}
 
-	UseAbility(EASAbilityIndex::ASAimEnd);
-
+	if (UseAbility(EASAbilityIndex::ASAimEnd))
+	{
 	AimZoom(false);
+	ASComp->SetASOwnerState(EASOwnerState::Normal);
+	}
+	
+
 	
 	/*		
 	if (InventoryComp->GetWeaponIsDrawn())
@@ -261,7 +273,7 @@ void ASoSPlayerCharacter::AimEnd()
 
 void ASoSPlayerCharacter::DoubleJump()
 {
-	if (!GetCharacterMovement()->IsFalling() && !bIsRolling)
+	if (!GetCharacterMovement()->IsFalling())
 	{
 		bCanDoubleJump = true;
 		Jump();
@@ -285,6 +297,7 @@ void ASoSPlayerCharacter::ResetAirControl()
 
 void ASoSPlayerCharacter::StartRoll()
 {
+	/*
 	if (GetCharacterMovement()->IsFalling() && bIsRolling)
 	{
 		return;
@@ -319,7 +332,8 @@ void ASoSPlayerCharacter::StartRoll()
 	// Set timers
 	FTimerDelegate RollEndTimerDel;
 	RollEndTimerDel.BindUFunction(this, FName("EndRoll"), bLastOrientRotationToMovement);
-	GetWorldTimerManager().SetTimer(TimerHandle_DodgeEnd, RollEndTimerDel, .75f, false);
+	GetWorldTimerManager().SetTimer(TimerHandle_DodgeEnd, RollEndTimerDel, .75f, false); 
+	*/
 }
 
 void ASoSPlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationToMovement)
@@ -334,6 +348,7 @@ void ASoSPlayerCharacter::Roll(FVector DodgeDirection, bool bLastOrientRotationT
 
 void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 {
+	/*
 	bIsRolling = false;
 
 	// Re-enable aiming bonus if aiming
@@ -344,10 +359,17 @@ void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 
 	// Reset movement	
 	SetPlayerSpeed(1.f);
-	SetPlayerMovementType(bLastOrientRotationToMovement, !bLastOrientRotationToMovement);
+	SetPlayerMovementType(bLastOrientRotationToMovement, !bLastOrientRotationToMovement); */
 }
 
-void ASoSPlayerCharacter::UseAbility(EASAbilityIndex Index)
+
+void ASoSPlayerCharacter::UseAbilityActionBinding(EASAbilityIndex Index)
+{
+	UseAbility(Index);
+}
+
+
+bool ASoSPlayerCharacter::UseAbility(EASAbilityIndex Index)
 {
 	USoSASAbilityBase* AbilityToUse;
 	UClass* AbilityClass;
@@ -355,73 +377,73 @@ void ASoSPlayerCharacter::UseAbility(EASAbilityIndex Index)
 	switch (Index)
 	{
 	case EASAbilityIndex::ASAbilityOne:
-		if (AbilityBar.AbilityOne == nullptr) { return; }
+		if (AbilityBar.AbilityOne == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityOne.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"));
 		break;
 	case EASAbilityIndex::ASAbilityTwo:
-		if (AbilityBar.AbilityTwo == nullptr) { return; }
+		if (AbilityBar.AbilityTwo == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityTwo.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Two Cast"))
 		break;
 	case EASAbilityIndex::ASAbilityThree:
-		if (AbilityBar.AbilityEigth == nullptr) { return; }
+		if (AbilityBar.AbilityEigth == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityThree.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityThree, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Three Cast"))
 		break;
 	case EASAbilityIndex::ASAbilityFour:
-		if (AbilityBar.AbilityFour == nullptr) { return; }
+		if (AbilityBar.AbilityFour == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityFour.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFour, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Four Cast"))
 		break;
 	case EASAbilityIndex::ASAbilityFive:
-		if (AbilityBar.AbilityFive == nullptr) { return; }
+		if (AbilityBar.AbilityFive == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityFive.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFive, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Five Cast"))
 		break;
 	case EASAbilityIndex::ASAbilitySix:
-		if (AbilityBar.AbilitySix == nullptr) { return; }
+		if (AbilityBar.AbilitySix == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilitySix.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySix, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Six Cast"))
 		break;
 	case EASAbilityIndex::ASAbilitySeven:
-		if (AbilityBar.AbilitySeven == nullptr) { return; }
+		if (AbilityBar.AbilitySeven == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilitySeven.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySeven, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Seven Cast"))
 		break;
 	case EASAbilityIndex::ASAbilityEight:
-		if (AbilityBar.AbilityEigth == nullptr) { return; }
+		if (AbilityBar.AbilityEigth == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityEigth.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
 		break;
 	case EASAbilityIndex::ASSprint:
-		if (AbilityBar.AbilitySprint == nullptr) { return; }
+		if (AbilityBar.AbilitySprint == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilitySprint.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprint, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Sprint Cast"))
 		break;
 	case EASAbilityIndex::ASSprintEnd:
-		if (AbilityBar.AbilitySprintEnd == nullptr) { return; }
+		if (AbilityBar.AbilitySprintEnd == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilitySprintEnd.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprintEnd, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Sprint End Cast"))
 		break;
 	case EASAbilityIndex::ASAim:
-		if (AbilityBar.AbilityAim == nullptr) { return; }
+		if (AbilityBar.AbilityAim == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityAim.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityAim, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Aim Cast"))
 		break;
 	case EASAbilityIndex::ASAimEnd:
-		if (AbilityBar.AbilityAim == nullptr) { return; }
+		if (AbilityBar.AbilityAim == nullptr) { return false; }
 		AbilityClass = AbilityBar.AbilityAimEnd.Get();
 		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityAimEnd, AbilityClass);
 		UE_LOG(LogTemp, Warning, TEXT("Aim End Cast"))
@@ -432,13 +454,15 @@ void ASoSPlayerCharacter::UseAbility(EASAbilityIndex Index)
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *AbilityToUse->GetName());
-	ASComp->UseAbility(AbilityToUse);
+	return ASComp->UseAbility(AbilityToUse);
 }
+
 
 void ASoSPlayerCharacter::EnableCollsion()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
+
 
 void ASoSPlayerCharacter::Interact()
 {
@@ -460,6 +484,7 @@ void ASoSPlayerCharacter::Interact()
 		}	
 	}
 }
+
 
 bool ASoSPlayerCharacter::InteractTrace(AActor* &OutActor) const
 {
@@ -484,9 +509,11 @@ bool ASoSPlayerCharacter::InteractTrace(AActor* &OutActor) const
 	return false; // Trace didn't hit anything
 }
 
+
 /////////////////////////
 /* Getters and Setters */
 /////////////////////////
+
 
 FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 {
@@ -499,10 +526,12 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 	return FVector(0.f,0.f,0.f);
 }
 
+
 ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
 {
 	return PlayerController;
 }
+
 
 void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
 {
@@ -512,6 +541,7 @@ void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
 	}
 }
 
+
 void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
 {
 	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
@@ -520,6 +550,7 @@ void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, 
 		CharacterMovement->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
 	}
 }
+
 
 USoSInventoryComponent * ASoSPlayerCharacter::GetPlayerInventory() const
 {

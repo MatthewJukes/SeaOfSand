@@ -17,6 +17,7 @@ enum class EASOwnerState : uint8
 	Normal,
 	Sprinting,
 	Aiming,
+	Attacking,
 	Dashing,
 	Dead
 };
@@ -40,13 +41,13 @@ public:
 
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
-	void UseAbility(USoSASAbilityBase* Ability);
+	bool UseAbility(USoSASAbilityBase* Ability);
 
 protected:
 
-	TArray<FASEffectData> CurrentEffects;
+	TArray<FASEffectData> CurrentASEffects;
 
-	TArray<EASTag> CurrentTags;
+	TArray<EASTag> CurrentASEffectTags;
 
 	FASAttributeData ASAttributeBaseValues;
 
@@ -103,7 +104,9 @@ public:
 
 	TArray<FASEffectData>& GetCurrentEffectsArray();
 
-	TArray<EASTag>& GetCurrentTags();
+	TArray<EASTag>& GetCurrentASEffectTags();
 
 	EASOwnerState GetASOwnerState() const;
+
+	void SetASOwnerState(EASOwnerState NewState);
 };

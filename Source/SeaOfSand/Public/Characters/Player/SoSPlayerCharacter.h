@@ -106,15 +106,6 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bIsAiming;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bIsRolling;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bIsSprinting;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool bIsDoubleJumping;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
@@ -187,7 +178,9 @@ protected:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	UFUNCTION()
-	void UseAbility(EASAbilityIndex Index);
+	void UseAbilityActionBinding(EASAbilityIndex Index);
+
+	bool UseAbility(EASAbilityIndex Index);
 
 	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
