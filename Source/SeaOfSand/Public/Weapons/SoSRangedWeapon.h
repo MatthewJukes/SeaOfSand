@@ -8,15 +8,8 @@
 
 class ABaseProjectile;
 class UAudioComponent;
+class USoSASAbilityBase;
 
-UENUM(BlueprintType)
-enum class EWeaponState : uint8
-{
-	Idle,
-	Firing,
-	Equipping,
-	Reloading,
-};
 
 UCLASS()
 class SEAOFSAND_API ASoSRangedWeapon : public ASoSWeaponBase
@@ -49,8 +42,6 @@ protected:
 	int32 CurrentAmmo;
 
 	int32 CurrentAmmoInClip;
-
-	EWeaponState CurrentWeaponState;
 
 	bool bGettingAccuracyBonus;
 
@@ -157,18 +148,13 @@ public:
 
 	/* Getters and Setters */
 
-	void SetWeaponState(EWeaponState NewState);
-
 	float GetWeaponDrawnSpeedMultiplier() const;
 
 	float GetAimingSpeedMultiplier() const;
 
 	void SetGettingAccuracyBonus(bool bGettingBonus);
 
-	void SetCanReload(bool bReload);	
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	EWeaponState GetCurrentWeaponState() const;
+	void SetCanReload(bool bReload);
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	int32 GetCurrentAmmo() const;

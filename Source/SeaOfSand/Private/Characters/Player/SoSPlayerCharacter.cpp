@@ -43,11 +43,9 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Configure character movement 
-	BaseSpeed = 400.f;
-	SprintMultiplier = 1.6f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = ASComp->GetASAttributeTotalValue(EASAttributeName::Speed);
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -85,14 +83,14 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartRoll);
 
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityOne);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityTwo);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityThree);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityFour);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityFive);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilitySix);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilitySeven);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, EASAbilityIndex::ASAbilityEight);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilityOne);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilityTwo);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilityThree);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilityFour);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilityFive);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilitySix);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilitySeven);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, AbilityBar.AbilityEigth);
 }
 
 // Called when the game starts or when spawned
@@ -161,26 +159,19 @@ void ASoSPlayerCharacter::SprintStart()
 		return;
 	}
 
-	if (UseAbility(EASAbilityIndex::ASSprint))
+	if (UseAbility(AbilityBar.AbilitySprint))
 	{
 	AimEnd();
 	SprintZoom(true);
 	ASComp->SetASOwnerState(EASOwnerState::Sprinting);
 	}
 
-	/*
-
 	//if (InventoryComp->GetCurrentWeapon()) { InventoryComp->GetCurrentWeapon()->InterruptReload(); }
 
 	if (InventoryComp->GetCurrentWeapon())
 	{
-		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier() * SprintMultiplier);
 		SetPlayerMovementType(true, false);
 	}
-	else
-	{
-		
-	} */
 }
 
 void ASoSPlayerCharacter::SprintEnd()
@@ -190,24 +181,17 @@ void ASoSPlayerCharacter::SprintEnd()
 		return;
 	}
 
-	if (UseAbility(EASAbilityIndex::ASSprintEnd))
+	if (UseAbility(AbilityBar.AbilitySprintEnd))
 	{
 	SprintZoom(false);
 	ASComp->SetASOwnerState(EASOwnerState::Normal);
 	}
 	
-
-
-	/*
-	if (InventoryComp->GetWeaponIsDrawn())
+	if (InventoryComp->GetCurrentWeapon()->GetWeaponState() != EWeaponState::Holstered)
 	{
-		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
 		SetPlayerMovementType(false, true);
 	}
-	else
-	{
-		SetPlayerSpeed(1.f);
-	}	*/
+
 }
 
 void ASoSPlayerCharacter::CrouchStart()
@@ -222,7 +206,12 @@ void ASoSPlayerCharacter::CrouchEnd()
 
 void ASoSPlayerCharacter::AimStart()
 {
-	if (UseAbility(EASAbilityIndex::ASAim))
+	if (InventoryComp->GetCurrentWeapon()->GetWeaponState() == EWeaponState::Holstered)
+	{
+		InventoryComp->HolsterUnholster();
+	}
+
+	if (UseAbility(InventoryComp->GetCurrentWeapon()->GetWeaponAbilities().AbilityWeaponAlt))
 	{
 	SprintEnd();
 	AimZoom(true);
@@ -230,10 +219,6 @@ void ASoSPlayerCharacter::AimStart()
 	}	
 	
 	/*
-	if (!InventoryComp->GetWeaponIsDrawn()) { InventoryComp->HolsterUnholster(); }
-
-	//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetAimingSpeedMultiplier());
-
 	if (InventoryComp->GetCurrentWeapon()) // Give weapon bonus accuracy
 	{
 		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
@@ -247,24 +232,13 @@ void ASoSPlayerCharacter::AimEnd()
 		return;
 	}
 
-	if (UseAbility(EASAbilityIndex::ASAimEnd))
+	if (UseAbility(AbilityBar.AbilityAimEnd))
 	{
 	AimZoom(false);
 	ASComp->SetASOwnerState(EASOwnerState::Normal);
 	}
 	
-
-	
 	/*		
-	if (InventoryComp->GetWeaponIsDrawn())
-	{
-		//SetPlayerSpeed(InventoryComp->GetCurrentWeapon()->GetWeaponDrawnSpeedMultiplier());
-	}
-	else
-	{
-		SetPlayerSpeed(1.f);
-	}
-
 	if (InventoryComp->GetCurrentWeapon()) // Remove weapon bonus accuracy
 	{
 		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
@@ -363,98 +337,20 @@ void ASoSPlayerCharacter::EndRoll(bool bLastOrientRotationToMovement)
 }
 
 
-void ASoSPlayerCharacter::UseAbilityActionBinding(EASAbilityIndex Index)
+void ASoSPlayerCharacter::UseAbilityActionBinding(TSubclassOf<USoSASAbilityBase> Ability)
 {
-	UseAbility(Index);
+	UseAbility(Ability);
 }
 
 
-bool ASoSPlayerCharacter::UseAbility(EASAbilityIndex Index)
+bool ASoSPlayerCharacter::UseAbility(TSubclassOf<USoSASAbilityBase> Ability)
 {
-	USoSASAbilityBase* AbilityToUse;
-	UClass* AbilityClass;
-
-	switch (Index)
+	if (Ability == nullptr) 
 	{
-	case EASAbilityIndex::ASAbilityOne:
-		if (AbilityBar.AbilityOne == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityOne.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability One Cast"));
-		break;
-	case EASAbilityIndex::ASAbilityTwo:
-		if (AbilityBar.AbilityTwo == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityTwo.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityTwo, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Two Cast"))
-		break;
-	case EASAbilityIndex::ASAbilityThree:
-		if (AbilityBar.AbilityEigth == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityThree.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityThree, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Three Cast"))
-		break;
-	case EASAbilityIndex::ASAbilityFour:
-		if (AbilityBar.AbilityFour == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityFour.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFour, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Four Cast"))
-		break;
-	case EASAbilityIndex::ASAbilityFive:
-		if (AbilityBar.AbilityFive == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityFive.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityFive, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Five Cast"))
-		break;
-	case EASAbilityIndex::ASAbilitySix:
-		if (AbilityBar.AbilitySix == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilitySix.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySix, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Six Cast"))
-		break;
-	case EASAbilityIndex::ASAbilitySeven:
-		if (AbilityBar.AbilitySeven == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilitySeven.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySeven, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Seven Cast"))
-		break;
-	case EASAbilityIndex::ASAbilityEight:
-		if (AbilityBar.AbilityEigth == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityEigth.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityEigth, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Ability Eight Cast"))
-		break;
-	case EASAbilityIndex::ASSprint:
-		if (AbilityBar.AbilitySprint == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilitySprint.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprint, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Sprint Cast"))
-		break;
-	case EASAbilityIndex::ASSprintEnd:
-		if (AbilityBar.AbilitySprintEnd == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilitySprintEnd.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilitySprintEnd, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Sprint End Cast"))
-		break;
-	case EASAbilityIndex::ASAim:
-		if (AbilityBar.AbilityAim == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityAim.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityAim, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Aim Cast"))
-		break;
-	case EASAbilityIndex::ASAimEnd:
-		if (AbilityBar.AbilityAim == nullptr) { return false; }
-		AbilityClass = AbilityBar.AbilityAimEnd.Get();
-		AbilityToUse = NewObject<USoSASAbilityBase>(AbilityBar.AbilityAimEnd, AbilityClass);
-		UE_LOG(LogTemp, Warning, TEXT("Aim End Cast"))
-		break;
-	default:
-		AbilityToUse = nullptr;
-		break;
+		return false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *AbilityToUse->GetName());
-	return ASComp->UseAbility(AbilityToUse);
+	return ASComp->UseAbility(NewObject<USoSASAbilityBase>(AbilityBar.AbilityOne, Ability.Get()));
 }
 
 
@@ -533,12 +429,15 @@ ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
 }
 
 
-void ASoSPlayerCharacter::SetPlayerSpeed(float SpeedMultiplier)
+USoSInventoryComponent * ASoSPlayerCharacter::GetPlayerInventory() const
 {
-	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
-	{
-		CharacterMovement->MaxWalkSpeed = BaseSpeed * SpeedMultiplier;
-	}
+	return InventoryComp;
+}
+
+
+USoSASComponent* ASoSPlayerCharacter::GetPlayerASComponent() const
+{
+	return ASComp;
 }
 
 
@@ -549,10 +448,4 @@ void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, 
 		CharacterMovement->bOrientRotationToMovement = bOrientRotationToMovement;
 		CharacterMovement->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
 	}
-}
-
-
-USoSInventoryComponent * ASoSPlayerCharacter::GetPlayerInventory() const
-{
-	return InventoryComp;
 }

@@ -9,6 +9,7 @@
 #include "SoSASComponent.generated.h"
 
 class USoSASAbilityBase;
+class ASoSGameModeBase;
 class ACharacter;
 
 UENUM(BlueprintType)
@@ -37,7 +38,7 @@ protected:
 
 public:
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
+	void LoopOverCurrentASEffectsArray();
 
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
@@ -59,6 +60,8 @@ protected:
 
 	EASOwnerState OwnerState;
 
+	ASoSGameModeBase* SoSGameMode;
+
 	ACharacter* ComponentOwner;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
@@ -72,8 +75,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float SpeedStartValue;
-	
-	void LoopOverCurrentASEffectsArray();
 
 	void CheckASEffectStatus(FASEffectData& Effect);
 
@@ -95,17 +96,17 @@ protected:
 // Getters and Setters
 
 public:
-
 	
 	float GetASAttributeDataValue(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const;
 
-	UFUNCTION(BlueprintCallable, Category = "Attributes")
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	float GetASAttributeTotalValue(EASAttributeName AttributeToGet) const;
 
 	TArray<FASEffectData>& GetCurrentEffectsArray();
 
 	TArray<EASTag>& GetCurrentASEffectTags();
 
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	EASOwnerState GetASOwnerState() const;
 
 	void SetASOwnerState(EASOwnerState NewState);

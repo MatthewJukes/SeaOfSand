@@ -13,22 +13,6 @@ class USoSInventoryComponent;
 class USoSASComponent;
 class USoSASAbilityBase;
 
-UENUM(BlueprintType)
-enum class EASAbilityIndex : uint8
-{
-	ASAbilityOne,
-	ASAbilityTwo,
-	ASAbilityThree,
-	ASAbilityFour,
-	ASAbilityFive,
-	ASAbilitySix,
-	ASAbilitySeven,
-	ASAbilityEight,
-	ASSprint,
-	ASSprintEnd,
-	ASAim,
-	ASAimEnd
-};
 
 USTRUCT(BlueprintType)
 struct FPlayerASAbilitiesData
@@ -66,13 +50,10 @@ struct FPlayerASAbilitiesData
 	TSubclassOf<USoSASAbilityBase> AbilitySprintEnd;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityAim;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityAimEnd;
 }; 
 
-DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, EASAbilityIndex);
+DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, TSubclassOf<USoSASAbilityBase>);
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
@@ -118,6 +99,8 @@ public:
 
 	void AimEnd(); // stop/interrupt aiming
 
+	bool UseAbility(TSubclassOf<USoSASAbilityBase> Ability);
+
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -136,12 +119,6 @@ protected:
 	bool bCanDoubleJump;
 
 	bool bLastOrientRotationToMovement;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float BaseSpeed;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float SprintMultiplier;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
@@ -178,9 +155,7 @@ protected:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	UFUNCTION()
-	void UseAbilityActionBinding(EASAbilityIndex Index);
-
-	bool UseAbility(EASAbilityIndex Index);
+	void UseAbilityActionBinding(TSubclassOf<USoSASAbilityBase> Ability);
 
 	UFUNCTION()
 	void EndRoll(bool OrientRotationToMovement);
@@ -193,12 +168,13 @@ public:
 
 	/* Getters and Setters */
 
-	void SetPlayerSpeed(float SpeedMultiplier);
-
-	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
+	ASoSPlayerController* GetPlayerController() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	USoSInventoryComponent* GetPlayerInventory() const;
 
-	ASoSPlayerController* GetPlayerController() const;
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	USoSASComponent* GetPlayerASComponent() const;
+
+	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 };

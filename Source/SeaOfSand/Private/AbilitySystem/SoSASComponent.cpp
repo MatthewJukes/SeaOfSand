@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSASComponent.h"
+#include "SoSGameModeBase.h"
 #include "SoSASAbilityBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -10,7 +11,7 @@
 // Sets default values for this component's properties
 USoSASComponent::USoSASComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	HealthMaxStartValue = 100;
 	ArmourMaxStartValue = 0;
@@ -40,15 +41,10 @@ void USoSASComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SoSGameMode = Cast<ASoSGameModeBase>(GetWorld()->GetAuthGameMode());
+	SoSGameMode->AddASComponentToArray(this);
+
 	ComponentOwner = Cast<ACharacter>(GetOwner());
-}
-
-
-void USoSASComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	LoopOverCurrentASEffectsArray();
 }
 
 
@@ -68,10 +64,10 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 	RemoveASEffectFromArrayByIndexArray(EffectIndexToRemove);
 
 	CalculateASAttributeTotalValues();
-	UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), ASAttributeTotalValues.HealthMaxValue);
-	UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
-	UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
-	UE_LOG(LogTemp, Warning, TEXT("Speed: %f"), ASAttributeTotalValues.SpeedValue);
+	//UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), ASAttributeTotalValues.HealthMaxValue);
+	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
+	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
+	//UE_LOG(LogTemp, Warning, TEXT("Speed: %f"), ASAttributeTotalValues.SpeedValue);
 }
 
 
@@ -315,6 +311,8 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 	{
 		return false;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 
 	return Ability->StartAbility(GetOwner(), GetOwner(), GetWorld()->GetTimeSeconds());
 }

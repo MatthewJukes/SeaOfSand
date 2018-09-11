@@ -51,7 +51,7 @@ void ASoSPlayerController::StartFiring()
 {
 	if (PlayerInventory)
 	{
-		if (!PlayerInventory->GetWeaponIsDrawn()) // Draw weapon if not drawn already
+		if (PlayerInventory->GetCurrentWeapon()->GetWeaponState() == EWeaponState::Holstered) // Draw weapon if not drawn already
 		{
 			PlayerInventory->HolsterUnholster();
 		}

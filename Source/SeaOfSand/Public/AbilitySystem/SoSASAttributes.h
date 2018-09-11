@@ -45,5 +45,7 @@ enum class EASTag : uint8
 	SprintEnd,
 	Aiming, 
 	AimEnd,
+	WeaponDrawn,
+	HolsterWeapon,
 	ImmuneToFire
 };

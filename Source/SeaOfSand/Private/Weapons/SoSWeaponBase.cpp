@@ -3,6 +3,7 @@
 #include "SoSWeaponBase.h"
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
+#include "SoSASAbilityBase.h"
 #include "Components/SkeletalMeshComponent.h"
 
 
@@ -14,7 +15,10 @@ ASoSWeaponBase::ASoSWeaponBase()
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
+
+	WeaponState = EWeaponState::Holstered;
 }
+
 
 // Called when the game starts or when spawned
 void ASoSWeaponBase::BeginPlay()
@@ -30,9 +34,27 @@ void ASoSWeaponBase::BeginPlay()
 ///////////////////////////////////////////////////
 // Getters and Setters
 
+
 EWeaponType ASoSWeaponBase::GetWeaponType() const
 {
 	return WeaponType;
 }
 
+
+EWeaponState ASoSWeaponBase::GetWeaponState() const
+{
+	return WeaponState;
+}
+
+
+FWeaponAbilitiesData& ASoSWeaponBase::GetWeaponAbilities()
+{
+	return WeaponAbilities;
+}
+
+
+void ASoSWeaponBase::SetWeaponState(EWeaponState NewState)
+{
+	WeaponState = NewState;
+}
 

@@ -32,8 +32,6 @@ public:
 
 private:
 
-	bool bWeaponIsDrawn;
-
 	int32 CurrentWeaponArrayID;
 
 	TArray<ASoSWeaponBase*> EquippedWeapons;
@@ -64,12 +62,7 @@ private:
 public:
 
 	/* Getters and Setters */
-
-	void SetWeaponIsDrawn(bool WeaponIsDrawn);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	ASoSWeaponBase* GetCurrentWeapon() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	bool GetWeaponIsDrawn() const;
 };

@@ -8,12 +8,41 @@
 
 class ASoSPlayerController;
 class ASoSPlayerCharacter;
-
+class USoSASAbilityBase;
+	
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Ranged,
 	Melee
+};
+
+UENUM(BlueprintType)
+enum class EWeaponState : uint8
+{
+	Holstered,
+	Equipping,
+	Idle,
+	Attacking,
+	Reloading
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponAbilitiesData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponDraw;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponHolster;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponPrimary;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponAlt;
 };
 
 UCLASS()
@@ -39,9 +68,14 @@ protected:
 	ASoSPlayerController* PlayerController;
 
 	ASoSPlayerCharacter* PlayerCharacter;
+
+	EWeaponState WeaponState;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Type")
 	EWeaponType WeaponType;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Abilities")
+	FWeaponAbilitiesData WeaponAbilities;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
 	float BaseDamage;
@@ -58,4 +92,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	EWeaponType GetWeaponType() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	EWeaponState GetWeaponState() const;
+
+	FWeaponAbilitiesData& GetWeaponAbilities();
+
+	void SetWeaponState(EWeaponState NewState);
 };

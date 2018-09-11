@@ -28,7 +28,6 @@ ASoSRangedWeapon::ASoSRangedWeapon()
 	TracerTargetName = "Target";
 
 	bCanReload = true;
-	SetWeaponState(EWeaponState::Idle);
 }
 
 // Called when the game starts or when spawned
@@ -54,7 +53,7 @@ void ASoSRangedWeapon::StartFiring()
 void ASoSRangedWeapon::StopFiring()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimerBetweenShots);
-	if (GetCurrentWeaponState() == EWeaponState::Firing)
+	if (GetWeaponState() == EWeaponState::Attacking)
 	{
 		SetWeaponState(EWeaponState::Idle);
 	}
@@ -64,7 +63,7 @@ void ASoSRangedWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire())
 	{
-		SetWeaponState(EWeaponState::Firing);
+		SetWeaponState(EWeaponState::Attacking);
 		UseAmmo();
 
 		for (int i = 0; i < ProjectilesPerShot; i++)
@@ -125,7 +124,7 @@ bool ASoSRangedWeapon::CheckIfWeaponCanFire()
 {
 	if (PlayerCharacter)
 	{
-		if (GetCurrentWeaponState() == EWeaponState::Reloading || CurrentAmmoInClip == 0)
+		if (GetWeaponState() == EWeaponState::Reloading || CurrentAmmoInClip == 0)
 		{
 			return false;
 		}
@@ -153,8 +152,8 @@ void ASoSRangedWeapon::StartReload()
 {
 	if (PlayerCharacter)
 	{
-		if (GetCurrentWeaponState() != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip
-			&& PlayerCharacter->GetPlayerInventory()->GetWeaponIsDrawn())
+		if (GetWeaponState() != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip
+			&& WeaponState != EWeaponState::Holstered)
 		{
 			SetWeaponState(EWeaponState::Reloading);
 			GetWorldTimerManager().SetTimer(TimerHandle_ReloadTime, this, &ASoSRangedWeapon::ReloadWeapon, ReloadDuration, false);
@@ -164,7 +163,7 @@ void ASoSRangedWeapon::StartReload()
 
 void ASoSRangedWeapon::InterruptReload()
 {
-	if (GetCurrentWeaponState() == EWeaponState::Reloading)
+	if (GetWeaponState() == EWeaponState::Reloading)
 	{
 		GetWorldTimerManager().ClearTimer(TimerHandle_ReloadTime);
 		SetWeaponState(EWeaponState::Idle);
@@ -256,40 +255,30 @@ FVector ASoSRangedWeapon::GetAimDirection()
 ///////////////////////////////////////////////////
 // Getters and Setters
 
-EWeaponState ASoSRangedWeapon::GetCurrentWeaponState() const
-{
-	return CurrentWeaponState;
-}
-
-void ASoSRangedWeapon::SetWeaponState(EWeaponState NewState)
-{
-	if (CurrentWeaponState == NewState)
-	{
-		return;
-	}
-
-	CurrentWeaponState = NewState;
-}
 
 int32 ASoSRangedWeapon::GetCurrentAmmo() const
 {
 	return CurrentAmmo;
 }
 
+
 int32 ASoSRangedWeapon::GetCurrentAmmoInClip() const
 {
 	return CurrentAmmoInClip;
 }
+
 
 float ASoSRangedWeapon::GetWeaponDrawnSpeedMultiplier() const
 {
 	return WeaponDrawnSpeedMultiplier;
 }
 
+
 float ASoSRangedWeapon::GetAimingSpeedMultiplier() const
 {
 	return AimingSpeedMultiplier;
 }
+
 
 void ASoSRangedWeapon::SetGettingAccuracyBonus(bool bGettingBonus)
 {
@@ -301,10 +290,12 @@ void ASoSRangedWeapon::SetGettingAccuracyBonus(bool bGettingBonus)
 	bGettingAccuracyBonus = bGettingBonus;
 }
 
+
 void ASoSRangedWeapon::SetCanReload(bool bReload)
 {
 	bCanReload = bReload;
 }
+
 
 float ASoSRangedWeapon::GetBulletSpread() const
 {
