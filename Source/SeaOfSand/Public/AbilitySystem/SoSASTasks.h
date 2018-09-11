@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex);
 
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool FireProjectile();
+
 private:
 
 	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, float ApplicationTime);

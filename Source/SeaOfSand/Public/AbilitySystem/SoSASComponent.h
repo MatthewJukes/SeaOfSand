@@ -65,6 +65,9 @@ protected:
 	ACharacter* ComponentOwner;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	int32 Team;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float HealthMaxStartValue;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
