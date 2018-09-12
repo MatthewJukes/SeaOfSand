@@ -9,6 +9,7 @@ ASoSGameModeBase::ASoSGameModeBase()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+
 void ASoSGameModeBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -16,15 +17,18 @@ void ASoSGameModeBase::Tick(float DeltaSeconds)
 	CheckASComponents();
 }
 
+
 void ASoSGameModeBase::AddASComponentToArray(USoSASComponent* ASComp)
 {
 	ASComponentsToCheck.Add(ASComp);
 }
 
+
 void ASoSGameModeBase::RemoveASComponentToArray(USoSASComponent* ASComp)
 {
 	ASComponentsToCheck.RemoveSwap(ASComp);
 }
+
 
 void ASoSGameModeBase::CheckASComponents()
 {

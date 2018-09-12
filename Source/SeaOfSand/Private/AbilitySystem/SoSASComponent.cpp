@@ -312,9 +312,10 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 		return false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+	UWorld* World = GetWorld();
 
-	return Ability->StartAbility(GetOwner(), GetOwner(), GetWorld()->GetTimeSeconds());
+	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+	return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
 }
 
 ////////////////////////////////////////////////
@@ -402,8 +403,23 @@ EASOwnerState USoSASComponent::GetASOwnerState() const
 	return OwnerState;
 }
 
+EASTeam USoSASComponent::GetASTeam() const
+{
+	return Team;
+}
+
 void USoSASComponent::SetASOwnerState(EASOwnerState NewState)
 {
 	OwnerState = NewState;
+}
+
+void USoSASComponent::SetOwnerWeaponMesh(USkeletalMeshComponent* Mesh)
+{
+	OwnerWeaponMesh = Mesh;
+}
+
+void USoSASComponent::SetWeaponProjectileOriginSocketName(FName SocketName)
+{
+	WeaponProjectileOriginSocketName = SocketName;
 }
 

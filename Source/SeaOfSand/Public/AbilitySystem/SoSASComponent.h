@@ -64,8 +64,12 @@ protected:
 
 	ACharacter* ComponentOwner;
 
+	USkeletalMeshComponent* OwnerWeaponMesh;
+
+	FName WeaponProjectileOriginSocketName;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
-	int32 Team;
+	EASTeam Team;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	float HealthMaxStartValue;
@@ -112,5 +116,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	EASOwnerState GetASOwnerState() const;
 
+	EASTeam GetASTeam() const;
+
 	void SetASOwnerState(EASOwnerState NewState);
+
+	void SetOwnerWeaponMesh(USkeletalMeshComponent* Mesh);
+
+	void SetWeaponProjectileOriginSocketName(FName SocketName);
 };

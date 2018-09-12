@@ -86,6 +86,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
 	TSubclassOf<UDamageType> DamageType;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
+	FName ProjectileOriginSocketName;
+
 public:
 
 	/* Getters and Setters */
@@ -97,6 +100,10 @@ public:
 	EWeaponState GetWeaponState() const;
 
 	FWeaponAbilitiesData& GetWeaponAbilities();
+
+	USkeletalMeshComponent* GetWeaponMesh() const;
+
+	FName GetProjectileOriginSocketName();
 
 	void SetWeaponState(EWeaponState NewState);
 };

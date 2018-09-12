@@ -24,7 +24,6 @@ ASoSRangedWeapon::ASoSRangedWeapon()
 
 	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShotAudio"));
 
-	MuzzleSocketName = "MuzzleSocket";
 	TracerTargetName = "Target";
 
 	bCanReload = true;
@@ -181,7 +180,7 @@ void ASoSRangedWeapon::PlayMuzzleEffect()
 {
 	if (MuzzleEffect)
 	{
-		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, WeaponMesh, MuzzleSocketName);
+		UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, WeaponMesh, ProjectileOriginSocketName);
 	}
 }
 
@@ -189,7 +188,7 @@ void ASoSRangedWeapon::PlayTracerEffect(FVector TraceEnd)
 {
 	if (TracerEffect)
 	{
-		FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+		FVector MuzzleLocation = WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
 
 		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
 		if (TracerComp)
@@ -216,7 +215,7 @@ void ASoSRangedWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector Im
 
 	if (SelectedEffect)
 	{
-		FVector ShotDirection = ImpactPoint - WeaponMesh->GetSocketLocation(MuzzleSocketName);
+		FVector ShotDirection = ImpactPoint - WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
 		ShotDirection.Normalize();
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
@@ -243,7 +242,7 @@ bool ASoSRangedWeapon::WeaponTrace(FHitResult& OutHit, FVector StartLocation, FV
 
 FVector ASoSRangedWeapon::GetAimDirection()
 {
-	FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+	FVector MuzzleLocation = WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
 
 	FVector AimDirection = PlayerController->GetCrosshairHitLocation(true, MuzzleLocation) - MuzzleLocation;
 	AimDirection.Normalize();	

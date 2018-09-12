@@ -6,7 +6,6 @@
 #include "SoSWeaponBase.h"
 #include "SoSRangedWeapon.generated.h"
 
-class ABaseProjectile;
 class UAudioComponent;
 class USoSASAbilityBase;
 
@@ -100,9 +99,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	float ReloadDuration;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
-	FName MuzzleSocketName;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
 	FName TracerTargetName;

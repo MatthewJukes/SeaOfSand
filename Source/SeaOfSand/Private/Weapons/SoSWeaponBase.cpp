@@ -16,6 +16,8 @@ ASoSWeaponBase::ASoSWeaponBase()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
 
+	ProjectileOriginSocketName = "ProjectileOriginSocket";
+
 	WeaponState = EWeaponState::Holstered;
 }
 
@@ -52,6 +54,16 @@ FWeaponAbilitiesData& ASoSWeaponBase::GetWeaponAbilities()
 	return WeaponAbilities;
 }
 
+
+USkeletalMeshComponent* ASoSWeaponBase::GetWeaponMesh() const
+{
+	return WeaponMesh;
+}
+
+FName ASoSWeaponBase::GetProjectileOriginSocketName()
+{
+	return ProjectileOriginSocketName;
+}
 
 void ASoSWeaponBase::SetWeaponState(EWeaponState NewState)
 {

@@ -1,7 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSASTasks.h"
+#include "SeaOfSand.h"
 #include "SoSASComponent.h"
+#include "SoSASProjectileBase.h"
+#include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "Engine/World.h"
 
 
@@ -68,6 +71,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	return true;
 } 
 
+
 bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex)
 {
 	if (Target == nullptr)
@@ -97,6 +101,55 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Targe
 	OutIndex = -1;
 	return false;
 }
+
+
+bool USoSASTasks::ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation, UWorld* World)
+{
+	const FName TraceTag("WeaponTraceTag");
+
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, Instigator);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = true;
+	TraceParams.TraceTag = TraceTag;
+
+	if (World->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, COLLISION_WEAPON, TraceParams))
+	{
+		return true;
+	}
+	return false; // Line-trace didn't hit anything
+}
+
+
+bool USoSASTasks::FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform, AActor* Instigator,  UWorld* World)
+{
+	if (Projectile == nullptr || Instigator == nullptr || World == nullptr)
+	{
+		return false;
+	}
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = Instigator;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	ASoSASProjectileBase* NewProjectile = World->SpawnActor<ASoSASProjectileBase>(Projectile, SpawnTransform, SpawnParams);
+
+	return NewProjectile != nullptr;
+}
+
+
+EASTeam USoSASTasks::GetASTeam(const AActor* Target)
+{
+	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
+
+	if (TargetASComp == nullptr)
+	{
+		return EASTeam::Default;
+	}
+
+	return TargetASComp->GetASTeam();
+}
+
 
 void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, float ApplicationTime)
 {

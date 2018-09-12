@@ -49,3 +49,11 @@ enum class EASTag : uint8
 	HolsterWeapon,
 	ImmuneToFire
 };
+
+UENUM(BlueprintType)
+enum class EASTeam : uint8
+{
+	Default,
+	Player,
+	Enemy
+};

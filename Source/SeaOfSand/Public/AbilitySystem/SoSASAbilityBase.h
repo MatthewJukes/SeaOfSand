@@ -15,5 +15,5 @@ class SEAOFSAND_API USoSASAbilityBase : public UObject
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
-	bool StartAbility(AActor* CurrentTarget, AActor* Caster, float TimeSeconds);
+	bool StartAbility(AActor* CurrentTarget, AActor* Instigator, USkeletalMeshComponent* WeaponMesh, FName SocketName, float TimeSeconds, UWorld* World);
 };

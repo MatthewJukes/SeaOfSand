@@ -3,6 +3,7 @@
 #include "SoSInventoryComponent.h"
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
+#include "SoSASComponent.h"
 #include "SoSPlayerHUD.h"
 #include "SoSWeaponBase.h"
 #include "SoSRangedWeapon.h"
@@ -32,6 +33,9 @@ void USoSInventoryComponent::BeginPlay()
 
 		CurrentWeapon = EquippedWeapons[0];
 		CurrentWeaponArrayID = 0;
+
+		PlayerCharacter->GetPlayerASComponent()->SetOwnerWeaponMesh(CurrentWeapon->GetWeaponMesh());
+		PlayerCharacter->GetPlayerASComponent()->SetWeaponProjectileOriginSocketName(CurrentWeapon->GetProjectileOriginSocketName());
 	}
 }
 
@@ -133,6 +137,9 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 		CurrentWeaponArrayID = (CurrentWeaponArrayID + (ArrayLenth - 1)) % ArrayLenth;
 		CurrentWeapon = EquippedWeapons[CurrentWeaponArrayID];
 	}
+
+	PlayerCharacter->GetPlayerASComponent()->SetOwnerWeaponMesh(CurrentWeapon->GetWeaponMesh());
+	PlayerCharacter->GetPlayerASComponent()->SetWeaponProjectileOriginSocketName(CurrentWeapon->GetProjectileOriginSocketName());
 
 	if (bWeaponWasDrawn) { HolsterUnholster(); }
 }

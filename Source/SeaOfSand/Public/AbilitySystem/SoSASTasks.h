@@ -7,7 +7,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SoSASTasks.generated.h"
 
-//struct FASEffectData;
+class ASoSASProjectileBase;
+class UWorld;
 
 UCLASS()
 class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
@@ -23,7 +24,13 @@ public:
 	static bool CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool FireProjectile();
+	static bool ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation, UWorld* World);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform, AActor* Instigator, UWorld* World);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static EASTeam GetASTeam(const AActor* Target);
 
 private:
 
