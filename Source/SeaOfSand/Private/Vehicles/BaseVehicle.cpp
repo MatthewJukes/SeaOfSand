@@ -107,7 +107,7 @@ void ABaseVehicle::ExitVehicle()
 	{
 		FTransform SpawnTransform = GetTransform();
 		SpawnTransform.AddToTranslation((VehicleMesh->GetRightVector() * 200.f) + FVector(0.f, 0.f, 50.f)); // TODO refine spawning position
-		FVector RelativeForward = PlayerController->GetActorForwardVector();
+		FVector RelativeForward = FVector::ZeroVector;//PlayerController->GetActorForwardVector();
 		RelativeForward.Z = 0.f;
 		RelativeForward.Normalize();
 		SpawnTransform.SetRotation(FQuat(RelativeForward.Rotation()));
