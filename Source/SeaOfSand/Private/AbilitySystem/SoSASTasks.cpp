@@ -154,7 +154,18 @@ bool USoSASTasks::FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile,
 
 bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProjectileBase> Projectile, AActor* Instigator, const FVector &SocketLocation, UWorld* World)
 {
-	FTransform ProjectileTransform;
+	FHitResult Hit;
+	FVector EndLocation = ASGetAimHitLocation(Instigator);
+	if (ASWeaponTrace(Instigator, Hit, SocketLocation, EndLocation, World))
+	{
+		EndLocation = Hit.Location;
+	}
+	
+	// Convert end location to direction
+	EndLocation = EndLocation - SocketLocation;
+	EndLocation.Normalize();
+
+	FTransform ProjectileTransform = FTransform(FRotator(EndLocation.ToOrientationRotator()), SocketLocation);
 	if (!FireASProjectile(Projectile, ProjectileTransform, Instigator, World))
 	{
 		return false;
