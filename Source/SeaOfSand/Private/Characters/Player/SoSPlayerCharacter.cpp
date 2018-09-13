@@ -29,6 +29,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 
 	// Setup health component
 	ASComp = CreateDefaultSubobject<USoSASComponent>(TEXT("ASComp"));
+	ASComp->SetAimHitLocation(&AimHitLocation);
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -106,6 +107,8 @@ void ASoSPlayerCharacter::BeginPlay()
 void ASoSPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AimHitLocation = PlayerController->GetCrosshairHitLocation(true, GetActorLocation());
 
 	if (ASComp->GetASOwnerState() == EASOwnerState::Dashing)
 	{

@@ -408,6 +408,11 @@ EASTeam USoSASComponent::GetASTeam() const
 	return Team;
 }
 
+FVector* USoSASComponent::GetAimHitLocation() const
+{
+	return AimHitLocation;
+}
+
 void USoSASComponent::SetASOwnerState(EASOwnerState NewState)
 {
 	OwnerState = NewState;
@@ -421,5 +426,10 @@ void USoSASComponent::SetOwnerWeaponMesh(USkeletalMeshComponent* Mesh)
 void USoSASComponent::SetWeaponProjectileOriginSocketName(FName SocketName)
 {
 	WeaponProjectileOriginSocketName = SocketName;
+}
+
+void USoSASComponent::SetAimHitLocation(FVector* AimHitLocationReference)
+{
+	AimHitLocation = AimHitLocationReference;
 }
 

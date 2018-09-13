@@ -8,7 +8,7 @@
 #include "Engine/World.h"
 
 
-bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float EffectDuration, float ApplicationTime)
+bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, int32 StackToApply, float EffectDuration, float ApplicationTime)
 { 
 	if (Target == nullptr || Instigator == nullptr)
 	{
@@ -48,14 +48,14 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
 	if (CheckIfTargetHasASEffectActive(EffectToApply.EffectName, Target, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
-		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, ApplicationTime);
+		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
 	}
 	else // Apply effect to target
 	{
 		// Set effect status trackers
 		EffectToApply.EffectStartTime = ApplicationTime;
-		EffectToApply.NewStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 0, EffectToApply.MaxStacks);
-		EffectToApply.CurrentStacks = FMath::Clamp(EffectToApply.StacksPerApplication, 1, EffectToApply.MaxStacks);
+		EffectToApply.NewStacks = FMath::Clamp(StackToApply, 0, EffectToApply.MaxStacks);
+		EffectToApply.CurrentStacks = FMath::Clamp(StackToApply, 1, EffectToApply.MaxStacks);
 
 		// Set tick rate to effect duration for effects with a tick rate of zero
 		EffectToApply.bNonTicking = EffectToApply.TickRate == 0.0f;
@@ -103,9 +103,23 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Targe
 }
 
 
+FVector USoSASTasks::ASGetAimHitLocation(AActor* Actor)
+{
+	USoSASComponent* ASComp = Cast<USoSASComponent>(Actor->GetComponentByClass(USoSASComponent::StaticClass()));
+
+	if (ASComp == nullptr)
+	{
+		return FVector::ZeroVector;
+	}
+
+	return *ASComp->GetAimHitLocation();
+}
+
+
 bool USoSASTasks::ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation, UWorld* World)
 {
 	const FName TraceTag("WeaponTraceTag");
+	World->DebugDrawTraceTag = TraceTag;
 
 	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, Instigator);
 	TraceParams.bTraceComplex = true;
@@ -138,6 +152,17 @@ bool USoSASTasks::FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile,
 }
 
 
+bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProjectileBase> Projectile, AActor* Instigator, const FVector &SocketLocation, UWorld* World)
+{
+	FTransform ProjectileTransform;
+	if (!FireASProjectile(Projectile, ProjectileTransform, Instigator, World))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 {
 	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
@@ -151,7 +176,7 @@ EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 }
 
 
-void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, float ApplicationTime)
+void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
 {
 	if (NewEffect.bAdditiveDuration && ExistingEffect.bAdditiveDuration)
 	{
@@ -169,6 +194,6 @@ void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& 
 		ExistingEffect.LastTickTime = ExistingEffect.bDelayFirstTick ? ApplicationTime : ApplicationTime - ExistingEffect.TickRate;
 	}
 
-	ExistingEffect.NewStacks = FMath::Clamp(NewEffect.StacksPerApplication, 0, ExistingEffect.MaxStacks - ExistingEffect.CurrentStacks);
-	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + NewEffect.StacksPerApplication, 1, ExistingEffect.MaxStacks);
+	ExistingEffect.NewStacks = FMath::Clamp(StackToApply, 0, ExistingEffect.MaxStacks - ExistingEffect.CurrentStacks);
+	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + StackToApply, 1, ExistingEffect.MaxStacks);
 }

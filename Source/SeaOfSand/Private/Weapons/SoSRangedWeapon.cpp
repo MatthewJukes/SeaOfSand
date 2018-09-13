@@ -42,14 +42,14 @@ void ASoSRangedWeapon::BeginPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle_ReduceRecoil, this, &ASoSRangedWeapon::UpdateRecoil, 1.0f / 60.0f, true, 0.0f);
 }
 
-void ASoSRangedWeapon::StartFiring()
+void ASoSRangedWeapon::StartAttack()
 {
 	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->GetTimeSeconds(), 0.0f);
 
 	GetWorldTimerManager().SetTimer(TimerHandle_TimerBetweenShots, this, &ASoSRangedWeapon::HandleFiring, TimeBetweenShots, bIsAutomatic, FirstDelay);
 }
 
-void ASoSRangedWeapon::StopFiring()
+void ASoSRangedWeapon::EndAttack()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_TimerBetweenShots);
 	if (GetWeaponState() == EWeaponState::Attacking)
@@ -65,8 +65,10 @@ void ASoSRangedWeapon::HandleFiring()
 		SetWeaponState(EWeaponState::Attacking);
 		UseAmmo();
 
+		PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary);
+		/*
 		for (int i = 0; i < ProjectilesPerShot; i++)
-		{
+		{ 
 			FHitResult Hit; // Store hit
 			
 			FVector ShotDirection = GetAimDirection();
@@ -101,8 +103,8 @@ void ASoSRangedWeapon::HandleFiring()
 				TracerEndPoint = Hit.ImpactPoint;
 			}
 
-			PlayTracerEffect(TracerEndPoint);
-		}
+			PlayTracerEffect(TracerEndPoint); 
+		}  */
 
 		LastFireTime = GetWorld()->GetTimeSeconds();
 
@@ -220,24 +222,6 @@ void ASoSRangedWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector Im
 
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
 	}
-}
-
-bool ASoSRangedWeapon::WeaponTrace(FHitResult& OutHit, FVector StartLocation, FVector EndLocation) const
-{
-	const FName TraceTag("WeaponTraceTag");
-	//GetWorld()->DebugDrawTraceTag = TraceTag;
-
-	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, this);
-	TraceParams.bTraceComplex = true;
-	TraceParams.bTraceAsyncScene = true;
-	TraceParams.bReturnPhysicalMaterial = true;
-	TraceParams.TraceTag = TraceTag;
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, StartLocation, EndLocation, COLLISION_WEAPON, TraceParams))
-	{
-		return true;
-	}
-	return false; // Line-trace didn't hit anything
 }
 
 FVector ASoSRangedWeapon::GetAimDirection()

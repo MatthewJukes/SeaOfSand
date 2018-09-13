@@ -63,6 +63,10 @@ protected:
 
 public:	
 
+	virtual void StartAttack();
+
+	virtual void EndAttack();
+
 protected:
 
 	ASoSPlayerController* PlayerController;

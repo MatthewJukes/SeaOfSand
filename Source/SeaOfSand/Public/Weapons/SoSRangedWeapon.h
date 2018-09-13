@@ -28,9 +28,9 @@ protected:
 
 public:	
 
-	void StartFiring();
+	void StartAttack() override;
 
-	void StopFiring();
+	void EndAttack() override;
 
 	void StartReload();
 
@@ -130,8 +130,6 @@ protected:
 	void PlayTracerEffect(FVector TraceEnd);
 
 	void PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint);
-
-	bool WeaponTrace(FHitResult& OutHitlocation, FVector StartLocation, FVector EndLocation) const;
 
 	FVector GetAimDirection();	
 

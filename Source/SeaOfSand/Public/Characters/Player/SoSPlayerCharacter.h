@@ -116,6 +116,8 @@ protected:
 
 	FVector RollDirection;
 
+	FVector AimHitLocation;
+
 	bool bCanDoubleJump;
 
 	bool bLastOrientRotationToMovement;

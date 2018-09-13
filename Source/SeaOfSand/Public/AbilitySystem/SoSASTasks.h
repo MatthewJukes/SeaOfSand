@@ -18,10 +18,13 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, float EffectDuration, float ApplicationTime);
+	static bool ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, int32 StackToApply, float EffectDuration, float ApplicationTime);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static FVector ASGetAimHitLocation(AActor* Actor);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation, UWorld* World);
@@ -30,9 +33,12 @@ public:
 	static bool FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform, AActor* Instigator, UWorld* World);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProjectileBase> Projectile, AActor* Instigator, const FVector &SocketLocation, UWorld* World);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static EASTeam GetASTeam(const AActor* Target);
 
 private:
 
-	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, float ApplicationTime);
+	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime);
 };

@@ -33,6 +33,16 @@ void ASoSWeaponBase::BeginPlay()
 }
 
 
+void ASoSWeaponBase::StartAttack()
+{
+
+}
+
+void ASoSWeaponBase::EndAttack()
+{
+
+}
+
 ///////////////////////////////////////////////////
 // Getters and Setters
 
@@ -60,10 +70,12 @@ USkeletalMeshComponent* ASoSWeaponBase::GetWeaponMesh() const
 	return WeaponMesh;
 }
 
+
 FName ASoSWeaponBase::GetProjectileOriginSocketName()
 {
 	return ProjectileOriginSocketName;
 }
+
 
 void ASoSWeaponBase::SetWeaponState(EWeaponState NewState)
 {

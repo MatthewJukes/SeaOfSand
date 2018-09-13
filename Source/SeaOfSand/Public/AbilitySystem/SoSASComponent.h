@@ -68,6 +68,8 @@ protected:
 
 	FName WeaponProjectileOriginSocketName;
 
+	FVector* AimHitLocation;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	EASTeam Team;
 
@@ -118,9 +120,13 @@ public:
 
 	EASTeam GetASTeam() const;
 
+	FVector* GetAimHitLocation() const;
+
 	void SetASOwnerState(EASOwnerState NewState);
 
 	void SetOwnerWeaponMesh(USkeletalMeshComponent* Mesh);
 
 	void SetWeaponProjectileOriginSocketName(FName SocketName);
+
+	void SetAimHitLocation(FVector* AimHitLocationReference);
 };
