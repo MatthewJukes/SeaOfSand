@@ -24,8 +24,6 @@ ASoSRangedWeapon::ASoSRangedWeapon()
 
 	ShotAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ShotAudio"));
 
-	TracerTargetName = "Target";
-
 	bCanReload = true;
 }
 
@@ -38,8 +36,6 @@ void ASoSRangedWeapon::BeginPlay()
 
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, StartAmmo);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_ReduceRecoil, this, &ASoSRangedWeapon::UpdateRecoil, 1.0f / 60.0f, true, 0.0f);
 }
 
 void ASoSRangedWeapon::StartAttack()
@@ -66,50 +62,8 @@ void ASoSRangedWeapon::HandleFiring()
 		UseAmmo();
 
 		PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary);
-		/*
-		for (int i = 0; i < ProjectilesPerShot; i++)
-		{ 
-			FHitResult Hit; // Store hit
-			
-			FVector ShotDirection = GetAimDirection();
-			FVector TraceStart = WeaponMesh->GetSocketLocation("MuzzleSocket");
-			FVector TraceEnd = TraceStart + (ShotDirection * MaxRange);
-
-			EPhysicalSurface SurfaceType = SurfaceType_Default;
-
-			FVector TracerEndPoint = TraceEnd;
-
-			if (WeaponTrace(Hit, TraceStart, TraceEnd))
-			{
-				AActor* HitActor = Hit.GetActor();
-
-				SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-
-				float ActualDamage = BaseDamage;
-				if (SurfaceType == SURFACE_FLESHVULNERABLE  || SurfaceType == SURFACE_CONSTRUCTVULNERABLE)
-				{
-					ActualDamage *= VulnerableHitBonusDamage;
-				}				
-
-				UGameplayStatics::ApplyPointDamage(HitActor, ActualDamage, ShotDirection, Hit, PlayerController, PlayerCharacter, DamageType);
-
-				if (SurfaceType != SurfaceType_Default)
-				{
-					DrawDebugString(GetWorld(), Hit.Location, FString::SanitizeFloat(ActualDamage), nullptr, FColor::White, 0.2f);
-				}
-				
-				PlayImpactEffect(SurfaceType, Hit.ImpactPoint);
-
-				TracerEndPoint = Hit.ImpactPoint;
-			}
-
-			PlayTracerEffect(TracerEndPoint); 
-		}  */
 
 		LastFireTime = GetWorld()->GetTimeSeconds();
-
-		CurrentRecoil += RecoilAmount;
-		CurrentRecoil = FMath::Clamp(CurrentRecoil, 0.0f, 1.0f);
 
 		PlayMuzzleEffect();
 
@@ -141,12 +95,6 @@ void ASoSRangedWeapon::UseAmmo()
 {
 	CurrentAmmo--;
 	CurrentAmmoInClip--;
-}
-
-void ASoSRangedWeapon::UpdateRecoil()
-{
-	CurrentRecoil -= (1.0f / RecoilRecoveryTime) / 60;
-	CurrentRecoil = FMath::Clamp(CurrentRecoil, 0.0f, 1.0f);
 }
 
 void ASoSRangedWeapon::StartReload()
@@ -186,54 +134,6 @@ void ASoSRangedWeapon::PlayMuzzleEffect()
 	}
 }
 
-void ASoSRangedWeapon::PlayTracerEffect(FVector TraceEnd)
-{
-	if (TracerEffect)
-	{
-		FVector MuzzleLocation = WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
-
-		UParticleSystemComponent* TracerComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TracerEffect, MuzzleLocation);
-		if (TracerComp)
-		{
-			TracerComp->SetVectorParameter(TracerTargetName, TraceEnd);
-		}
-	}
-}
-
-void ASoSRangedWeapon::PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint)
-{
-	UParticleSystem* SelectedEffect = nullptr;
-
-	switch (SurfaceType)
-	{
-	case SURFACE_FLESHDEFAULT:
-	case SURFACE_FLESHVULNERABLE:
-		SelectedEffect = FleshImpactEffect;
-		break;
-	default:
-		SelectedEffect = DefaultImpactEffect;
-		break;
-	}
-
-	if (SelectedEffect)
-	{
-		FVector ShotDirection = ImpactPoint - WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
-		ShotDirection.Normalize();
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, ImpactPoint, ShotDirection.Rotation());
-	}
-}
-
-FVector ASoSRangedWeapon::GetAimDirection()
-{
-	FVector MuzzleLocation = WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
-
-	FVector AimDirection = PlayerController->GetCrosshairHitLocation(true, MuzzleLocation) - MuzzleLocation;
-	AimDirection.Normalize();	
-
-	return FMath().VRandCone(AimDirection, FMath().DegreesToRadians(GetBulletSpread()));
-}
-
 
 ///////////////////////////////////////////////////
 // Getters and Setters
@@ -251,48 +151,8 @@ int32 ASoSRangedWeapon::GetCurrentAmmoInClip() const
 }
 
 
-float ASoSRangedWeapon::GetWeaponDrawnSpeedMultiplier() const
-{
-	return WeaponDrawnSpeedMultiplier;
-}
-
-
-float ASoSRangedWeapon::GetAimingSpeedMultiplier() const
-{
-	return AimingSpeedMultiplier;
-}
-
-
-void ASoSRangedWeapon::SetGettingAccuracyBonus(bool bGettingBonus)
-{
-	if (bGettingBonus)
-	{
-		AimingStartTime = GetWorld()->GetTimeSeconds();
-	}
-
-	bGettingAccuracyBonus = bGettingBonus;
-}
-
-
 void ASoSRangedWeapon::SetCanReload(bool bReload)
 {
 	bCanReload = bReload;
-}
-
-
-float ASoSRangedWeapon::GetBulletSpread() const
-{
-	float BulletSpread = FMath::Lerp(BaseBulletSpreadRange.X, BaseBulletSpreadRange.Y, CurrentRecoil);
-
-	if (bGettingAccuracyBonus)
-	{
-		FVector2D InputRange = FVector2D(0.0f, AimingBulletSpreadLerpTime);
-		FVector2D OutputRange = FVector2D(0.0f, 1.0f);
-
-		float Alpha = FMath::GetMappedRangeValueClamped(InputRange, OutputRange, GetWorld()->GetTimeSeconds() - AimingStartTime);
-		BulletSpread = FMath::Lerp(BulletSpread, FMath::Lerp(AimingBulletSpreadRange.X, AimingBulletSpreadRange.Y, CurrentRecoil), Alpha);
-	}
-
-	return BulletSpread;
 }
 

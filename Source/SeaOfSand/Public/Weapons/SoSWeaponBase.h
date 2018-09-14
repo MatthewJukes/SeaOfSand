@@ -81,15 +81,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Abilities")
 	FWeaponAbilitiesData WeaponAbilities;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
-	float BaseDamage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
-	float VulnerableHitBonusDamage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Damage")
-	TSubclassOf<UDamageType> DamageType;
-
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
 	FName ProjectileOriginSocketName;
 

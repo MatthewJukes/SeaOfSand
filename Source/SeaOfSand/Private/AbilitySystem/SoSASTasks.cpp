@@ -4,6 +4,8 @@
 #include "SeaOfSand.h"
 #include "SoSASComponent.h"
 #include "SoSASProjectileBase.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "Engine/World.h"
 
@@ -14,7 +16,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	{
 		return false;
 	}
-
+	
 	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
 	if (TargetASComp == nullptr)
 	{
@@ -119,7 +121,7 @@ FVector USoSASTasks::ASGetAimHitLocation(AActor* Actor)
 bool USoSASTasks::ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation, UWorld* World)
 {
 	const FName TraceTag("WeaponTraceTag");
-	World->DebugDrawTraceTag = TraceTag;
+	//World->DebugDrawTraceTag = TraceTag;
 
 	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, Instigator);
 	TraceParams.bTraceComplex = true;
@@ -171,6 +173,33 @@ bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProj
 		return false;
 	}
 
+	return true;
+}
+
+bool USoSASTasks::ASDash(AActor* Instigator, FVector ForceDirection, float Force)
+{
+	if (Instigator == nullptr)
+	{
+		return false;
+	}
+
+	ACharacter* Character = Cast<ACharacter>(Instigator);
+	if (Character == nullptr)
+	{
+		return false;
+	}
+
+	UCharacterMovementComponent* MovementComp = Character->GetCharacterMovement();
+	if (MovementComp == nullptr)
+	{
+		return false;
+	}
+
+	ForceDirection.Normalize();
+	//MovementComp->GroundFriction = 0;
+	MovementComp->Launch(ForceDirection * Force);
+	//MovementComp->AddImpulse(ForceDirection * Force);
+	
 	return true;
 }
 

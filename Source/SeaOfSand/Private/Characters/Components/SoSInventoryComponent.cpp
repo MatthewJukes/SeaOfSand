@@ -117,6 +117,8 @@ void USoSInventoryComponent::HolsterUnholster()
 				PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
 			}
 		}
+
+		CurrentWeapon->GetWeaponState();
 	} 
 }
 

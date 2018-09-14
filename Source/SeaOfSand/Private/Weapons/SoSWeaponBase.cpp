@@ -10,8 +10,7 @@
 // Sets default values
 ASoSWeaponBase::ASoSWeaponBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	RootComponent = WeaponMesh;
@@ -28,8 +27,7 @@ void ASoSWeaponBase::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
-	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
-	
+	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());	
 }
 
 

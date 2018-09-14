@@ -42,51 +42,18 @@ protected:
 
 	int32 CurrentAmmoInClip;
 
-	bool bGettingAccuracyBonus;
-
 	bool bCanReload;
 
 	float TimeBetweenShots;
 
 	float LastFireTime;
 
-	float AimingStartTime;
-
-	float CurrentRecoil;
-
 	/* RPM - Bullet per minute fire by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
 	float FireRate;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
-	float MaxRange;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
-	bool bIsAutomatic;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
-	int32 ProjectilesPerShot;	
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
-	float WeaponDrawnSpeedMultiplier;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Movement")
-	float AimingSpeedMultiplier;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	FVector2D BaseBulletSpreadRange;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	FVector2D AimingBulletSpreadRange;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	float RecoilAmount;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	float RecoilRecoveryTime;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Accuracy")
-	float AimingBulletSpreadLerpTime;
+	bool bIsAutomatic;	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	int32 MaxAmmo;
@@ -100,53 +67,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	float ReloadDuration;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon | Names")
-	FName TracerTargetName;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
 	UParticleSystem* MuzzleEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
-	UParticleSystem* DefaultImpactEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
-	UParticleSystem* FleshImpactEffect;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Effects")
-	UParticleSystem* TracerEffect;
 
 	void HandleFiring();
 
 	bool CheckIfWeaponCanFire();
 
 	void UseAmmo();
-
-	void UpdateRecoil();
 	
 	void ReloadWeapon();
 
-	void PlayMuzzleEffect();
-
-	void PlayTracerEffect(FVector TraceEnd);
-
-	void PlayImpactEffect(EPhysicalSurface SurfaceType, FVector ImpactPoint);
-
-	FVector GetAimDirection();	
+	void PlayMuzzleEffect();	
 
 	/* Timer handles */
-	FTimerHandle TimerHandle_TimerBetweenShots;
 	FTimerHandle TimerHandle_ReloadTime;
-	FTimerHandle TimerHandle_ReduceRecoil;
+	FTimerHandle TimerHandle_TimerBetweenShots;
 
 public:
 
 	/* Getters and Setters */
-
-	float GetWeaponDrawnSpeedMultiplier() const;
-
-	float GetAimingSpeedMultiplier() const;
-
-	void SetGettingAccuracyBonus(bool bGettingBonus);
 
 	void SetCanReload(bool bReload);
 
@@ -155,7 +95,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	int32 GetCurrentAmmoInClip() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	float GetBulletSpread() const;
 };

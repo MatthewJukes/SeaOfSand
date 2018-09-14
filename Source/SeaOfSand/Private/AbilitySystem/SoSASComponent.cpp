@@ -33,6 +33,8 @@ USoSASComponent::USoSASComponent()
 	ASAttributeTempMultiplierValues.EnergyMaxValue = 1;
 	ASAttributeTempMultiplierValues.EnergyCurrentValue = 1;
 	ASAttributeTempMultiplierValues.SpeedValue = 1;
+
+	CurrentASEffects.Reserve(10);
 }
 
 
@@ -265,6 +267,7 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 
 void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Effect Added: %s"), *EffectToAdd.EffectName.ToString())
 	CurrentASEffects.Add(EffectToAdd);
 	for (EASTag Tag : EffectToAdd.EffectAppliesTags)
 	{
@@ -275,21 +278,27 @@ void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 
 void USoSASComponent::RemoveASEffectFromArrayByIndex(int32 Index)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Effect Removed: %s"), *CurrentASEffects[Index].EffectName.ToString())
 	CurrentASEffects.RemoveAt(Index);
 }
 
 
 void USoSASComponent::RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove)
 {
-	for (int32 Index : EffectIndexesToRemove)
+	for (int32 Index = EffectIndexesToRemove.Num()-1; Index >= 0; Index--)
 	{
-		RemoveASEffectFromArrayByIndex(Index);
+		RemoveASEffectFromArrayByIndex(EffectIndexesToRemove[Index]);
 	}
 }
 
 
 void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 {
+	if (EffectToEnd.bExpired)
+	{
+		return;
+	}
+
 	EffectToEnd.bExpired = true;
 
 	if (EffectToEnd.bTemporaryModifier)
@@ -314,7 +323,7 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 
 	UWorld* World = GetWorld();
 
-	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 	return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
 }
 

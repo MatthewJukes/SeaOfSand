@@ -36,6 +36,9 @@ public:
 	static bool FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProjectileBase> Projectile, AActor* Instigator, const FVector &SocketLocation, UWorld* World);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool ASDash(AActor* Instigator, FVector ForceDirection, float Force);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static EASTeam GetASTeam(const AActor* Target);
 
 private:

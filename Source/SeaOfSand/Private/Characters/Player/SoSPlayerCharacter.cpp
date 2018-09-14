@@ -220,12 +220,6 @@ void ASoSPlayerCharacter::AimStart()
 	AimZoom(true);
 	ASComp->SetASOwnerState(EASOwnerState::Aiming);
 	}	
-	
-	/*
-	if (InventoryComp->GetCurrentWeapon()) // Give weapon bonus accuracy
-	{
-		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(true);
-	} */
 }
 
 void ASoSPlayerCharacter::AimEnd()
@@ -234,18 +228,12 @@ void ASoSPlayerCharacter::AimEnd()
 	{
 		return;
 	}
-
+	
 	if (UseAbility(AbilityBar.AbilityAimEnd))
 	{
-	AimZoom(false);
-	ASComp->SetASOwnerState(EASOwnerState::Normal);
+		AimZoom(false);
+		ASComp->SetASOwnerState(EASOwnerState::Normal);
 	}
-	
-	/*		
-	if (InventoryComp->GetCurrentWeapon()) // Remove weapon bonus accuracy
-	{
-		//InventoryComp->GetCurrentWeapon()->SetGettingAccuracyBonus(false);
-	} */
 }
 
 void ASoSPlayerCharacter::DoubleJump()
