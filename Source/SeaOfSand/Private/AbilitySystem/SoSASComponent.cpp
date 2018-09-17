@@ -323,8 +323,14 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 	}
 
 	UWorld* World = GetWorld();
+	if (World->GetTimeSeconds() - Ability->GetLastTimeActivated() < Ability->GetCooldown())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability %s on cooldown"), *Ability->GetName());
+		return false;
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+	Ability->SetLastTimeActivated(World->GetTimeSeconds());
 	return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
 }
 

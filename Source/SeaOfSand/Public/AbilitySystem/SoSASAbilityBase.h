@@ -19,6 +19,16 @@ public:
 
 private:
 
+	float LastTimeActivated;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
-	float BaseCooldown;
+	float Cooldown;
+
+public:
+
+	float GetLastTimeActivated() const;
+
+	float GetCooldown();
+
+	void SetLastTimeActivated(float NewTime);
 };
