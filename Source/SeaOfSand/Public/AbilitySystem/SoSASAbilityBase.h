@@ -16,4 +16,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	bool StartAbility(AActor* CurrentTarget, AActor* Instigator, USkeletalMeshComponent* WeaponMesh, FName SocketName, float TimeSeconds, UWorld* World);
+
+private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	float BaseCooldown;
 };

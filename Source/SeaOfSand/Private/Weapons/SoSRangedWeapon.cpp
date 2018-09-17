@@ -61,7 +61,7 @@ void ASoSRangedWeapon::HandleFiring()
 		SetWeaponState(EWeaponState::Attacking);
 		UseAmmo();
 
-		PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary);
+		PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimaryInstance);
 
 		LastFireTime = GetWorld()->GetTimeSeconds();
 

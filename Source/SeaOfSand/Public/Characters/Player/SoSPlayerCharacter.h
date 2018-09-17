@@ -41,7 +41,7 @@ struct FPlayerASAbilitiesData
 	TSubclassOf<USoSASAbilityBase> AbilitySeven;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityEigth;
+	TSubclassOf<USoSASAbilityBase> AbilityEight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilitySprint; 
@@ -51,9 +51,48 @@ struct FPlayerASAbilitiesData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityAimEnd;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TSubclassOf<USoSASAbilityBase> AbilityDash;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityOneInstance;
+	
+	UPROPERTY()
+	USoSASAbilityBase* AbilityTwoInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityThreeInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityFourInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityFiveInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilitySixInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilitySevenInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityEightInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilitySprintInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilitySprintEndInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityAimEndInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityDashInstance;
 }; 
 
-DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, TSubclassOf<USoSASAbilityBase>);
+DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
@@ -99,7 +138,7 @@ public:
 
 	void AimEnd(); // stop/interrupt aiming
 
-	bool UseAbility(TSubclassOf<USoSASAbilityBase> Ability);
+	bool UseAbility(USoSASAbilityBase* Ability);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
@@ -114,13 +153,11 @@ protected:
 
 	ASoSPlayerController* PlayerController;
 
-	FVector RollDirection;
-
 	FVector AimHitLocation;
 
 	bool bCanDoubleJump;
 
-	bool bLastOrientRotationToMovement;
+	bool bCanAirDash;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
@@ -140,11 +177,9 @@ protected:
 
 	void DoubleJump();
 
-	void StartRoll();
+	void StartDash();
 
 	void Interact(); // Player interaction/use objects in world
-
-	void Roll(FVector DodgeDirection, bool OrientRotationToMovement);
 
 	void AimStart();
 
@@ -157,14 +192,10 @@ protected:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	UFUNCTION()
-	void UseAbilityActionBinding(TSubclassOf<USoSASAbilityBase> Ability);
-
-	UFUNCTION()
-	void EndRoll(bool OrientRotationToMovement);
+	void UseAbilityActionBinding(int32 Index);
 
 	//Timer handles
 	FTimerHandle TimerHandle_DoubleJump;
-	FTimerHandle TimerHandle_DodgeEnd;
 
 public:
 

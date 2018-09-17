@@ -3,10 +3,12 @@
 #include "SoSASTasks.h"
 #include "SeaOfSand.h"
 #include "SoSASComponent.h"
+#include "SoSASAbilityBase.h"
 #include "SoSASProjectileBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
+#include "Engine/Classes/Curves/CurveFloat.h"
 #include "Engine/World.h"
 
 
@@ -176,32 +178,6 @@ bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProj
 	return true;
 }
 
-bool USoSASTasks::ASDash(AActor* Instigator, FVector ForceDirection, float Force)
-{
-	if (Instigator == nullptr)
-	{
-		return false;
-	}
-
-	ACharacter* Character = Cast<ACharacter>(Instigator);
-	if (Character == nullptr)
-	{
-		return false;
-	}
-
-	UCharacterMovementComponent* MovementComp = Character->GetCharacterMovement();
-	if (MovementComp == nullptr)
-	{
-		return false;
-	}
-
-	ForceDirection.Normalize();
-	//MovementComp->GroundFriction = 0;
-	MovementComp->Launch(ForceDirection * Force);
-	//MovementComp->AddImpulse(ForceDirection * Force);
-	
-	return true;
-}
 
 EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 {
@@ -215,6 +191,80 @@ EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 	return TargetASComp->GetASTeam();
 }
 
+
+bool USoSASTasks::ASApplyRootMotionConstantForce(ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish)
+{
+	if (TargetCharacter == nullptr)
+	{
+		return false;
+	}
+
+	UCharacterMovementComponent* MovementComp = Cast<UCharacterMovementComponent>(TargetCharacter->GetCharacterMovement());
+	if (MovementComp == nullptr)
+	{
+		return false;
+	}
+
+	Direction.Normalize();
+
+	FRootMotionSource_ConstantForce* ConstantForce = new FRootMotionSource_ConstantForce();
+	ConstantForce->InstanceName = FName("ConstantForce");
+	ConstantForce->AccumulateMode = bIsAdditive ? ERootMotionAccumulateMode::Additive : ERootMotionAccumulateMode::Override;
+	ConstantForce->Priority = 5;
+	ConstantForce->Force = Direction * Strength;
+	ConstantForce->Duration = Duration;
+	ConstantForce->StrengthOverTime = StrengthOverTime;
+	ConstantForce->FinishVelocityParams.Mode = VelocityOnFinishMode;
+	ConstantForce->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
+	ConstantForce->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+	MovementComp->ApplyRootMotionSource(ConstantForce);
+
+	return true;
+}
+
+
+bool USoSASTasks::ASApplyRootMotionJumpForce(ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve)
+{
+	if (TargetCharacter == nullptr)
+	{
+		return false;
+	}
+
+	UCharacterMovementComponent* MovementComp = Cast<UCharacterMovementComponent>(TargetCharacter->GetCharacterMovement());
+	if (MovementComp == nullptr)
+	{
+		return false;
+	}
+
+	FRootMotionSource_JumpForce* JumpForce = new FRootMotionSource_JumpForce();
+	JumpForce->InstanceName = FName("JumpForce");
+	JumpForce->AccumulateMode = ERootMotionAccumulateMode::Override;
+	JumpForce->Priority = 500;
+	JumpForce->Duration = Duration;
+	JumpForce->Rotation = Rotation;
+	JumpForce->Distance = Distance;
+	JumpForce->Height = Height;
+	JumpForce->Duration = Duration;
+	JumpForce->bDisableTimeout = bFinishOnLanded; // If we finish on landed, we need to disable force's timeout
+	JumpForce->PathOffsetCurve = PathOffsetCurve;
+	JumpForce->TimeMappingCurve = TimeMappingCurve;
+	JumpForce->FinishVelocityParams.Mode = VelocityOnFinishMode;
+	JumpForce->FinishVelocityParams.SetVelocity = SetVelocityOnFinish;
+	JumpForce->FinishVelocityParams.ClampVelocity = ClampVelocityOnFinish;
+	MovementComp->ApplyRootMotionSource(JumpForce);
+
+	return true;
+}
+
+USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability)
+{
+	if (Ability == nullptr)
+	{
+		return nullptr;
+	}
+
+	return NewObject<USoSASAbilityBase>(Ability, Ability.Get());
+}
 
 void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
 {

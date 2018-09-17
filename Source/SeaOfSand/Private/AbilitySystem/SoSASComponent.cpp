@@ -318,12 +318,13 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 {
 	if (Ability == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability Cast is NULL"));
 		return false;
 	}
 
 	UWorld* World = GetWorld();
 
-	//UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 	return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
 }
 

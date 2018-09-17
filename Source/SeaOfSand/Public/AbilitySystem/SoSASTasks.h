@@ -8,7 +8,10 @@
 #include "SoSASTasks.generated.h"
 
 class ASoSASProjectileBase;
+class USoSASAbilityBase;
+class ACharacter;
 class UWorld;
+enum class ERootMotionFinishVelocityMode : uint8;
 
 UCLASS()
 class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
@@ -36,10 +39,15 @@ public:
 	static bool FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProjectileBase> Projectile, AActor* Instigator, const FVector &SocketLocation, UWorld* World);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ASDash(AActor* Instigator, FVector ForceDirection, float Force);
+	static EASTeam GetASTeam(const AActor* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static EASTeam GetASTeam(const AActor* Target);
+	static bool ASApplyRootMotionConstantForce(ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool ASApplyRootMotionJumpForce(ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve);
+	
+	static USoSASAbilityBase* CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability);
 
 private:
 

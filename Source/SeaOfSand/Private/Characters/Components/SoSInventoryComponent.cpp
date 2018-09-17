@@ -86,7 +86,7 @@ void USoSInventoryComponent::HolsterUnholster()
 	{
 		if (CurrentWeapon->GetWeaponState() == EWeaponState::Holstered) // Unholster weapon
 		{
-			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDraw))
+			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDrawInstance))
 			{
 				AttachWeaponToSocket(CurrentWeapon, true);
 				CurrentWeapon->SetWeaponState(EWeaponState::Idle);
@@ -101,7 +101,7 @@ void USoSInventoryComponent::HolsterUnholster()
 		}
 		else // holster weapon
 		{
-			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolster))
+			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolsterInstance))
 			{
 				PlayerCharacter->AimEnd();
 				AttachWeaponToSocket(CurrentWeapon);

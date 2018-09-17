@@ -19,7 +19,6 @@ enum class EASOwnerState : uint8
 	Sprinting,
 	Aiming,
 	Attacking,
-	Dashing,
 	Dead
 };
 

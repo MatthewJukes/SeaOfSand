@@ -43,6 +43,18 @@ struct FWeaponAbilitiesData
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TSubclassOf<USoSASAbilityBase> AbilityWeaponAlt;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityWeaponDrawInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityWeaponHolsterInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityWeaponPrimaryInstance;
+
+	UPROPERTY()
+	USoSASAbilityBase* AbilityWeaponAltInstance;
 };
 
 UCLASS()

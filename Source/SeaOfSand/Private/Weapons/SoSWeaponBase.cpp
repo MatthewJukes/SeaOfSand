@@ -3,6 +3,7 @@
 #include "SoSWeaponBase.h"
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
+#include "SoSASTasks.h"
 #include "SoSASAbilityBase.h"
 #include "Components/SkeletalMeshComponent.h"
 
@@ -27,7 +28,12 @@ void ASoSWeaponBase::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
-	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());	
+	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
+
+	WeaponAbilities.AbilityWeaponDrawInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponDraw);
+	WeaponAbilities.AbilityWeaponHolsterInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponHolster);
+	WeaponAbilities.AbilityWeaponPrimaryInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponPrimary);
+	WeaponAbilities.AbilityWeaponAltInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponAlt);
 }
 
 
