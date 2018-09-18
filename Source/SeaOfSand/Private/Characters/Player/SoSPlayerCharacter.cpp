@@ -151,6 +151,7 @@ void ASoSPlayerCharacter::MoveForward(float AxisValue)
 	}
 }
 
+
 void ASoSPlayerCharacter::MoveRight(float AxisValue)
 {
 	if (AxisValue == 0.0f)
@@ -169,6 +170,7 @@ void ASoSPlayerCharacter::MoveRight(float AxisValue)
 		AddMovementInput(Direction, AxisValue);
 	}
 }
+
 
 void ASoSPlayerCharacter::SprintStart()
 {
@@ -193,6 +195,7 @@ void ASoSPlayerCharacter::SprintStart()
 
 }
 
+
 void ASoSPlayerCharacter::SprintEnd()
 {
 	if (ASComp->GetASOwnerState() != EASOwnerState::Sprinting)
@@ -212,15 +215,18 @@ void ASoSPlayerCharacter::SprintEnd()
 	}
 }
 
+
 void ASoSPlayerCharacter::CrouchStart()
 {
 	// TODO add player crouching
 }
 
+
 void ASoSPlayerCharacter::CrouchEnd()
 {
 
 }
+
 
 void ASoSPlayerCharacter::AimStart()
 {
@@ -237,6 +243,7 @@ void ASoSPlayerCharacter::AimStart()
 	}	
 }
 
+
 void ASoSPlayerCharacter::AimEnd()
 {
 	if (ASComp->GetASOwnerState() != EASOwnerState::Aiming)
@@ -250,6 +257,7 @@ void ASoSPlayerCharacter::AimEnd()
 		ASComp->SetASOwnerState(EASOwnerState::Normal);
 	}
 }
+
 
 void ASoSPlayerCharacter::DoubleJump()
 {
@@ -268,11 +276,13 @@ void ASoSPlayerCharacter::DoubleJump()
 	}	
 }
 
+
 void ASoSPlayerCharacter::ResetAirControl()
 {
 	bIsDoubleJumping = false;
 	GetCharacterMovement()->AirControl = 0.2f;
 }
+
 
 void ASoSPlayerCharacter::StartDash()
 {
@@ -412,6 +422,11 @@ USoSASComponent* ASoSPlayerCharacter::GetPlayerASComponent() const
 	return ASComp;
 }
 
+
+FPlayerASAbilitiesData& ASoSPlayerCharacter::GetASAbilityBar()
+{
+	return AbilityBar;
+}
 
 void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
 {

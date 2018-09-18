@@ -6,6 +6,12 @@
 #include "UObject/NoExportTypes.h"
 #include "SoSASAbilityBase.generated.h"
 
+UENUM()
+enum class EASResourceType : uint8
+{
+	Energy,
+	Health
+};
 
 UCLASS(BlueprintType, Blueprintable)
 class SEAOFSAND_API USoSASAbilityBase : public UObject
@@ -24,11 +30,25 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	float Cooldown;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	float Cost;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	EASResourceType ResourceType;
+
 public:
 
+	UFUNCTION(BlueprintCallable, Category = "Ability")
 	float GetLastTimeActivated() const;
 
-	float GetCooldown();
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	float GetCooldown() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	float GetCost() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	EASResourceType GetResourceType() const;
 
 	void SetLastTimeActivated(float NewTime);
 };

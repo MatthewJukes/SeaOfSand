@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "SoSASAttributes.h"
 #include "SoSASEffectData.generated.h"
 
+enum class EASAttributeName : uint8;
+enum class EASTag : uint8;
 
 UENUM(BlueprintType)
 enum class EASEffectType : uint8

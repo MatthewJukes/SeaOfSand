@@ -11,6 +11,7 @@
 class USoSASAbilityBase;
 class ASoSGameModeBase;
 class ACharacter;
+enum class EASResourceType : uint8;
 
 UENUM(BlueprintType)
 enum class EASOwnerState : uint8
@@ -88,9 +89,9 @@ protected:
 
 	void HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue);
 
-	void AddValueToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
+	void AddValueToASAttributeData(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);
 
-	void MultiplyASAttributeDataByValue(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value);
+	void MultiplyASAttributeDataByValue(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);
 
 	void CalculateASAttributeTotalValues();
 
@@ -99,6 +100,8 @@ protected:
 	void RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove);
 
 	void EndASEffect(FASEffectData& EffectToEnd);
+
+	bool ASAbilityHandleResource(EASResourceType Type, float Cost);
 
 ////////////////////////////////////////////////
 // Getters and Setters

@@ -19,76 +19,76 @@ struct FPlayerASAbilitiesData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityOne;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityTwo;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityThree;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityFour;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityFive;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilitySix;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilitySeven;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityEight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilitySprint; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilitySprintEnd;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityAimEnd;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSASAbilityBase> AbilityDash;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityOneInstance;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityTwoInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityThreeInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityFourInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityFiveInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilitySixInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilitySevenInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityEightInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilitySprintInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilitySprintEndInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityAimEndInstance;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSASAbilityBase* AbilityDashInstance;
 }; 
 
@@ -208,6 +208,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	USoSASComponent* GetPlayerASComponent() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	FPlayerASAbilitiesData& GetASAbilityBar() ;
 
 	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 };

@@ -132,11 +132,11 @@ void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalV
 
 		if (Effect.bTemporaryModifier)
 		{
-			AddValueToASAttributeData(&ASAttributeTempAdditiveValues, Effect.AttributeToEffect, NewValue);
+			AddValueToASAttributeData(ASAttributeTempAdditiveValues, Effect.AttributeToEffect, NewValue);
 		}
 		else
 		{
-			AddValueToASAttributeData(&ASAttributeBaseValues, Effect.AttributeToEffect, NewValue);
+			AddValueToASAttributeData(ASAttributeBaseValues, Effect.AttributeToEffect, NewValue);
 		}
 
 		break;
@@ -146,11 +146,11 @@ void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalV
 		
 		if (Effect.bTemporaryModifier)
 		{
-			AddValueToASAttributeData(&ASAttributeTempMultiplierValues, Effect.AttributeToEffect, NewValue);
+			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Effect.AttributeToEffect, NewValue);
 		}
 		else
 		{
-			MultiplyASAttributeDataByValue(&ASAttributeBaseValues, Effect.AttributeToEffect, 1 + NewValue);
+			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Effect.AttributeToEffect, 1 + NewValue);
 		}
 		break;
 	case EASEffectValueType::Subtractive:
@@ -159,11 +159,11 @@ void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalV
 
 		if (Effect.bTemporaryModifier)
 		{
-			AddValueToASAttributeData(&ASAttributeTempMultiplierValues, Effect.AttributeToEffect, -NewValue);
+			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Effect.AttributeToEffect, -NewValue);
 		}
 		else
 		{
-			MultiplyASAttributeDataByValue(&ASAttributeBaseValues, Effect.AttributeToEffect, 1 - NewValue);
+			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Effect.AttributeToEffect, 1 - NewValue);
 		}
 		break;
 	default:
@@ -172,30 +172,30 @@ void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalV
 }
 
 
-void USoSASComponent::AddValueToASAttributeData(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value)
+void USoSASComponent::AddValueToASAttributeData(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value)
 {
 	switch (Attribute)
 	{
 	case EASAttributeName::HealthMax:
-		AttributeData->HealthMaxValue += Value;
+		AttributeData.HealthMaxValue += Value;
 		break;
 	case EASAttributeName::HealthCurrent:
-		AttributeData->HealthCurrentValue += Value;
+		AttributeData.HealthCurrentValue += Value;
 		break;
 	case EASAttributeName::ArmourMax:
-		AttributeData->ArmourMaxValue += Value;
+		AttributeData.ArmourMaxValue += Value;
 		break;
 	case EASAttributeName::ArmourCurrent:
-		AttributeData->ArmourCurrentValue += Value;
+		AttributeData.ArmourCurrentValue += Value;
 		break;
 	case EASAttributeName::EnergyMax:
-		AttributeData->EnergyMaxValue += Value;
+		AttributeData.EnergyMaxValue += Value;
 		break;
 	case EASAttributeName::EnergyCurrent:
-		AttributeData->EnergyCurrentValue += Value;
+		AttributeData.EnergyCurrentValue += Value;
 		break;
 	case EASAttributeName::Speed:
-		AttributeData->SpeedValue += Value;
+		AttributeData.SpeedValue += Value;
 		break;
 	default:
 		break;
@@ -203,30 +203,30 @@ void USoSASComponent::AddValueToASAttributeData(FASAttributeData* AttributeData,
 }
 
 
-void USoSASComponent::MultiplyASAttributeDataByValue(FASAttributeData* AttributeData, EASAttributeName Attribute, float Value)
+void USoSASComponent::MultiplyASAttributeDataByValue(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value)
 {
 	switch (Attribute)
 	{
 	case EASAttributeName::HealthMax:
-		AttributeData->HealthMaxValue *= Value;
+		AttributeData.HealthMaxValue *= Value;
 		break;
 	case EASAttributeName::HealthCurrent:
-		AttributeData->HealthCurrentValue *= Value;
+		AttributeData.HealthCurrentValue *= Value;
 		break;
 	case EASAttributeName::ArmourMax:
-		AttributeData->ArmourMaxValue *= Value;
+		AttributeData.ArmourMaxValue *= Value;
 		break;
 	case EASAttributeName::ArmourCurrent:
-		AttributeData->ArmourCurrentValue *= Value;
+		AttributeData.ArmourCurrentValue *= Value;
 		break;
 	case EASAttributeName::EnergyMax:
-		AttributeData->EnergyMaxValue *= Value;
+		AttributeData.EnergyMaxValue *= Value;
 		break;
 	case EASAttributeName::EnergyCurrent:
-		AttributeData->EnergyCurrentValue *= Value;
+		AttributeData.EnergyCurrentValue *= Value;
 		break;
 	case EASAttributeName::Speed:
-		AttributeData->SpeedValue *= Value;
+		AttributeData.SpeedValue *= Value;
 		break;
 	default:
 		break;
@@ -329,10 +329,42 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 		return false;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
-	Ability->SetLastTimeActivated(World->GetTimeSeconds());
-	return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
+	if (ASAbilityHandleResource(Ability->GetResourceType(), Ability->GetCost()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+		Ability->SetLastTimeActivated(World->GetTimeSeconds());
+		return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
+	}
+
+	return false;
 }
+
+
+bool USoSASComponent::ASAbilityHandleResource(EASResourceType Type, float Cost)
+{
+	switch (Type)
+	{
+	case EASResourceType::Energy:
+		if (ASAttributeTotalValues.EnergyCurrentValue < Cost)
+		{
+			return false;
+		}
+		AddValueToASAttributeData(ASAttributeBaseValues, EASAttributeName::EnergyCurrent, -Cost);
+		break;
+	case EASResourceType::Health:
+		if (ASAttributeTotalValues.HealthCurrentValue+1 < Cost)
+		{
+			return false;
+		}
+		AddValueToASAttributeData(ASAttributeBaseValues, EASAttributeName::HealthCurrent, -Cost);
+		break;
+	default:
+		break;
+	}
+
+	return true;
+}
+
 
 ////////////////////////////////////////////////
 // Getters and Setters
