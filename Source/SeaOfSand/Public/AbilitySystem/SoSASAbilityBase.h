@@ -18,6 +18,10 @@ class SEAOFSAND_API USoSASAbilityBase : public UObject
 {
 	GENERATED_BODY()
 
+protected:
+
+	USoSASAbilityBase();
+
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
@@ -36,6 +40,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	EASResourceType ResourceType;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	UTexture2D* AbilityIcon;
+
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
@@ -46,6 +53,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	float GetCost() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UTexture2D* GetAbilityIcon() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	EASResourceType GetResourceType() const;
