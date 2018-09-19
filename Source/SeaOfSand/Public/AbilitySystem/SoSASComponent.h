@@ -101,6 +101,8 @@ protected:
 
 	void EndASEffect(FASEffectData& EffectToEnd);
 
+	bool ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck);
+
 	bool ASAbilityHandleResource(EASResourceType Type, float Cost);
 
 ////////////////////////////////////////////////

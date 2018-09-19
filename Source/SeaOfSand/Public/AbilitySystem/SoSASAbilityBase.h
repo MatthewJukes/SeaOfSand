@@ -31,11 +31,18 @@ private:
 
 	float LastTimeActivated;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	float LastChargeRemainder;
+
+	int32 CurrentCharges;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001"))
 	float Cooldown;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	float Cost;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "1"))
+	int32 MaxCharges;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	EASResourceType ResourceType;
@@ -49,10 +56,19 @@ public:
 	float GetLastTimeActivated() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
+	float GetLastChargeRemainder() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
 	float GetCooldown() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	float GetCost() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	int32 GetMaxCharges() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	int32 GetCurrentCharges() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	UTexture2D* GetAbilityIcon() const;
@@ -61,4 +77,8 @@ public:
 	EASResourceType GetResourceType() const;
 
 	void SetLastTimeActivated(float NewTime);
+
+	void SetLastChargeRemainder(float NewRemainder);
+
+	void SetCurrentCharges(int32 Charges);
 };

@@ -8,6 +8,8 @@ USoSASAbilityBase::USoSASAbilityBase()
 {
 	AbilityIcon = CreateDefaultSubobject<UTexture2D>(TEXT("Icon"));
 	LastTimeActivated = -99999;
+	Cooldown = 0.001f;
+	MaxCharges = 1;
 }
 
 float USoSASAbilityBase::GetLastTimeActivated() const
@@ -15,6 +17,11 @@ float USoSASAbilityBase::GetLastTimeActivated() const
 	return LastTimeActivated;
 }
 
+
+float USoSASAbilityBase::GetLastChargeRemainder() const
+{
+	return LastChargeRemainder;
+}
 
 float USoSASAbilityBase::GetCooldown() const
 {
@@ -28,10 +35,23 @@ float USoSASAbilityBase::GetCost() const
 }
 
 
+int32 USoSASAbilityBase::GetMaxCharges() const
+{
+	return MaxCharges;
+}
+
+
+int32 USoSASAbilityBase::GetCurrentCharges() const
+{
+	return CurrentCharges;
+}
+
+
 UTexture2D* USoSASAbilityBase::GetAbilityIcon() const
 {
 	return AbilityIcon;
 }
+
 
 EASResourceType USoSASAbilityBase::GetResourceType() const
 {
@@ -42,4 +62,16 @@ EASResourceType USoSASAbilityBase::GetResourceType() const
 void USoSASAbilityBase::SetLastTimeActivated(float NewTime)
 {
 	LastTimeActivated = NewTime;
+}
+
+
+void USoSASAbilityBase::SetLastChargeRemainder(float NewRemainder)
+{
+	LastChargeRemainder = NewRemainder;
+}
+
+
+void USoSASAbilityBase::SetCurrentCharges(int32 Charges)
+{
+	CurrentCharges = FMath::Clamp(Charges, 0, MaxCharges);
 }

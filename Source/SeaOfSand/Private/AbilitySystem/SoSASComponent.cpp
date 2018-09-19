@@ -322,8 +322,7 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 		return false;
 	}
 
-	UWorld* World = GetWorld();
-	if (World->GetTimeSeconds() - Ability->GetLastTimeActivated() < Ability->GetCooldown())
+	if (!ASAbilityCheckCooldownAndCharges(Ability))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability %s on cooldown"), *Ability->GetName());
 		return false;
@@ -331,12 +330,31 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 
 	if (ASAbilityHandleResource(Ability->GetResourceType(), Ability->GetCost()))
 	{
+		UWorld* World = GetWorld();
 		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 		Ability->SetLastTimeActivated(World->GetTimeSeconds());
 		return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
 	}
 
 	return false;
+}
+
+
+bool USoSASComponent::ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck)
+{
+	float NewCharges = ((GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated()) / AbilityToCheck->GetCooldown()) + AbilityToCheck->GetLastChargeRemainder();
+	NewCharges = FMath::Clamp(NewCharges, 0.0f, float(AbilityToCheck->GetMaxCharges() - AbilityToCheck->GetCurrentCharges()));
+
+	AbilityToCheck->SetCurrentCharges(AbilityToCheck->GetCurrentCharges() + FMath::TruncToInt(NewCharges));
+
+	if (AbilityToCheck->GetCurrentCharges() == 0)
+	{
+		return false;
+	}
+
+	AbilityToCheck->SetLastChargeRemainder(NewCharges - FMath::TruncToInt(NewCharges));
+	AbilityToCheck->SetCurrentCharges(AbilityToCheck->GetCurrentCharges() - 1);
+	return true;
 }
 
 
