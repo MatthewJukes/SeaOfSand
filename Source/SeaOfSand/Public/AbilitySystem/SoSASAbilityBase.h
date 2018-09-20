@@ -35,13 +35,19 @@ private:
 
 	int32 CurrentCharges;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001"))
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001"))
 	float Cooldown;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	float Cost;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "1"))
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	bool bHasCharges;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001", EditCondition = "bHasCharges"))
+	float ChargeTime;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "1", UIMin = "1", EditCondition = "bHasCharges"))
 	int32 MaxCharges;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
@@ -63,6 +69,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	float GetCost() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	bool GetbHasCharges() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	float GetChargeTime() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	int32 GetMaxCharges() const;

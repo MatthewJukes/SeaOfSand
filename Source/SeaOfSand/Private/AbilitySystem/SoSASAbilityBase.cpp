@@ -9,6 +9,7 @@ USoSASAbilityBase::USoSASAbilityBase()
 	AbilityIcon = CreateDefaultSubobject<UTexture2D>(TEXT("Icon"));
 	LastTimeActivated = -99999;
 	Cooldown = 0.001f;
+	ChargeTime = 0.001f;
 	MaxCharges = 1;
 }
 
@@ -32,6 +33,18 @@ float USoSASAbilityBase::GetCooldown() const
 float USoSASAbilityBase::GetCost() const
 {
 	return Cost;
+}
+
+
+bool USoSASAbilityBase::GetbHasCharges() const
+{
+	return bHasCharges;
+}
+
+
+float USoSASAbilityBase::GetChargeTime() const
+{
+	return ChargeTime;
 }
 
 

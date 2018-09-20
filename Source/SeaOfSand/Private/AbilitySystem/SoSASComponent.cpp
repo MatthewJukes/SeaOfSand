@@ -342,7 +342,17 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 
 bool USoSASComponent::ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck)
 {
-	float NewCharges = ((GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated()) / AbilityToCheck->GetCooldown()) + AbilityToCheck->GetLastChargeRemainder();
+	if (GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated() < AbilityToCheck->GetCooldown())
+	{
+		return false;
+	}
+
+	if (!AbilityToCheck->GetbHasCharges())
+	{
+		return true;
+	}
+
+	float NewCharges = ((GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated()) / AbilityToCheck->GetChargeTime()) + AbilityToCheck->GetLastChargeRemainder();
 	NewCharges = FMath::Clamp(NewCharges, 0.0f, float(AbilityToCheck->GetMaxCharges() - AbilityToCheck->GetCurrentCharges()));
 
 	AbilityToCheck->SetCurrentCharges(AbilityToCheck->GetCurrentCharges() + FMath::TruncToInt(NewCharges));
