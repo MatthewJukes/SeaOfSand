@@ -273,11 +273,15 @@ void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 	{
 		CurrentASEffectTags.Add(Tag);
 	}
+
+	OnEffectUpdate.Broadcast(this, EffectToAdd, EASEffectUpdateEventType::Added);
 }
 
 
 void USoSASComponent::RemoveASEffectFromArrayByIndex(int32 Index)
 {
+	OnEffectUpdate.Broadcast(this, CurrentASEffects[Index], EASEffectUpdateEventType::Removed);
+
 	UE_LOG(LogTemp, Warning, TEXT("Effect Removed: %s"), *CurrentASEffects[Index].EffectName.ToString())
 	CurrentASEffects.RemoveAt(Index);
 }

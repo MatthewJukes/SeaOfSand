@@ -23,6 +23,16 @@ enum class EASOwnerState : uint8
 	Dead
 };
 
+UENUM(BlueprintType)
+enum class EASEffectUpdateEventType : uint8
+{
+	Added,
+	Removed,
+	Reapplied
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEffectUpdate, USoSASComponent*, ASComp, const FASEffectData&, Effect, EASEffectUpdateEventType, EventType);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
 {
@@ -43,6 +53,9 @@ public:
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
 	bool UseAbility(USoSASAbilityBase* Ability);
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnEffectUpdate OnEffectUpdate;
 
 protected:
 

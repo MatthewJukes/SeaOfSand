@@ -41,6 +41,12 @@ struct FASEffectData : public FTableRowBase
 	FName EffectDisplayName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	UTexture2D* EffectIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	bool bHideFromUI;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	EASAttributeName AttributeToEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
@@ -91,14 +97,17 @@ struct FASEffectData : public FTableRowBase
 
 	// Effect status trackers
 
+	UPROPERTY(BlueprintReadOnly, Category = "Effect")
 	float EffectDuration; 
 
+	UPROPERTY(BlueprintReadOnly, Category = "Effect")
 	float EffectStartTime;
 
 	float LastTickTime;
 
 	float TotalValue;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Effect")
 	int32 CurrentStacks;
 
 	int32 NewStacks;
