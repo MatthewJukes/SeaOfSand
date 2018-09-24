@@ -1,27 +1,36 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSMeleeWeapon.h"
+#include "SoSPlayerController.h"
+#include "SoSPlayerCharacter.h"
+#include "SoSInventoryComponent.h"
 
 
-// Sets default values
 ASoSMeleeWeapon::ASoSMeleeWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts or when spawned
+
 void ASoSMeleeWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
-void ASoSMeleeWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
+void ASoSMeleeWeapon::StartAttack()
+{
+	if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimaryInstance))
+	{
+		SetWeaponState(EWeaponState::Attacking);
+	}
+}
+
+
+void ASoSMeleeWeapon::EndAttack()
+{
+	Super::EndAttack();
 }
 

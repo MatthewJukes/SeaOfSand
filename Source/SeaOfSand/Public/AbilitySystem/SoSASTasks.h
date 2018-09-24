@@ -42,6 +42,9 @@ public:
 	static EASTeam GetASTeam(const AActor* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool ASPlayAnimation(USkeletalMeshComponent* Mesh, UAnimationAsset* Animation, bool bIsLooping);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool ASApplyRootMotionConstantForce(ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")

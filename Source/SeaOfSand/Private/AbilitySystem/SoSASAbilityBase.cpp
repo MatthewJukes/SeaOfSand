@@ -1,12 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSASAbilityBase.h"
+#include "Engine/Classes/Animation/AnimationAsset.h"
 #include "Engine/World.h"
 
 
 USoSASAbilityBase::USoSASAbilityBase()
 {
 	AbilityIcon = CreateDefaultSubobject<UTexture2D>(TEXT("Icon"));
+	Anim = CreateDefaultSubobject<UAnimationAsset>(TEXT("Anim"));
 	LastTimeActivated = -99999;
 	Cooldown = 0.001f;
 	ChargeTime = 0.001f;

@@ -30,8 +30,6 @@ public:
 
 	void StartAttack() override;
 
-	void EndAttack() override;
-
 	void StartReload();
 
 	void InterruptReload();
@@ -43,17 +41,6 @@ protected:
 	int32 CurrentAmmoInClip;
 
 	bool bCanReload;
-
-	float TimeBetweenShots;
-
-	float LastFireTime;
-
-	/* RPM - Bullet per minute fire by weapon */
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
-	float FireRate;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Firing")
-	bool bIsAutomatic;	
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Ammo")
 	int32 MaxAmmo;
@@ -80,9 +67,7 @@ protected:
 
 	void PlayMuzzleEffect();	
 
-	/* Timer handles */
 	FTimerHandle TimerHandle_ReloadTime;
-	FTimerHandle TimerHandle_TimerBetweenShots;
 
 public:
 

@@ -5,9 +5,11 @@
 #include "SoSASComponent.h"
 #include "SoSASAbilityBase.h"
 #include "SoSASProjectileBase.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
+#include "Engine/Classes/Animation/AnimationAsset.h"
 #include "Engine/Classes/Curves/CurveFloat.h"
 #include "Engine/World.h"
 
@@ -192,6 +194,17 @@ EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 	return TargetASComp->GetASTeam();
 }
 
+
+bool USoSASTasks::ASPlayAnimation(USkeletalMeshComponent* Mesh, UAnimationAsset* Animation, bool bIsLooping)
+{
+	if (Mesh == nullptr || Animation == nullptr)
+	{
+		return false;
+	}
+
+	Mesh->PlayAnimation(Animation, bIsLooping);
+	return true;
+}
 
 bool USoSASTasks::ASApplyRootMotionConstantForce(ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish)
 {

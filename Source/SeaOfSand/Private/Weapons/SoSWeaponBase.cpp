@@ -44,7 +44,10 @@ void ASoSWeaponBase::StartAttack()
 
 void ASoSWeaponBase::EndAttack()
 {
-
+	if (GetWeaponState() == EWeaponState::Attacking)
+	{
+		SetWeaponState(EWeaponState::Idle);
+	}
 }
 
 ///////////////////////////////////////////////////

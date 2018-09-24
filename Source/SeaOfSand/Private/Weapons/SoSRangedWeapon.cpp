@@ -7,13 +7,8 @@
 #include "SoSInventoryComponent.h"
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystem.h"
-#include "Particles/ParticleSystemComponent.h"
-#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
-#include "Math/UnrealMath.h"
 #include "Public/TimerManager.h"
-#include "DrawDebugHelpers.h"
 
 
 // Sets default values
@@ -32,42 +27,29 @@ void ASoSRangedWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TimeBetweenShots = 60.f / FireRate;
-
 	CurrentAmmo = FMath::Min(StartAmmo, MaxAmmo);
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, StartAmmo);
 }
 
 void ASoSRangedWeapon::StartAttack()
 {
-	float FirstDelay = FMath::Max(LastFireTime + TimeBetweenShots - GetWorld()->GetTimeSeconds(), 0.0f);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_TimerBetweenShots, this, &ASoSRangedWeapon::HandleFiring, TimeBetweenShots, bIsAutomatic, FirstDelay);
-}
-
-void ASoSRangedWeapon::EndAttack()
-{
-	GetWorldTimerManager().ClearTimer(TimerHandle_TimerBetweenShots);
-	if (GetWeaponState() == EWeaponState::Attacking)
-	{
-		SetWeaponState(EWeaponState::Idle);
-	}
+	HandleFiring();
 }
 
 void ASoSRangedWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire())
 	{
-		SetWeaponState(EWeaponState::Attacking);
-		UseAmmo();
+		if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimaryInstance))
+		{
+			SetWeaponState(EWeaponState::Attacking);
 
-		PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimaryInstance);
+			UseAmmo();		
 
-		LastFireTime = GetWorld()->GetTimeSeconds();
+			PlayMuzzleEffect();
 
-		PlayMuzzleEffect();
-
-		ShotAudioComponent->Play();
+			ShotAudioComponent->Play();
+		}
 	}
 	else if (CurrentAmmoInClip == 0 && bCanReload && CurrentAmmo > 0)
 	{
@@ -101,10 +83,9 @@ void ASoSRangedWeapon::StartReload()
 {
 	if (PlayerCharacter)
 	{
-		if (GetWeaponState() != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip
-			&& WeaponState != EWeaponState::Holstered)
+		if (WeaponState != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && WeaponState != EWeaponState::Holstered)
 		{
-			SetWeaponState(EWeaponState::Reloading);
+			WeaponState = EWeaponState::Reloading;
 			GetWorldTimerManager().SetTimer(TimerHandle_ReloadTime, this, &ASoSRangedWeapon::ReloadWeapon, ReloadDuration, false);
 		}
 	}
@@ -112,10 +93,10 @@ void ASoSRangedWeapon::StartReload()
 
 void ASoSRangedWeapon::InterruptReload()
 {
-	if (GetWeaponState() == EWeaponState::Reloading)
+	if (WeaponState == EWeaponState::Reloading)
 	{
 		GetWorldTimerManager().ClearTimer(TimerHandle_ReloadTime);
-		SetWeaponState(EWeaponState::Idle);
+		WeaponState =EWeaponState::Idle;
 	}
 }
 
@@ -123,7 +104,7 @@ void ASoSRangedWeapon::ReloadWeapon()
 {
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, CurrentAmmo);
 	GetWorldTimerManager().ClearTimer(TimerHandle_ReloadTime);
-	SetWeaponState(EWeaponState::Idle);
+	WeaponState = EWeaponState::Idle;
 }
 
 void ASoSRangedWeapon::PlayMuzzleEffect()
