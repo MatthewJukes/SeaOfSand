@@ -332,7 +332,7 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index)
 
 bool ASoSPlayerCharacter::UseAbility(USoSASAbilityBase* Ability)
 {
-	return ASComp->UseAbility(Ability);
+	return ASComp->UseASAbility(Ability);
 }
 
 

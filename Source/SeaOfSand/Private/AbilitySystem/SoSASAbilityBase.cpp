@@ -8,7 +8,6 @@
 USoSASAbilityBase::USoSASAbilityBase()
 {
 	AbilityIcon = CreateDefaultSubobject<UTexture2D>(TEXT("Icon"));
-	Anim = CreateDefaultSubobject<UAnimationAsset>(TEXT("Anim"));
 	LastTimeActivated = -99999;
 	Cooldown = 0.001f;
 	ChargeTime = 0.001f;

@@ -56,9 +56,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	UTexture2D* AbilityIcon;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
-	UAnimationAsset* Anim;
-
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")

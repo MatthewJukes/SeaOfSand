@@ -318,7 +318,7 @@ void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 }
 
 
-bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
+bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 {
 	if (Ability == nullptr)
 	{
@@ -341,6 +341,18 @@ bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 	}
 
 	return false;
+}
+
+
+void USoSASComponent::ASActionComplete()
+{
+
+}
+
+
+void USoSASComponent::ASReadyNextAction()
+{
+
 }
 
 

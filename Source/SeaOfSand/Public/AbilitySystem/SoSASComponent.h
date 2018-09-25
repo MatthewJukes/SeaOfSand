@@ -52,7 +52,11 @@ public:
 
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
-	bool UseAbility(USoSASAbilityBase* Ability);
+	bool UseASAbility(USoSASAbilityBase* Ability);
+
+	void ASActionComplete();
+
+	void ASReadyNextAction();
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEffectUpdate OnEffectUpdate;
@@ -72,6 +76,8 @@ protected:
 	FASAttributeData ASAttributeTempMultiplierValues;
 
 	EASOwnerState OwnerState;
+
+	USoSASAbilityBase* LastAbilityUsed;
 
 	ASoSGameModeBase* SoSGameMode;
 
