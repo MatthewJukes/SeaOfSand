@@ -37,7 +37,7 @@ float USoSASAbilityBase::GetCost() const
 }
 
 
-bool USoSASAbilityBase::GetbHasCharges() const
+bool USoSASAbilityBase::GetHasCharges() const
 {
 	return bHasCharges;
 }
@@ -48,6 +48,11 @@ float USoSASAbilityBase::GetChargeTime() const
 	return ChargeTime;
 }
 
+
+bool USoSASAbilityBase::GetComboReady() const
+{
+	return bComboReady;
+}
 
 int32 USoSASAbilityBase::GetMaxCharges() const
 {
@@ -88,4 +93,10 @@ void USoSASAbilityBase::SetLastChargeRemainder(float NewRemainder)
 void USoSASAbilityBase::SetCurrentCharges(int32 Charges)
 {
 	CurrentCharges = FMath::Clamp(Charges, 0, MaxCharges);
+}
+
+
+void USoSASAbilityBase::SetComboReady(bool bNewComboReady)
+{
+	bComboReady = bNewComboReady;
 }

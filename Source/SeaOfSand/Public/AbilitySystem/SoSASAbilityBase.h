@@ -24,8 +24,14 @@ protected:
 
 public:
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
+	UFUNCTION(BlueprintImplementableEvent, Category = "ASAbility")
 	bool StartAbility(AActor* CurrentTarget, AActor* Instigator, USkeletalMeshComponent* WeaponMesh, FName SocketName, float TimeSeconds, UWorld* World);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ASAbility")
+	void ASReadyComboAction();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "ASAbility")
+	void ASActionComplete();
 
 private:
 
@@ -35,57 +41,62 @@ private:
 
 	int32 CurrentCharges;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001"))
+	bool bComboReady;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility", meta = (ClampMin = "0.001", UIMin = "0.001"))
 	float Cooldown;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility")
 	float Cost;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility")
 	bool bHasCharges;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001", EditCondition = "bHasCharges"))
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility", meta = (ClampMin = "0.001", UIMin = "0.001", EditCondition = "bHasCharges"))
 	float ChargeTime;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "1", UIMin = "1", EditCondition = "bHasCharges"))
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility", meta = (ClampMin = "1", UIMin = "1", EditCondition = "bHasCharges"))
 	int32 MaxCharges;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility")
 	EASResourceType ResourceType;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, Category = "ASAbility")
 	UTexture2D* AbilityIcon;
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	float GetLastTimeActivated() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	float GetLastChargeRemainder() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	float GetCooldown() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	float GetCost() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
-	bool GetbHasCharges() const;
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
+	bool GetHasCharges() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	float GetChargeTime() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
+	bool GetComboReady() const;  
+
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	int32 GetMaxCharges() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	int32 GetCurrentCharges() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	UTexture2D* GetAbilityIcon() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	EASResourceType GetResourceType() const;
 
 	void SetLastTimeActivated(float NewTime);
@@ -93,4 +104,6 @@ public:
 	void SetLastChargeRemainder(float NewRemainder);
 
 	void SetCurrentCharges(int32 Charges);
+
+	void SetComboReady(bool bNewComboReady);
 };

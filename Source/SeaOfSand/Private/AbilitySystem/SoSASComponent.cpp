@@ -3,6 +3,7 @@
 #include "SoSASComponent.h"
 #include "SoSGameModeBase.h"
 #include "SoSASAbilityBase.h"
+#include "SoSPlayerCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
@@ -326,6 +327,11 @@ bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 		return false;
 	}
 
+	if (OwnerState == EASOwnerState::PerformingAction && !Ability->GetComboReady())
+	{
+		return false;
+	}
+
 	if (!ASAbilityCheckCooldownAndCharges(Ability))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability %s on cooldown"), *Ability->GetName());
@@ -334,8 +340,10 @@ bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 
 	if (ASAbilityHandleResource(Ability->GetResourceType(), Ability->GetCost()))
 	{
-		UWorld* World = GetWorld();
 		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
+
+		LastAbilityUsed = Ability;
+		UWorld* World = GetWorld();
 		Ability->SetLastTimeActivated(World->GetTimeSeconds());
 		return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
 	}
@@ -344,15 +352,31 @@ bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 }
 
 
-void USoSASComponent::ASActionComplete()
+void USoSASComponent::ASActionStart()
 {
+	ASoSPlayerCharacter* Player = Cast<ASoSPlayerCharacter>(ComponentOwner); // TODO create a SoSCharacterBase class
+	Player->SprintEnd();
+	Player->AimEnd();
 
+	LastAbilityUsed->SetComboReady(false);
+
+	OwnerState = EASOwnerState::PerformingAction;
 }
 
 
-void USoSASComponent::ASReadyNextAction()
+void USoSASComponent::ASReadyComboAction()
 {
+	LastAbilityUsed->SetComboReady(true);
+	LastAbilityUsed->ASReadyComboAction();
+}
 
+
+void USoSASComponent::ASActionComplete()
+{
+	LastAbilityUsed->SetComboReady(false);
+	LastAbilityUsed->ASActionComplete();
+
+	OwnerState = EASOwnerState::Normal;
 }
 
 
@@ -363,7 +387,7 @@ bool USoSASComponent::ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* Abilit
 		return false;
 	}
 
-	if (!AbilityToCheck->GetbHasCharges())
+	if (!AbilityToCheck->GetHasCharges())
 	{
 		return true;
 	}

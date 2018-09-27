@@ -19,7 +19,7 @@ enum class EASOwnerState : uint8
 	Normal,
 	Sprinting,
 	Aiming,
-	Attacking,
+	PerformingAction,
 	Dead
 };
 
@@ -54,9 +54,14 @@ public:
 
 	bool UseASAbility(USoSASAbilityBase* Ability);
 
-	void ASActionComplete();
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
+	void ASActionStart();
 
-	void ASReadyNextAction();
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
+	void ASReadyComboAction();
+
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
+	void ASActionComplete();
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEffectUpdate OnEffectUpdate;
