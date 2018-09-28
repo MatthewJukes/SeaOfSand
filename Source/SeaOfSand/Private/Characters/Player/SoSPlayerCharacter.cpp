@@ -103,18 +103,18 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
-	AbilityBar.AbilityOneInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityOne);
-	AbilityBar.AbilityTwoInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityTwo);
-	AbilityBar.AbilityThreeInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityThree);
-	AbilityBar.AbilityFourInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFour);
-	AbilityBar.AbilityFiveInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFive);
-	AbilityBar.AbilitySixInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySix);
-	AbilityBar.AbilitySevenInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySeven);
-	AbilityBar.AbilityEightInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityEight);
-	AbilityBar.AbilitySprintInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprint);
-	AbilityBar.AbilitySprintEndInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintEnd);
-	AbilityBar.AbilityAimEndInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityAimEnd);
-	AbilityBar.AbilityDashInstance = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityDash);
+	AbilityBar.AbilityOne = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityOneClass);
+	AbilityBar.AbilityTwo = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityTwoClass);
+	AbilityBar.AbilityThree = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityThreeClass);
+	AbilityBar.AbilityFour = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFourClass);
+	AbilityBar.AbilityFive = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFiveClass);
+	AbilityBar.AbilitySix = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySixClass);
+	AbilityBar.AbilitySeven = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySevenClass);
+	AbilityBar.AbilityEight = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityEightClass);
+	AbilityBar.AbilitySprint = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintClass);
+	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintEndClass);
+	AbilityBar.AbilityAimEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityAimEndClass);
+	AbilityBar.AbilityDash = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityDashClass);
 }
 
 
@@ -179,7 +179,7 @@ void ASoSPlayerCharacter::SprintStart()
 		return;
 	}
 
-	if (UseAbility(AbilityBar.AbilitySprintInstance))
+	if (UseAbility(AbilityBar.AbilitySprint))
 	{
 		AimEnd();
 		SprintZoom(true);
@@ -203,7 +203,7 @@ void ASoSPlayerCharacter::SprintEnd()
 		return;
 	}
 
-	if (UseAbility(AbilityBar.AbilitySprintEndInstance))
+	if (UseAbility(AbilityBar.AbilitySprintEnd))
 	{
 		SprintZoom(false);
 		ASComp->SetASOwnerState(EASOwnerState::Normal);
@@ -237,9 +237,9 @@ void ASoSPlayerCharacter::AimStart()
 
 	if (UseAbility(InventoryComp->GetCurrentWeapon()->GetWeaponAbilities().AbilityWeaponAltInstance))
 	{
-	SprintEnd();
-	AimZoom(true);
-	ASComp->SetASOwnerState(EASOwnerState::Aiming);
+		SprintEnd();
+		AimZoom(true);
+		ASComp->SetASOwnerState(EASOwnerState::Aiming);
 	}	
 }
 
@@ -251,7 +251,7 @@ void ASoSPlayerCharacter::AimEnd()
 		return;
 	}
 	
-	if (UseAbility(AbilityBar.AbilityAimEndInstance))
+	if (UseAbility(AbilityBar.AbilityAimEnd))
 	{
 		AimZoom(false);
 		ASComp->SetASOwnerState(EASOwnerState::Normal);
@@ -292,7 +292,7 @@ void ASoSPlayerCharacter::StartDash()
 	}
 
 	bCanAirDash = false;
-	UseAbility(AbilityBar.AbilityDashInstance);
+	UseAbility(AbilityBar.AbilityDash);
 }
 
 
@@ -301,28 +301,28 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index)
 	switch (index)
 	{
 	case 1:
-		UseAbility(AbilityBar.AbilityOneInstance);
+		UseAbility(AbilityBar.AbilityOne);
 		break;
 	case 2:
-		UseAbility(AbilityBar.AbilityTwoInstance);
+		UseAbility(AbilityBar.AbilityTwo);
 		break;
 	case 3:
-		UseAbility(AbilityBar.AbilityThreeInstance);
+		UseAbility(AbilityBar.AbilityThree);
 		break;
 	case 4:
-		UseAbility(AbilityBar.AbilityFourInstance);
+		UseAbility(AbilityBar.AbilityFour);
 		break;
 	case 5:
-		UseAbility(AbilityBar.AbilityFiveInstance);
+		UseAbility(AbilityBar.AbilityFive);
 		break;
 	case 6:
-		UseAbility(AbilityBar.AbilitySixInstance);
+		UseAbility(AbilityBar.AbilitySix);
 		break;
 	case 7:
-		UseAbility(AbilityBar.AbilitySevenInstance);
+		UseAbility(AbilityBar.AbilitySeven);
 		break;
 	case 8:
-		UseAbility(AbilityBar.AbilityEightInstance);
+		UseAbility(AbilityBar.AbilityEight);
 		break;
 	default:
 		break;

@@ -53,7 +53,7 @@ private:
 	TSubclassOf<ASoSRangedWeapon> RangedWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
-	TSubclassOf<ASoSMeleeWeapon> MeleeWeapon;
+	TSubclassOf<ASoSWeaponBase> MeleeWeapon;
 
 	void SpawnWeapon(TSubclassOf<ASoSWeaponBase> WeaponToSpawn);
 

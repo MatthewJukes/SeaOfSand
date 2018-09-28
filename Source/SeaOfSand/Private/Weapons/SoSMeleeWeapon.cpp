@@ -10,6 +10,7 @@ ASoSMeleeWeapon::ASoSMeleeWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	WeaponType = EWeaponType::Melee;
 }
 
 

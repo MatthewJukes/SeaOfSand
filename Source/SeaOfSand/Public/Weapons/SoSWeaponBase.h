@@ -85,7 +85,6 @@ protected:
 
 	EWeaponState WeaponState;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Type")
 	EWeaponType WeaponType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon | Abilities")

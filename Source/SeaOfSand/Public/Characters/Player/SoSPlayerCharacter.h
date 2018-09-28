@@ -20,76 +20,76 @@ struct FPlayerASAbilitiesData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityOne;
+	TSubclassOf<USoSASAbilityBase> AbilityOneClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityTwo;
+	TSubclassOf<USoSASAbilityBase> AbilityTwoClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityThree;
+	TSubclassOf<USoSASAbilityBase> AbilityThreeClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityFour;
+	TSubclassOf<USoSASAbilityBase> AbilityFourClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityFive;
+	TSubclassOf<USoSASAbilityBase> AbilityFiveClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySix;
+	TSubclassOf<USoSASAbilityBase> AbilitySixClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySeven;
+	TSubclassOf<USoSASAbilityBase> AbilitySevenClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityEight;
+	TSubclassOf<USoSASAbilityBase> AbilityEightClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySprint; 
+	TSubclassOf<USoSASAbilityBase> AbilitySprintClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySprintEnd;
+	TSubclassOf<USoSASAbilityBase> AbilitySprintEndClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityAimEnd;
+	TSubclassOf<USoSASAbilityBase> AbilityAimEndClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityDash;
+	TSubclassOf<USoSASAbilityBase> AbilityDashClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityOneInstance;
+	USoSASAbilityBase* AbilityOne;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityTwoInstance;
+	USoSASAbilityBase* AbilityTwo;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityThreeInstance;
+	USoSASAbilityBase* AbilityThree;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityFourInstance;
+	USoSASAbilityBase* AbilityFour;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityFiveInstance;
+	USoSASAbilityBase* AbilityFive;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySixInstance;
+	USoSASAbilityBase* AbilitySix;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySevenInstance;
+	USoSASAbilityBase* AbilitySeven;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityEightInstance;
+	USoSASAbilityBase* AbilityEight;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySprintInstance;
+	USoSASAbilityBase* AbilitySprint;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySprintEndInstance;
+	USoSASAbilityBase* AbilitySprintEnd;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityAimEndInstance;
+	USoSASAbilityBase* AbilityAimEnd;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityDashInstance;
+	USoSASAbilityBase* AbilityDash;
 }; 
 
 DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);

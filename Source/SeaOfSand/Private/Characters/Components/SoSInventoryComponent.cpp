@@ -30,6 +30,7 @@ void USoSInventoryComponent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Got Player"));
 		SpawnWeapon(RangedWeapon);
+		SpawnWeapon(MeleeWeapon);
 
 		CurrentWeapon = EquippedWeapons[0];
 		CurrentWeaponArrayID = 0;
@@ -88,6 +89,8 @@ void USoSInventoryComponent::HolsterUnholster()
 		{
 			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDrawInstance))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Unholster"));
+
 				AttachWeaponToSocket(CurrentWeapon, true);
 				CurrentWeapon->SetWeaponState(EWeaponState::Idle);
 				PlayerCharacter->OffsetCamera(true);
@@ -103,6 +106,8 @@ void USoSInventoryComponent::HolsterUnholster()
 		{
 			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolsterInstance))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Holster"));
+
 				PlayerCharacter->AimEnd();
 				AttachWeaponToSocket(CurrentWeapon);
 				CurrentWeapon->SetWeaponState(EWeaponState::Holstered);
@@ -124,8 +129,18 @@ void USoSInventoryComponent::HolsterUnholster()
 
 void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 {
+	if (PlayerCharacter == nullptr)
+	{
+		return;
+	}
+
+	if (PlayerCharacter->GetPlayerASComponent()->GetASOwnerState() == EASOwnerState::PerformingAction)
+	{
+		return;
+	}
+
 	bool bWeaponWasDrawn = CurrentWeapon->GetWeaponState() != EWeaponState::Holstered;
-	if (CurrentWeapon->GetWeaponState() == EWeaponState::Holstered) { HolsterUnholster(); }
+	if (CurrentWeapon->GetWeaponState() != EWeaponState::Holstered) { HolsterUnholster(); }
 	
 	int32 ArrayLenth = EquippedWeapons.Num();
 
