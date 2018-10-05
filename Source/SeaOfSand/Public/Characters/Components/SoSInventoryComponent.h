@@ -26,7 +26,7 @@ protected:
 
 public:
 
-	void HolsterUnholster();
+	void HolsterUnholster(bool bQuickSwitch = false);
 
 	void CycleWeapons(bool bNextWeapon = true);
 

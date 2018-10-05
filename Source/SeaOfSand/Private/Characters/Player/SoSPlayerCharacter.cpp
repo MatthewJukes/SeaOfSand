@@ -185,7 +185,7 @@ void ASoSPlayerCharacter::SprintStart()
 		SprintZoom(true);
 		ASComp->SetASOwnerState(EASOwnerState::Sprinting);
 		
-		if (InventoryComp->GetCurrentWeapon())
+		if (InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
 			SetPlayerMovementType(true, false);
 		}
@@ -208,7 +208,7 @@ void ASoSPlayerCharacter::SprintEnd()
 		SprintZoom(false);
 		ASComp->SetASOwnerState(EASOwnerState::Normal);
 	
-		if (InventoryComp->GetCurrentWeapon()->GetWeaponState() != EWeaponState::Holstered)
+		if (InventoryComp->GetCurrentWeapon()->GetWeaponState() != EWeaponState::Holstered && InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
 			SetPlayerMovementType(false, true);
 		}

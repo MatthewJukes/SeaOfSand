@@ -18,7 +18,17 @@ USoSASComponent::USoSASComponent()
 	ArmourMaxStartValue = 0;
 	EnergyMaxStartValue = 100;
 	SpeedStartValue = 400;	
-	
+
+	CurrentASEffects.Reserve(10);
+}
+
+
+// Called when the game starts
+void USoSASComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("Health Start Value: %f"), HealthMaxStartValue);
 	ASAttributeBaseValues.HealthMaxValue = HealthMaxStartValue;
 	ASAttributeBaseValues.HealthCurrentValue = HealthMaxStartValue;
 	ASAttributeBaseValues.ArmourMaxValue = ArmourMaxStartValue;
@@ -34,15 +44,6 @@ USoSASComponent::USoSASComponent()
 	ASAttributeTempMultiplierValues.EnergyMaxValue = 1;
 	ASAttributeTempMultiplierValues.EnergyCurrentValue = 1;
 	ASAttributeTempMultiplierValues.SpeedValue = 1;
-
-	CurrentASEffects.Reserve(10);
-}
-
-
-// Called when the game starts
-void USoSASComponent::BeginPlay()
-{
-	Super::BeginPlay();
 
 	SoSGameMode = Cast<ASoSGameModeBase>(GetWorld()->GetAuthGameMode());
 	SoSGameMode->AddASComponentToArray(this);
@@ -67,7 +68,7 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 	RemoveASEffectFromArrayByIndexArray(EffectIndexToRemove);
 
 	CalculateASAttributeTotalValues();
-	//UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), ASAttributeTotalValues.HealthMaxValue);
+	//UE_LOG(LogTemp, Warning, TEXT("ASComp: %s, MaxHealth: %f"), *this->GetFName().ToString(), ASAttributeTotalValues.HealthMaxValue);
 	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
 	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
 	//UE_LOG(LogTemp, Warning, TEXT("Speed: %f"), ASAttributeTotalValues.SpeedValue);
@@ -263,6 +264,13 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 	{
 		CharacterMovement->MaxWalkSpeed = ASAttributeTotalValues.SpeedValue;
 	}
+}
+
+
+void USoSASComponent::AddValueToASAttributeBaseValues(EASAttributeName Attribute, float Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Effect Added: %f"), Value)
+	AddValueToASAttributeData(ASAttributeBaseValues, Attribute, Value);
 }
 
 

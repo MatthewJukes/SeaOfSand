@@ -20,6 +20,7 @@ void ASoSGameModeBase::Tick(float DeltaSeconds)
 
 void ASoSGameModeBase::AddASComponentToArray(USoSASComponent* ASComp)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ASComp Added"))
 	ASComponentsToCheck.Add(ASComp);
 }
 

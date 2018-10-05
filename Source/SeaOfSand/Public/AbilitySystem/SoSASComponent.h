@@ -52,6 +52,8 @@ public:
 
 	void AddASEffectToArray(FASEffectData& EffectToAdd);
 
+	void AddValueToASAttributeBaseValues(EASAttributeName Attribute, float Value);
+
 	bool UseASAbility(USoSASAbilityBase* Ability);
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")

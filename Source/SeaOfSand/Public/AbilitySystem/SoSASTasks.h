@@ -27,6 +27,9 @@ public:
 	static bool CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool ASDamageTarget(AActor* Target, float Value);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static FVector ASGetAimHitLocation(AActor* Actor);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")

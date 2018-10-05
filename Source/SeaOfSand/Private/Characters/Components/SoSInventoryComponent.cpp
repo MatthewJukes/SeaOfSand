@@ -81,50 +81,56 @@ void USoSInventoryComponent::AttachWeaponToSocket(ASoSWeaponBase* Weapon, bool b
 	}
 }
 
-void USoSInventoryComponent::HolsterUnholster()
+void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less spaghetti
 { 
-	if (CurrentWeapon)
+	if (CurrentWeapon == nullptr)
 	{
-		if (CurrentWeapon->GetWeaponState() == EWeaponState::Holstered) // Unholster weapon
+		return;
+	}
+
+	if (CurrentWeapon->GetWeaponState() == EWeaponState::Holstered) // draw weapon
+	{
+		if (!bQuickSwitch)
 		{
-			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDrawInstance))
+			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDrawInstance))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Unholster"));
-
-				AttachWeaponToSocket(CurrentWeapon, true);
-				CurrentWeapon->SetWeaponState(EWeaponState::Idle);
-				PlayerCharacter->OffsetCamera(true);
-
-				// Update character movement settings
-				PlayerCharacter->SetPlayerMovementType(false, true);
-
-				// Toggle crosshair
-				PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
-			}			
+				return;
+			}
 		}
-		else // holster weapon
+		
+		AttachWeaponToSocket(CurrentWeapon, true);
+		CurrentWeapon->SetWeaponState(EWeaponState::Idle);
+
+		if (CurrentWeapon->GetWeaponType() == EWeaponType::Ranged)
 		{
-			if (PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolsterInstance))
+			PlayerCharacter->OffsetCamera(true);
+			PlayerCharacter->SetPlayerMovementType(false, true);
+			PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
+		}
+	}
+	else // holster weapon
+	{
+		if (!bQuickSwitch)
+		{
+			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolsterInstance))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Holster"));
-
-				PlayerCharacter->AimEnd();
-				AttachWeaponToSocket(CurrentWeapon);
-				CurrentWeapon->SetWeaponState(EWeaponState::Holstered);
-				PlayerCharacter->OffsetCamera(false);
-
-				//CurrentWeapon->InterruptReload();
-
-				// Update character movement settings
-				PlayerCharacter->SetPlayerMovementType(true, false);
-
-				// Toggle crosshair
-				PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
+				return;
 			}
 		}
 
-		CurrentWeapon->GetWeaponState();
-	} 
+		PlayerCharacter->AimEnd();
+		AttachWeaponToSocket(CurrentWeapon);
+		CurrentWeapon->SetWeaponState(EWeaponState::Holstered);
+
+		if (CurrentWeapon->GetWeaponType() == EWeaponType::Ranged)
+		{
+			//CurrentWeapon->InterruptReload();
+			PlayerCharacter->OffsetCamera(false);
+			PlayerCharacter->SetPlayerMovementType(true, false);
+			PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
+		}
+	}
+	
 }
 
 void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
@@ -140,7 +146,7 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 	}
 
 	bool bWeaponWasDrawn = CurrentWeapon->GetWeaponState() != EWeaponState::Holstered;
-	if (CurrentWeapon->GetWeaponState() != EWeaponState::Holstered) { HolsterUnholster(); }
+	if (bWeaponWasDrawn) { HolsterUnholster(true); }
 	
 	int32 ArrayLenth = EquippedWeapons.Num();
 
@@ -158,7 +164,7 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 	PlayerCharacter->GetPlayerASComponent()->SetOwnerWeaponMesh(CurrentWeapon->GetWeaponMesh());
 	PlayerCharacter->GetPlayerASComponent()->SetWeaponProjectileOriginSocketName(CurrentWeapon->GetProjectileOriginSocketName());
 
-	if (bWeaponWasDrawn) { HolsterUnholster(); }
+	if (bWeaponWasDrawn) { HolsterUnholster(true); }
 }
 
 /////////////////////////

@@ -110,6 +110,27 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Targe
 }
 
 
+bool USoSASTasks::ASDamageTarget(AActor* Target, float Value)
+{
+	if (Target == nullptr || Value <= 0.0f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid Target"))
+		return false;
+	}
+
+	USoSASComponent* ASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
+
+	if (ASComp == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target has no ASComp"))
+		return false;
+	}
+
+	ASComp->AddValueToASAttributeBaseValues(EASAttributeName::HealthCurrent, -Value);
+	return true;
+}
+
+
 FVector USoSASTasks::ASGetAimHitLocation(AActor* Actor)
 {
 	USoSASComponent* ASComp = Cast<USoSASComponent>(Actor->GetComponentByClass(USoSASComponent::StaticClass()));
