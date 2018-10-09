@@ -7,6 +7,7 @@
 #include "SoSPlayerHUD.h"
 #include "SoSWeaponBase.h"
 #include "SoSRangedWeapon.h"
+#include "SoSMeleeWeapon.h"
 
 // Sets default values for this component's properties
 USoSInventoryComponent::USoSInventoryComponent()
@@ -19,24 +20,33 @@ USoSInventoryComponent::USoSInventoryComponent()
 	RightHipAttachPoint = TEXT("RightHipSocket");
 }
 
-// Called when the game starts
-void USoSInventoryComponent::BeginPlay()
+void USoSInventoryComponent::OnComponentCreated()
 {
-	Super::BeginPlay();
+	Super::OnComponentCreated();
 
 	// Get the player character
 	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
 	if (PlayerCharacter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Got Player"));
-		SpawnWeapon(RangedWeapon);
-		SpawnWeapon(MeleeWeapon);
+		SpawnWeapon(RangedWeaponClass);
+		SpawnWeapon(MeleeWeaponClass);
+	}
+}
 
-		CurrentWeapon = EquippedWeapons[0];
-		CurrentWeaponArrayID = 0;
+// Called when the game starts
+void USoSInventoryComponent::BeginPlay()
+{
+	Super::BeginPlay();
 
-		PlayerCharacter->GetPlayerASComponent()->SetOwnerWeaponMesh(CurrentWeapon->GetWeaponMesh());
-		PlayerCharacter->GetPlayerASComponent()->SetWeaponProjectileOriginSocketName(CurrentWeapon->GetProjectileOriginSocketName());
+	if (PlayerCharacter)
+	{
+		if (EquippedWeapons.IsValidIndex(0))
+		{
+			CurrentWeapon = EquippedWeapons[0];
+			CurrentWeaponArrayID = 0;
+		}
+
+		PlayerCharacter->GetPlayerASComponent()->SetOwnerInventory(this);
 	}
 }
 
@@ -56,6 +66,18 @@ void USoSInventoryComponent::SpawnWeapon(TSubclassOf<ASoSWeaponBase> WeaponToSpa
 
 		// Attach new weapon to appropriate holster
 		AttachWeaponToSocket(NewWeapon);
+
+		switch (NewWeapon->GetWeaponType())
+		{
+		case EWeaponType::Ranged:
+			RangedWeapon = Cast<ASoSRangedWeapon>(NewWeapon);
+			break;
+		case EWeaponType::Melee:
+			MeleeWeapon = Cast<ASoSMeleeWeapon>(NewWeapon);
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -92,7 +114,7 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 	{
 		if (!bQuickSwitch)
 		{
-			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDrawInstance))
+			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDraw))
 			{
 				return;
 			}
@@ -112,7 +134,7 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 	{
 		if (!bQuickSwitch)
 		{
-			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolsterInstance))
+			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolster))
 			{
 				return;
 			}
@@ -161,9 +183,6 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 		CurrentWeapon = EquippedWeapons[CurrentWeaponArrayID];
 	}
 
-	PlayerCharacter->GetPlayerASComponent()->SetOwnerWeaponMesh(CurrentWeapon->GetWeaponMesh());
-	PlayerCharacter->GetPlayerASComponent()->SetWeaponProjectileOriginSocketName(CurrentWeapon->GetProjectileOriginSocketName());
-
 	if (bWeaponWasDrawn) { HolsterUnholster(true); }
 }
 
@@ -174,4 +193,14 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 ASoSWeaponBase* USoSInventoryComponent::GetCurrentWeapon() const
 {
 	return CurrentWeapon;
+}
+
+ASoSRangedWeapon* USoSInventoryComponent::GetRangedWeapon() const
+{
+	return RangedWeapon;
+}
+
+ASoSMeleeWeapon* USoSInventoryComponent::GetMeleeWeapon() const
+{
+	return MeleeWeapon;
 }

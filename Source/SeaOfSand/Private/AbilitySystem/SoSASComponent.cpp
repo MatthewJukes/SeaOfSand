@@ -4,6 +4,8 @@
 #include "SoSGameModeBase.h"
 #include "SoSASAbilityBase.h"
 #include "SoSPlayerCharacter.h"
+#include "SoSInventoryComponent.h"
+#include "SoSWeaponBase.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/World.h"
@@ -17,7 +19,7 @@ USoSASComponent::USoSASComponent()
 	HealthMaxStartValue = 100;
 	ArmourMaxStartValue = 0;
 	EnergyMaxStartValue = 100;
-	SpeedStartValue = 400;	
+	SpeedStartValue = 400;
 
 	CurrentASEffects.Reserve(10);
 }
@@ -28,13 +30,12 @@ void USoSASComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Health Start Value: %f"), HealthMaxStartValue);
 	ASAttributeBaseValues.HealthMaxValue = HealthMaxStartValue;
 	ASAttributeBaseValues.HealthCurrentValue = HealthMaxStartValue;
 	ASAttributeBaseValues.ArmourMaxValue = ArmourMaxStartValue;
 	ASAttributeBaseValues.ArmourCurrentValue = ArmourMaxStartValue;
 	ASAttributeBaseValues.EnergyMaxValue = EnergyMaxStartValue;
-	ASAttributeBaseValues.HealthCurrentValue = EnergyMaxStartValue;
+	ASAttributeBaseValues.EnergyCurrentValue = EnergyMaxStartValue;
 	ASAttributeBaseValues.SpeedValue = SpeedStartValue;
 
 	ASAttributeTempMultiplierValues.HealthMaxValue = 1;
@@ -350,10 +351,9 @@ bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 
-		LastAbilityUsed = Ability;
 		UWorld* World = GetWorld();
 		Ability->SetLastTimeActivated(World->GetTimeSeconds());
-		return Ability->StartAbility(GetOwner(), GetOwner(), OwnerWeaponMesh, WeaponProjectileOriginSocketName, World->GetTimeSeconds(), World);
+		return Ability->StartAbility(GetOwner(), OwnerInventory->GetCurrentWeapon());
 	}
 
 	return false;
@@ -366,7 +366,7 @@ void USoSASComponent::ASActionStart()
 	Player->SprintEnd();
 	Player->AimEnd();
 
-	LastAbilityUsed->SetComboReady(false);
+	LastAbilityToStartMontage->SetComboReady(false);
 
 	OwnerState = EASOwnerState::PerformingAction;
 }
@@ -374,15 +374,15 @@ void USoSASComponent::ASActionStart()
 
 void USoSASComponent::ASReadyComboAction()
 {
-	LastAbilityUsed->SetComboReady(true);
-	LastAbilityUsed->ASReadyComboAction();
+	LastAbilityToStartMontage->SetComboReady(true);
+	LastAbilityToStartMontage->ASReadyComboAction();
 }
 
 
 void USoSASComponent::ASActionComplete()
 {
-	LastAbilityUsed->SetComboReady(false);
-	LastAbilityUsed->ASActionComplete();
+	LastAbilityToStartMontage->SetComboReady(false);
+	LastAbilityToStartMontage->ASActionComplete();
 
 	OwnerState = EASOwnerState::Normal;
 }
@@ -527,33 +527,56 @@ EASOwnerState USoSASComponent::GetASOwnerState() const
 	return OwnerState;
 }
 
+
+USoSASAbilityBase* USoSASComponent::GetLastAbilityToStartMontage() const
+{
+	return LastAbilityToStartMontage;
+}
+
+
+USoSInventoryComponent* USoSASComponent::GetOwnerInventory() const
+{
+	return OwnerInventory;
+}
+
 EASTeam USoSASComponent::GetASTeam() const
 {
 	return Team;
 }
+
 
 FVector* USoSASComponent::GetAimHitLocation() const
 {
 	return AimHitLocation;
 }
 
+
 void USoSASComponent::SetASOwnerState(EASOwnerState NewState)
 {
 	OwnerState = NewState;
 }
 
-void USoSASComponent::SetOwnerWeaponMesh(USkeletalMeshComponent* Mesh)
+
+void USoSASComponent::SetOwnerInventory(USoSInventoryComponent* InventoryComp)
 {
-	OwnerWeaponMesh = Mesh;
+	OwnerInventory = InventoryComp;
 }
+
 
 void USoSASComponent::SetWeaponProjectileOriginSocketName(FName SocketName)
 {
 	WeaponProjectileOriginSocketName = SocketName;
 }
 
+
 void USoSASComponent::SetAimHitLocation(FVector* AimHitLocationReference)
 {
 	AimHitLocation = AimHitLocationReference;
+}
+
+
+void USoSASComponent::SetLastAbilityToStartMontage(USoSASAbilityBase* Ability)
+{
+	LastAbilityToStartMontage = Ability;
 }
 

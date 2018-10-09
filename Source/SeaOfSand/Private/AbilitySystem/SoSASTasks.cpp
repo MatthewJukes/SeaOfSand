@@ -14,9 +14,9 @@
 #include "Engine/World.h"
 
 
-bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Target, AActor* Instigator, int32 StackToApply, float EffectDuration, float ApplicationTime)
+bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, const AActor* Source, FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
 { 
-	if (Target == nullptr || Instigator == nullptr)
+	if (Target == nullptr || Source == nullptr)
 	{
 		return false;
 	}
@@ -51,14 +51,16 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 	EffectToApply.EffectDuration = EffectDuration == 0.0f ? INFINITY : EffectDuration;
 
 	// Check to see if effect already exists on target
+	float ApplicationTime = ASGetWorldFromContextObject(Source)->GetTimeSeconds();
 	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
-	if (CheckIfTargetHasASEffectActive(EffectToApply.EffectName, Target, EffectIndex)) // Reapply effect and add stacks if appropriate
+	if (CheckIfTargetHasASEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
 		TargetASComp->OnEffectUpdate.Broadcast(TargetASComp, TargetCurrentEffectsArray[EffectIndex], EASEffectUpdateEventType::Reapplied);
 	}
 	else // Apply effect to target
 	{
+
 		// Set effect status trackers
 		EffectToApply.EffectStartTime = ApplicationTime;
 		EffectToApply.NewStacks = FMath::Clamp(StackToApply, 0, EffectToApply.MaxStacks);
@@ -79,7 +81,7 @@ bool USoSASTasks::ApplyASEffectToTarget(FASEffectData EffectToApply, AActor* Tar
 } 
 
 
-bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Target, int32& OutIndex)
+bool USoSASTasks::CheckIfTargetHasASEffectActive(const AActor* Target, FName EffectName, int32& OutIndex)
 {
 	if (Target == nullptr)
 	{
@@ -110,7 +112,7 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(FName EffectName, AActor* Targe
 }
 
 
-bool USoSASTasks::ASDamageTarget(AActor* Target, float Value)
+bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, float Value)
 {
 	if (Target == nullptr || Value <= 0.0f)
 	{
@@ -131,9 +133,9 @@ bool USoSASTasks::ASDamageTarget(AActor* Target, float Value)
 }
 
 
-FVector USoSASTasks::ASGetAimHitLocation(AActor* Actor)
+FVector USoSASTasks::ASGetAimHitLocation(const AActor* Target)
 {
-	USoSASComponent* ASComp = Cast<USoSASComponent>(Actor->GetComponentByClass(USoSASComponent::StaticClass()));
+	USoSASComponent* ASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
 
 	if (ASComp == nullptr)
 	{
@@ -144,12 +146,23 @@ FVector USoSASTasks::ASGetAimHitLocation(AActor* Actor)
 }
 
 
-bool USoSASTasks::ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation, UWorld* World)
+bool USoSASTasks::ASWeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation)
 {
+	if (Source == nullptr)
+	{
+		return false;
+	}
+
+	UWorld* World = ASGetWorldFromContextObject(Source);
+	if (World == nullptr)
+	{
+		return false;
+	}
+
 	const FName TraceTag("WeaponTraceTag");
 	//World->DebugDrawTraceTag = TraceTag;
 
-	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, Instigator);
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, Source);
 	TraceParams.bTraceComplex = true;
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
@@ -163,15 +176,21 @@ bool USoSASTasks::ASWeaponTrace(AActor* Instigator, FHitResult& OutHit, const FV
 }
 
 
-bool USoSASTasks::FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform, AActor* Instigator,  UWorld* World)
+bool USoSASTasks::FireASProjectile(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform)
 {
-	if (Projectile == nullptr || Instigator == nullptr || World == nullptr)
+	if (Projectile == nullptr || Source == nullptr)
+	{
+		return false;
+	}
+
+	UWorld* World = ASGetWorldFromContextObject(Source);
+	if (World == nullptr)
 	{
 		return false;
 	}
 
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = Instigator;
+	SpawnParams.Owner = Source;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	ASoSASProjectileBase* NewProjectile = World->SpawnActor<ASoSASProjectileBase>(Projectile, SpawnTransform, SpawnParams);
@@ -180,11 +199,11 @@ bool USoSASTasks::FireASProjectile(TSubclassOf<ASoSASProjectileBase> Projectile,
 }
 
 
-bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProjectileBase> Projectile, AActor* Instigator, const FVector &SocketLocation, UWorld* World)
+bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FVector &SocketLocation)
 {
 	FHitResult Hit;
-	FVector EndLocation = ASGetAimHitLocation(Instigator);
-	if (ASWeaponTrace(Instigator, Hit, SocketLocation, EndLocation, World))
+	FVector EndLocation = ASGetAimHitLocation(Source);
+	if (ASWeaponTrace(Source, Hit, SocketLocation, EndLocation))
 	{
 		EndLocation = Hit.Location;
 	}
@@ -194,11 +213,37 @@ bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(TSubclassOf<ASoSASProj
 	EndLocation.Normalize();
 
 	FTransform ProjectileTransform = FTransform(FRotator(EndLocation.ToOrientationRotator()), SocketLocation);
-	if (!FireASProjectile(Projectile, ProjectileTransform, Instigator, World))
+	if (!FireASProjectile(Source, Projectile, ProjectileTransform))
 	{
 		return false;
 	}
 
+	return true;
+}
+
+
+bool USoSASTasks::ASMeleeHitCheck(const AActor* Source, AActor* Target, TArray<AActor*>& PreviouslyHitActors)
+{
+	if (Source == nullptr || Target == nullptr)
+	{
+		return false;
+	}
+
+	if (Source == Target)
+	{
+		return false;
+	}
+
+	for (AActor* Actor : PreviouslyHitActors)
+	{
+		if (Target == Actor)
+		{
+			return false;
+		}
+	}
+
+	// Add target to array so it can't be hit again
+	PreviouslyHitActors.Add(Target);
 	return true;
 }
 
@@ -216,18 +261,7 @@ EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 }
 
 
-bool USoSASTasks::ASPlayAnimation(USkeletalMeshComponent* Mesh, UAnimationAsset* Animation, bool bIsLooping)
-{
-	if (Mesh == nullptr || Animation == nullptr)
-	{
-		return false;
-	}
-
-	Mesh->PlayAnimation(Animation, bIsLooping);
-	return true;
-}
-
-bool USoSASTasks::ASApplyRootMotionConstantForce(ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish)
+bool USoSASTasks::ASApplyRootMotionConstantForce(const ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish)
 {
 	if (TargetCharacter == nullptr)
 	{
@@ -258,7 +292,7 @@ bool USoSASTasks::ASApplyRootMotionConstantForce(ACharacter* TargetCharacter, FV
 }
 
 
-bool USoSASTasks::ASApplyRootMotionJumpForce(ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve)
+bool USoSASTasks::ASApplyRootMotionJumpForce(const ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve)
 {
 	if (TargetCharacter == nullptr)
 	{
@@ -291,14 +325,37 @@ bool USoSASTasks::ASApplyRootMotionJumpForce(ACharacter* TargetCharacter, const 
 	return true;
 }
 
-USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability)
+bool USoSASTasks::ASPlayAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate, FName StartSectionName)
+{
+	if (SourceAbility == nullptr || Target == nullptr || AnimMontage == nullptr)
+	{
+		return false;
+	}
+
+	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
+	if (TargetASComp == nullptr)
+	{
+		return false;
+	}
+
+	TargetASComp->SetLastAbilityToStartMontage(SourceAbility);
+
+	Target->PlayAnimMontage(AnimMontage, PlayRate, StartSectionName);
+
+	return true;
+}
+
+USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSASComponent* OwningASComp)
 {
 	if (Ability == nullptr)
 	{
 		return nullptr;
 	}
 
-	return NewObject<USoSASAbilityBase>(Ability, Ability.Get());
+	USoSASAbilityBase* AbilityInstance = NewObject<USoSASAbilityBase>(Ability, Ability.Get());
+	AbilityInstance->SetOwningASComp(OwningASComp);
+	AbilityInstance->InitializeAbility();
+	return AbilityInstance;
 }
 
 void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
@@ -321,4 +378,21 @@ void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& 
 
 	ExistingEffect.NewStacks = FMath::Clamp(StackToApply, 0, ExistingEffect.MaxStacks - ExistingEffect.CurrentStacks);
 	ExistingEffect.CurrentStacks = FMath::Clamp(ExistingEffect.CurrentStacks + StackToApply, 1, ExistingEffect.MaxStacks);	
+}
+
+
+UWorld* USoSASTasks::ASGetWorldFromContextObject(const UObject* WorldContextObject)
+{
+	if (WorldContextObject == nullptr || GEngine == nullptr)
+	{
+		return nullptr;
+	}
+
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (World == nullptr)
+	{
+		return nullptr;
+	}
+
+	return World;
 }

@@ -41,7 +41,7 @@ void ASoSRangedWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire())
 	{
-		if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimaryInstance))
+		if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
 		{
 			SetWeaponState(EWeaponState::Attacking);
 

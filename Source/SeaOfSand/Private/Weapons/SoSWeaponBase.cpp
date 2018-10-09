@@ -30,10 +30,10 @@ void ASoSWeaponBase::BeginPlay()
 	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
 	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
 
-	WeaponAbilities.AbilityWeaponDrawInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponDraw);
-	WeaponAbilities.AbilityWeaponHolsterInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponHolster);
-	WeaponAbilities.AbilityWeaponPrimaryInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponPrimary);
-	WeaponAbilities.AbilityWeaponAltInstance = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponAlt);
+	WeaponAbilities.AbilityWeaponDraw = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponDrawClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponHolster = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponHolsterClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponPrimary = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponPrimaryClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponAlt = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponAltClass, PlayerCharacter->GetPlayerASComponent());
 }
 
 
@@ -42,6 +42,7 @@ void ASoSWeaponBase::StartAttack()
 
 }
 
+
 void ASoSWeaponBase::EndAttack()
 {
 	if (GetWeaponState() == EWeaponState::Attacking)
@@ -49,6 +50,7 @@ void ASoSWeaponBase::EndAttack()
 		SetWeaponState(EWeaponState::Idle);
 	}
 }
+
 
 ///////////////////////////////////////////////////
 // Getters and Setters
@@ -72,15 +74,15 @@ FWeaponAbilitiesData& ASoSWeaponBase::GetWeaponAbilities()
 }
 
 
-USkeletalMeshComponent* ASoSWeaponBase::GetWeaponMesh() const
+FVector ASoSWeaponBase::GetProjectileOriginLocation() const
 {
-	return WeaponMesh;
+	return WeaponMesh->GetSocketLocation(ProjectileOriginSocketName);
 }
 
 
-FName ASoSWeaponBase::GetProjectileOriginSocketName()
+USkeletalMeshComponent* ASoSWeaponBase::GetWeaponMesh() const
 {
-	return ProjectileOriginSocketName;
+	return WeaponMesh;
 }
 
 

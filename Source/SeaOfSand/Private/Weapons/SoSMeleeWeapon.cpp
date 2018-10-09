@@ -4,11 +4,15 @@
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSInventoryComponent.h"
+#include "Components/CapsuleComponent.h"
 
 
 ASoSMeleeWeapon::ASoSMeleeWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	DamageCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("DamageCapsule"));
+	DamageCapsule->AttachTo(RootComponent);
 
 	WeaponType = EWeaponType::Melee;
 }
@@ -16,14 +20,13 @@ ASoSMeleeWeapon::ASoSMeleeWeapon()
 
 void ASoSMeleeWeapon::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 
 void ASoSMeleeWeapon::StartAttack()
 {
-	if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimaryInstance))
+	if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
 	{
 		SetWeaponState(EWeaponState::Attacking);
 	}
@@ -33,5 +36,11 @@ void ASoSMeleeWeapon::StartAttack()
 void ASoSMeleeWeapon::EndAttack()
 {
 	Super::EndAttack();
+}
+
+
+UCapsuleComponent* ASoSMeleeWeapon::GetDamageCapsule() const
+{
+	return DamageCapsule;
 }
 

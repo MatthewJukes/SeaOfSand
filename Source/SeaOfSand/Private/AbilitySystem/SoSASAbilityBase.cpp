@@ -14,6 +14,7 @@ USoSASAbilityBase::USoSASAbilityBase()
 	MaxCharges = 1;
 }
 
+
 float USoSASAbilityBase::GetLastTimeActivated() const
 {
 	return LastTimeActivated;
@@ -78,6 +79,12 @@ EASResourceType USoSASAbilityBase::GetResourceType() const
 }
 
 
+USoSASComponent* USoSASAbilityBase::GetOwningASComp() const
+{
+	return OwningASComp;
+}
+
+
 void USoSASAbilityBase::SetLastTimeActivated(float NewTime)
 {
 	LastTimeActivated = NewTime;
@@ -99,4 +106,10 @@ void USoSASAbilityBase::SetCurrentCharges(int32 Charges)
 void USoSASAbilityBase::SetComboReady(bool bNewComboReady)
 {
 	bComboReady = bNewComboReady;
+}
+
+
+void USoSASAbilityBase::SetOwningASComp(USoSASComponent* ASComp)
+{
+	OwningASComp = ASComp;
 }

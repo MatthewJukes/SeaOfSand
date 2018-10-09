@@ -103,18 +103,18 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
-	AbilityBar.AbilityOne = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityOneClass);
-	AbilityBar.AbilityTwo = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityTwoClass);
-	AbilityBar.AbilityThree = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityThreeClass);
-	AbilityBar.AbilityFour = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFourClass);
-	AbilityBar.AbilityFive = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFiveClass);
-	AbilityBar.AbilitySix = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySixClass);
-	AbilityBar.AbilitySeven = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySevenClass);
-	AbilityBar.AbilityEight = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityEightClass);
-	AbilityBar.AbilitySprint = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintClass);
-	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintEndClass);
-	AbilityBar.AbilityAimEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityAimEndClass);
-	AbilityBar.AbilityDash = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityDashClass);
+	AbilityBar.AbilityOne = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityOneClass, ASComp);
+	AbilityBar.AbilityTwo = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityTwoClass, ASComp);
+	AbilityBar.AbilityThree = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityThreeClass, ASComp);
+	AbilityBar.AbilityFour = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFourClass, ASComp);
+	AbilityBar.AbilityFive = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFiveClass, ASComp);
+	AbilityBar.AbilitySix = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySixClass, ASComp);
+	AbilityBar.AbilitySeven = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySevenClass, ASComp);
+	AbilityBar.AbilityEight = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityEightClass, ASComp);
+	AbilityBar.AbilitySprint = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintClass, ASComp);
+	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintEndClass, ASComp);
+	AbilityBar.AbilityAimEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityAimEndClass, ASComp);
+	AbilityBar.AbilityDash = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityDashClass, ASComp);
 }
 
 
@@ -235,7 +235,7 @@ void ASoSPlayerCharacter::AimStart()
 		InventoryComp->HolsterUnholster();
 	}
 
-	if (UseAbility(InventoryComp->GetCurrentWeapon()->GetWeaponAbilities().AbilityWeaponAltInstance))
+	if (UseAbility(InventoryComp->GetCurrentWeapon()->GetWeaponAbilities().AbilityWeaponAlt))
 	{
 		SprintEnd();
 		AimZoom(true);

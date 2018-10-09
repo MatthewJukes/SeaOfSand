@@ -21,7 +21,8 @@ public:
 	USoSInventoryComponent();
 
 protected:
-	// Called when the game starts
+	virtual void OnComponentCreated() override;
+
 	virtual void BeginPlay() override;
 
 public:
@@ -40,6 +41,10 @@ private:
 
 	ASoSWeaponBase* CurrentWeapon;
 
+	ASoSRangedWeapon* RangedWeapon;
+
+	ASoSMeleeWeapon* MeleeWeapon;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Sockets")
 	FName RightHandAttachPoint;
 
@@ -50,10 +55,10 @@ private:
 	FName RightHipAttachPoint;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
-	TSubclassOf<ASoSRangedWeapon> RangedWeapon;
+	TSubclassOf<ASoSRangedWeapon> RangedWeaponClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
-	TSubclassOf<ASoSWeaponBase> MeleeWeapon;
+	TSubclassOf<ASoSMeleeWeapon> MeleeWeaponClass;
 
 	void SpawnWeapon(TSubclassOf<ASoSWeaponBase> WeaponToSpawn);
 
@@ -65,4 +70,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	ASoSWeaponBase* GetCurrentWeapon() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	ASoSRangedWeapon* GetRangedWeapon() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	ASoSMeleeWeapon* GetMeleeWeapon() const;
 };

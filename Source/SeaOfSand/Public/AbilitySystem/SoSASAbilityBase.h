@@ -6,6 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include "SoSASAbilityBase.generated.h"
 
+class ASoSWeaponBase;
+class USoSASComponent;
+
 UENUM()
 enum class EASResourceType : uint8
 {
@@ -25,7 +28,10 @@ protected:
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ASAbility")
-	bool StartAbility(AActor* CurrentTarget, AActor* Instigator, USkeletalMeshComponent* WeaponMesh, FName SocketName, float TimeSeconds, UWorld* World);
+	void InitializeAbility();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "ASAbility")
+	bool StartAbility(AActor* Source, ASoSWeaponBase* Weapon);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "ASAbility")
 	void ASReadyComboAction();
@@ -33,7 +39,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "ASAbility")
 	void ASActionComplete();
 
-private:
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ASAbility")
+	void ASMeleeStart();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ASAbility")
+	void ASMeleeEnd();
+
+protected:
 
 	float LastTimeActivated;
 
@@ -42,6 +54,8 @@ private:
 	int32 CurrentCharges;
 
 	bool bComboReady;
+
+	USoSASComponent* OwningASComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "ASAbility", meta = (ClampMin = "0.001", UIMin = "0.001"))
 	float Cooldown;
@@ -99,6 +113,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASAbility")
 	EASResourceType GetResourceType() const;
 
+	UFUNCTION(BlueprintCallable, Category = "ASAbility")
+	USoSASComponent* GetOwningASComp() const;
+
 	void SetLastTimeActivated(float NewTime);
 
 	void SetLastChargeRemainder(float NewRemainder);
@@ -106,4 +123,6 @@ public:
 	void SetCurrentCharges(int32 Charges);
 
 	void SetComboReady(bool bNewComboReady);
+
+	void SetOwningASComp(USoSASComponent* ASComp);
 };

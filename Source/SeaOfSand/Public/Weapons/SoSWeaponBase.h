@@ -33,28 +33,28 @@ struct FWeaponAbilitiesData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponDraw;
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponDrawClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponHolster;
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponHolsterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponPrimary;
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponPrimaryClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponAlt;
+	TSubclassOf<USoSASAbilityBase> AbilityWeaponAltClass;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponDrawInstance;
+	USoSASAbilityBase* AbilityWeaponDraw;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponHolsterInstance;
+	USoSASAbilityBase* AbilityWeaponHolster;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponPrimaryInstance;
+	USoSASAbilityBase* AbilityWeaponPrimary;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponAltInstance;
+	USoSASAbilityBase* AbilityWeaponAlt;
 };
 
 UCLASS()
@@ -103,11 +103,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	EWeaponState GetWeaponState() const;
 
-	FWeaponAbilitiesData& GetWeaponAbilities();
-
 	USkeletalMeshComponent* GetWeaponMesh() const;
 
-	FName GetProjectileOriginSocketName();
+	FWeaponAbilitiesData& GetWeaponAbilities();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	FVector GetProjectileOriginLocation() const;
 
 	void SetWeaponState(EWeaponState NewState);
 };

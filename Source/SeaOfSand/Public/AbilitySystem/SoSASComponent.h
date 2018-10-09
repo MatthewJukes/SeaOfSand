@@ -8,8 +8,10 @@
 #include "Components/ActorComponent.h"
 #include "SoSASComponent.generated.h"
 
+class USoSInventoryComponent;
 class USoSASAbilityBase;
 class ASoSGameModeBase;
+class ASoSWeaponBase;
 class ACharacter;
 enum class EASResourceType : uint8;
 
@@ -84,13 +86,13 @@ protected:
 
 	EASOwnerState OwnerState;
 
-	USoSASAbilityBase* LastAbilityUsed;
+	USoSASAbilityBase* LastAbilityToStartMontage;
 
 	ASoSGameModeBase* SoSGameMode;
 
 	ACharacter* ComponentOwner;
 
-	USkeletalMeshComponent* OwnerWeaponMesh;
+	USoSInventoryComponent* OwnerInventory;
 
 	FName WeaponProjectileOriginSocketName;
 
@@ -148,15 +150,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	EASOwnerState GetASOwnerState() const;
 
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
+	USoSASAbilityBase* GetLastAbilityToStartMontage() const;
+
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
+	USoSInventoryComponent* GetOwnerInventory() const;
+
 	EASTeam GetASTeam() const;
 
 	FVector* GetAimHitLocation() const;
 
 	void SetASOwnerState(EASOwnerState NewState);
 
-	void SetOwnerWeaponMesh(USkeletalMeshComponent* Mesh);
+	void SetOwnerInventory(USoSInventoryComponent* InventoryComp);
 
 	void SetWeaponProjectileOriginSocketName(FName SocketName);
 
 	void SetAimHitLocation(FVector* AimHitLocationReference);
+
+	void SetLastAbilityToStartMontage(USoSASAbilityBase* Ability);
 };
