@@ -117,6 +117,8 @@ protected:
 
 	void HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue);
 
+	//void DamageCalculation(float Damage, );
+
 	void AddValueToASAttributeData(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);
 
 	void MultiplyASAttributeDataByValue(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);

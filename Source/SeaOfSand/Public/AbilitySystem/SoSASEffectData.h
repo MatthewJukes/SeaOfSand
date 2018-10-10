@@ -12,6 +12,14 @@ enum class EASTag : uint8;
 UENUM(BlueprintType)
 enum class EASEffectType : uint8
 {
+	AttributeModifier,
+	DamageDealer
+};
+
+
+UENUM(BlueprintType)
+enum class EASEffectAlignment : uint8
+{
 	Positive,
 	Neutral,
 	Negative
@@ -47,10 +55,16 @@ struct FASEffectData : public FTableRowBase
 	bool bHideFromUI;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	EASEffectType EffectType;	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AttributeModifier")
 	EASAttributeName AttributeToEffect;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DamageDealer")
+	FDataTableRowHandle DamageType;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EASEffectType EffectType;
+	EASEffectAlignment EffectAlignment;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	EASEffectValueType EffectValueType;
@@ -80,19 +94,19 @@ struct FASEffectData : public FTableRowBase
 	bool bAdditiveDuration;
 
 	// Tags to apply to target
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect | Tags")
 	TArray<EASTag> EffectAppliesTags;
 
 	// Tags that will stop the effect from being applied or remove it if in effect
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect | Tags")
 	TArray<EASTag> EffectBlockedByTags;
 
 	// Tags that will cause the effect to have no effect, but will not stop it's application or remove it or it's tags
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect | Tags")
 	TArray<EASTag> EffectNegatedByTags;
 
 	// Tags required for the effect to to be applied, effect will not be removed if the tag is removed/expires
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect | Tags")
 	TArray<EASTag> EffectRequiresTags;
 
 	// Effect status trackers
@@ -115,4 +129,8 @@ struct FASEffectData : public FTableRowBase
 	bool bNonTicking;
 
 	bool bExpired = false;
+
+#if WITH_EDITOR
+	virtual bool CanEditChange(const UProperty* InProperty) const;
+#endif
 };

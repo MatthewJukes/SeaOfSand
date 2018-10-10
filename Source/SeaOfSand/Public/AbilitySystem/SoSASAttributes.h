@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
 #include "SoSASAttributes.generated.h"
 
 
@@ -56,4 +57,19 @@ enum class EASTeam : uint8
 	Default,
 	Player,
 	Enemy
+};
+
+USTRUCT(BlueprintType)
+struct FASDamageType : public FTableRowBase
+{
+	GENERATED_BODY()
+		
+	// Percent of damage that bypasses armour
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "0.0", UIMin = "0.0", ClampMax = "100.0", UIMax = "100.0"))
+	float ArmourPenetration;
+
+	// Percent of negated damage armour takes instead 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	float ArmourDamage;
+
 };
