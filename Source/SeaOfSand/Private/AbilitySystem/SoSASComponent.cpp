@@ -22,6 +22,9 @@ USoSASComponent::USoSASComponent()
 	SpeedStartValue = 400;
 
 	CurrentASEffects.Reserve(10);
+
+	ConstructorHelpers::FObjectFinder<UDataTable> DT_DamageTypes(TEXT("DataTable'/Game/AbilitySystem/Data/DT_ASDamageTypes.DT_ASDamageTypes'"));
+	DamageTypeDataTable = DT_DamageTypes.Object;
 }
 
 
@@ -50,6 +53,8 @@ void USoSASComponent::BeginPlay()
 	SoSGameMode->AddASComponentToArray(this);
 
 	ComponentOwner = Cast<ACharacter>(GetOwner());
+
+	OnTagUpdate.AddDynamic(this, &USoSASComponent::TagUpdate);
 }
 
 
@@ -87,91 +92,108 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 		return;
 	}
 
-	for (EASTag Tag : Effect.EffectBlockedByTags)
-	{
-		if (CurrentASEffectTags.Contains(Tag))
-		{
-			EndASEffect(Effect);
-			return;
-		}
-	}
-
-	for (EASTag Tag : Effect.EffectNegatedByTags)
-	{
-		if (CurrentASEffectTags.Contains(Tag))
-		{
-			if (Effect.bNonTicking && Effect.bTemporaryModifier && Effect.TotalValue != 0.0)
-			{
-				Effect.TotalValue = -Effect.TotalValue;
-				HandleASEffectValue(Effect, true);
-				Effect.TotalValue = 0.0f;
-				Effect.LastTickTime = GetWorld()->GetTimeSeconds() - Effect.TickRate;
-			}
-			return;
-		}
-	}
-
 	// Check if effect should tick
 	float TimeElapsedSinceLastTick = GetWorld()->GetTimeSeconds() - Effect.LastTickTime;
 	if (TimeElapsedSinceLastTick >= Effect.TickRate)
 	{
 		Effect.LastTickTime = GetWorld()->GetTimeSeconds();
 		
-		HandleASEffectValue(Effect, false);
+		for (FASEffectAttributeModifierModule& Module : Effect.AttributeModifierModules)
+		{
+			HandleASEffectAttributeModifierValue(Effect, Module, false);
+		}
+
+		for (FASEffectDamageModule& Module : Effect.DamageModules)
+		{
+			FString RowString;
+			DamageCalculation(Module.DamageValue * Effect.CurrentStacks, *Module.DamageType.GetRow<FASDamageType>(RowString));
+		}
 	}
 }
 
 
-void USoSASComponent::HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue)
-{
-	float PosNegMultiplier = Effect.EffectValue < 0 ? -1 : 1;
-	float NewValue = Effect.bNonTicking ? FMath::Abs(Effect.EffectValue) * Effect.NewStacks * PosNegMultiplier : FMath::Abs(Effect.EffectValue) * Effect.CurrentStacks * PosNegMultiplier;
-	NewValue = bUseTotalValue ? Effect.TotalValue : NewValue;
+void USoSASComponent::HandleASEffectAttributeModifierValue(FASEffectData& Effect, FASEffectAttributeModifierModule& Module, bool bUseTotalValue)
+{ 
+	float PosNegMultiplier = Module.ModifierValue < 0 ? -1 : 1;
+	float NewValue = Effect.bNonTicking ? FMath::Abs(Module.ModifierValue) * Effect.NewStacks * PosNegMultiplier : FMath::Abs(Module.ModifierValue) * Effect.CurrentStacks * PosNegMultiplier;
+	NewValue = bUseTotalValue ? Module.TotalValue : NewValue;
+	Module.TotalValue += NewValue;
 
-	switch (Effect.EffectValueType)
+	if (Module.bTemporaryModifier)
 	{
-	case EASEffectValueType::Additive:
-		Effect.TotalValue += NewValue;
-
-		if (Effect.bTemporaryModifier)
+		switch (Module.ModifierValueType)
 		{
-			AddValueToASAttributeData(ASAttributeTempAdditiveValues, Effect.AttributeToEffect, NewValue);
+		case EASEffectValueType::Additive:
+			AddValueToASAttributeData(ASAttributeTempAdditiveValues, Module.AttributeToEffect, NewValue);
+			break;
+		case EASEffectValueType::Multiplicative:
+			NewValue *= 0.01f;
+			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Module.AttributeToEffect, NewValue);
+			break;
+		case EASEffectValueType::Subtractive:
+			NewValue *= 0.01f;
+			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Module.AttributeToEffect, -NewValue);
+			break;
+		default:
+			break;
 		}
-		else
+	}
+	else
+	{
+		switch (Module.ModifierValueType)
 		{
-			AddValueToASAttributeData(ASAttributeBaseValues, Effect.AttributeToEffect, NewValue);
+		case EASEffectValueType::Additive:
+			AddValueToASAttributeData(ASAttributeBaseValues, Module.AttributeToEffect, NewValue);
+			break;
+		case EASEffectValueType::Multiplicative:
+			NewValue *= 0.01f;
+			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Module.AttributeToEffect, 1 + NewValue);
+			break;
+		case EASEffectValueType::Subtractive:
+			NewValue *= 0.01f;
+			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Module.AttributeToEffect, 1 - NewValue);
+			break;
+		default:
+			break;
 		}
+	}
+}
 
+
+void USoSASComponent::TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventType)
+{
+	switch (EventType)
+	{
+	case EASTagUpdateEventType::Added:
+		for (FASEffectData& Effect : CurrentASEffects)
+		{
+			if (Effect.EffectBlockedByTags.Contains(Tag))
+			{
+				EndASEffect(Effect);
+			}
+		}
 		break;
-	case EASEffectValueType::Multiplicative:
-		Effect.TotalValue += NewValue;
-		NewValue *= 0.01f;
-		
-		if (Effect.bTemporaryModifier)
-		{
-			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Effect.AttributeToEffect, NewValue);
-		}
-		else
-		{
-			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Effect.AttributeToEffect, 1 + NewValue);
-		}
-		break;
-	case EASEffectValueType::Subtractive:
-		Effect.TotalValue += NewValue;
-		NewValue *= 0.01f;
-
-		if (Effect.bTemporaryModifier)
-		{
-			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Effect.AttributeToEffect, -NewValue);
-		}
-		else
-		{
-			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Effect.AttributeToEffect, 1 - NewValue);
-		}
+	case EASTagUpdateEventType::Removed:
 		break;
 	default:
 		break;
 	}
+}
+
+
+void USoSASComponent::DamageCalculation(float Damage, FASDamageType& DamageType)
+{
+	float MaxRawDamageReductionByArmour = FMath::Max(1.0f, ASAttributeTotalValues.ArmourCurrentValue * 0.1f); // 10% of current armour
+	
+	// Calculate armour penetration
+	float HealthDamage = Damage * (DamageType.ArmourPenetration * 0.01f);
+	HealthDamage += (Damage - HealthDamage) - FMath::Min(MaxRawDamageReductionByArmour, (Damage - HealthDamage));
+
+	// Calculate armour damage
+	float ArmourDamage = (Damage - HealthDamage) * (DamageType.ArmourDamage * 0.01f);
+
+	AddValueToASAttributeBaseValues(EASAttributeName::HealthCurrent, -HealthDamage);
+	AddValueToASAttributeBaseValues(EASAttributeName::ArmourCurrent, -ArmourDamage);
 }
 
 
@@ -282,6 +304,7 @@ void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 	for (EASTag Tag : EffectToAdd.EffectAppliesTags)
 	{
 		CurrentASEffectTags.Add(Tag);
+		OnTagUpdate.Broadcast(Tag, EASTagUpdateEventType::Added);
 	}
 
 	OnEffectUpdate.Broadcast(this, EffectToAdd, EASEffectUpdateEventType::Added);
@@ -315,15 +338,19 @@ void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 
 	EffectToEnd.bExpired = true;
 
-	if (EffectToEnd.bTemporaryModifier)
+	for (FASEffectAttributeModifierModule& Module : EffectToEnd.AttributeModifierModules)
 	{
-		EffectToEnd.TotalValue = -EffectToEnd.TotalValue;
-		HandleASEffectValue(EffectToEnd, true);
+		if (Module.bTemporaryModifier)
+		{
+			Module.TotalValue = -Module.TotalValue;
+			HandleASEffectAttributeModifierValue(EffectToEnd, Module, true);
+		}
 	}
 
 	for (EASTag Tag : EffectToEnd.EffectAppliesTags)
 	{
 		CurrentASEffectTags.Remove(Tag);
+		OnTagUpdate.Broadcast(Tag, EASTagUpdateEventType::Removed);
 	}
 }
 

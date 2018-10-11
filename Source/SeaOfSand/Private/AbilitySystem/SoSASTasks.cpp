@@ -112,7 +112,7 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(const AActor* Target, FName Eff
 }
 
 
-bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, float Value)
+bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, float Value, FASDamageType& DamageType)
 {
 	if (Target == nullptr || Value <= 0.0f)
 	{
@@ -128,7 +128,7 @@ bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, flo
 		return false;
 	}
 
-	ASComp->AddValueToASAttributeBaseValues(EASAttributeName::HealthCurrent, -Value);
+	ASComp->DamageCalculation(Value, DamageType);
 	return true;
 }
 

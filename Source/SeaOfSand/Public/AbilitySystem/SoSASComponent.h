@@ -15,6 +15,7 @@ class ASoSWeaponBase;
 class ACharacter;
 enum class EASResourceType : uint8;
 
+
 UENUM(BlueprintType)
 enum class EASOwnerState : uint8
 {
@@ -25,6 +26,7 @@ enum class EASOwnerState : uint8
 	Dead
 };
 
+
 UENUM(BlueprintType)
 enum class EASEffectUpdateEventType : uint8
 {
@@ -33,7 +35,17 @@ enum class EASEffectUpdateEventType : uint8
 	Reapplied
 };
 
+
+UENUM(BlueprintType)
+enum class EASTagUpdateEventType : uint8
+{
+	Added,
+	Removed
+};
+
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEffectUpdate, USoSASComponent*, ASComp, const FASEffectData&, Effect, EASEffectUpdateEventType, EventType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagUpdate, const EASTag&, Tag, EASTagUpdateEventType, EventType);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
@@ -58,6 +70,8 @@ public:
 
 	bool UseASAbility(USoSASAbilityBase* Ability);
 
+	void DamageCalculation(float Damage, FASDamageType& DamageType);
+
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	void ASActionStart();
 
@@ -69,6 +83,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEffectUpdate OnEffectUpdate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnTagUpdate OnTagUpdate;
 
 protected:
 
@@ -98,6 +115,8 @@ protected:
 
 	FVector* AimHitLocation;
 
+	UDataTable* DamageTypeDataTable;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
 	EASTeam Team;
 
@@ -115,9 +134,10 @@ protected:
 
 	void CheckASEffectStatus(FASEffectData& Effect);
 
-	void HandleASEffectValue(FASEffectData& Effect, bool bUseTotalValue);
+	void HandleASEffectAttributeModifierValue(FASEffectData& Effect, FASEffectAttributeModifierModule& Module, bool bUseTotalValue);
 
-	//void DamageCalculation(float Damage, );
+	UFUNCTION()
+	void TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventType);
 
 	void AddValueToASAttributeData(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);
 

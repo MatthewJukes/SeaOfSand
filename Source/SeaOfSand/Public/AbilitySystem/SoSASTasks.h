@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "SoSASEffectData.h"
+#include "SoSASAttributes.h"
+#include "Engine/DataTable.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SoSASTasks.generated.h"
 
@@ -29,7 +31,7 @@ public:
 	static bool CheckIfTargetHasASEffectActive(const AActor* Target, FName EffectName, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ASDamageTarget(const AActor* Target, const AActor* Source, float Value);
+	static bool ASDamageTarget(const AActor* Target, const AActor* Source, float Value, FASDamageType& DamageType);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static FVector ASGetAimHitLocation(const AActor* Target);
