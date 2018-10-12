@@ -19,6 +19,7 @@ enum class EASAttributeName : uint8
 	Speed
 };
 
+
 USTRUCT(BlueprintType)
 struct FASAttributeData
 {
@@ -39,6 +40,7 @@ struct FASAttributeData
 	float SpeedValue;
 };
 
+
 UENUM(BlueprintType)
 enum class EASTag : uint8
 {
@@ -51,6 +53,7 @@ enum class EASTag : uint8
 	ImmuneToFire
 };
 
+
 UENUM(BlueprintType)
 enum class EASTeam : uint8
 {
@@ -58,6 +61,16 @@ enum class EASTeam : uint8
 	Player,
 	Enemy
 };
+
+
+UENUM(BlueprintType)
+enum class EASDamageTypeName : uint8
+{
+	Default,
+	Pure,
+	Fire
+};
+
 
 USTRUCT(BlueprintType)
 struct FASDamageType : public FTableRowBase

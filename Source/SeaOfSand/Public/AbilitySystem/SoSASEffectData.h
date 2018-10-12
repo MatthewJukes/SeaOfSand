@@ -6,7 +6,9 @@
 #include "Engine/DataTable.h"
 #include "SoSASEffectData.generated.h"
 
+class USoSASAbilityBase;
 enum class EASAttributeName : uint8;
+enum class EASDamageTypeName : uint8;
 enum class EASTag : uint8;
 
 
@@ -25,6 +27,15 @@ enum class EASEffectValueType : uint8 // Attribute modification formula type
 	Additive,
 	Multiplicative,
 	Subtractive
+};
+
+
+UENUM(BlueprintType)
+enum class EASEffectAbilityTickType : uint8
+{
+	EveryTick,
+	FirstTick,
+	LastTick
 };
 
 
@@ -57,17 +68,26 @@ struct FASEffectDamageModule
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	FDataTableRowHandle DamageType;
+	EASDamageTypeName DamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "0.001", UIMin = "0.001"))
 	float DamageValue;
+};
 
-	FASEffectDamageModule()
-	{
-		FString DataTablePath = FString("DataTable'/Game/AbilitySystem/Data/DT_ASDamageTypes.DT_ASDamageTypes'");		
-		DamageType.DataTable = ConstructorHelpersInternal::FindOrLoadObject<UDataTable>(DataTablePath);
-		DamageType.RowName = DamageType.DataTable->GetRowNames()[0];
-	}
+
+USTRUCT(BlueprintType)
+struct FASEffectAbilityModule
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TSubclassOf<USoSASAbilityBase> AbilityClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	EASEffectAbilityTickType UseAbilityOn;
+
+	UPROPERTY()
+	USoSASAbilityBase* Ability;
 };
 
 
@@ -115,6 +135,9 @@ struct FASEffectData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
 	TArray<FASEffectDamageModule> DamageModules;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
+	TArray<FASEffectAbilityModule> AbilityModules;
+
 	// Tags to apply to target
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
 	TArray<EASTag> EffectAppliesTags;
@@ -128,6 +151,8 @@ struct FASEffectData : public FTableRowBase
 	TArray<EASTag> EffectRequiresTags;
 
 	// Effect status trackers
+
+	AActor* Source;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Effect")
 	float EffectDuration; 
@@ -145,4 +170,6 @@ struct FASEffectData : public FTableRowBase
 	bool bNonTicking;
 
 	bool bExpired = false;
+
+	bool bFirstTick = true;
 };

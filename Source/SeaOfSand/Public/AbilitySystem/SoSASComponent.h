@@ -70,7 +70,7 @@ public:
 
 	bool UseASAbility(USoSASAbilityBase* Ability);
 
-	void DamageCalculation(float Damage, FASDamageType& DamageType);
+	void DamageCalculation(float Damage, EASDamageTypeName DamageTypeName);
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	void ASActionStart();
@@ -117,24 +117,26 @@ protected:
 
 	UDataTable* DamageTypeDataTable;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	EASTeam Team;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	float HealthMaxStartValue;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	float ArmourMaxStartValue;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	float EnergyMaxStartValue;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Character | Stats")
+	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	float SpeedStartValue;
 
 	void CheckASEffectStatus(FASEffectData& Effect);
 
 	void HandleASEffectAttributeModifierValue(FASEffectData& Effect, FASEffectAttributeModifierModule& Module, bool bUseTotalValue);
+
+	void HandleASEffectAbility(FASEffectData& Effect, FASEffectAbilityModule& Module);
 
 	UFUNCTION()
 	void TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventType);

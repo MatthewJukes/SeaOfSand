@@ -25,13 +25,13 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ApplyASEffectToTarget(const AActor* Target, const AActor* Source, UPARAM(ref) FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
+	static bool ApplyASEffectToTarget(const AActor* Target, AActor* Source, UPARAM(ref) FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool CheckIfTargetHasASEffectActive(const AActor* Target, FName EffectName, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
-	static bool ASDamageTarget(const AActor* Target, const AActor* Source, float Value, FASDamageType& DamageType);
+	static bool ASDamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static FVector ASGetAimHitLocation(const AActor* Target);
@@ -47,6 +47,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static bool ASMeleeHitCheck(const AActor* Source, AActor* Target, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
+
+	UFUNCTION(BlueprintCallable, Category = "ASTasks")
+	static bool ASGetTargetsInSphere(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius);
 
 	UFUNCTION(BlueprintCallable, Category = "ASTasks")
 	static EASTeam GetASTeam(const AActor* Target);

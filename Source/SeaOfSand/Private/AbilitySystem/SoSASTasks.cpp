@@ -12,9 +12,10 @@
 #include "Engine/Classes/Animation/AnimationAsset.h"
 #include "Engine/Classes/Curves/CurveFloat.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 
 
-bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, const AActor* Source, FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
+bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, AActor* Source, FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
 { 
 	if (Target == nullptr || Source == nullptr)
 	{
@@ -47,6 +48,9 @@ bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, const AActor* Sour
 		}
 	}
 
+	// Set effect source
+	EffectToApply.Source = Source;
+
 	// Set duration to infinite for effects with no duration
 	EffectToApply.EffectDuration = EffectDuration == 0.0f ? INFINITY : EffectDuration;
 
@@ -60,6 +64,12 @@ bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, const AActor* Sour
 	}
 	else // Apply effect to target
 	{
+		// Create ability instances
+		USoSASComponent* SourceASComp = Cast<USoSASComponent>(Source->GetComponentByClass(USoSASComponent::StaticClass()));
+		for (FASEffectAbilityModule& Module : EffectToApply.AbilityModules)
+		{
+			Module.Ability = CreateASAbilityInstance(Module.AbilityClass, SourceASComp);
+		}
 
 		// Set effect status trackers
 		EffectToApply.EffectStartTime = ApplicationTime;
@@ -112,7 +122,7 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(const AActor* Target, FName Eff
 }
 
 
-bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, float Value, FASDamageType& DamageType)
+bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType)
 {
 	if (Target == nullptr || Value <= 0.0f)
 	{
@@ -248,8 +258,40 @@ bool USoSASTasks::ASMeleeHitCheck(const AActor* Source, AActor* Target, TArray<A
 }
 
 
+bool USoSASTasks::ASGetTargetsInSphere(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius)
+{
+	TArray<AActor*> Targets;
+
+	if (Source == nullptr)
+	{
+		return false;
+	}
+
+	UWorld* World = ASGetWorldFromContextObject(Source);
+	if (World == nullptr)
+	{
+		return false;
+	}
+
+	DrawDebugSphere(World, Origin, Radius, 100, FColor::Purple, true, 0.25f);
+
+	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, Source);
+	TraceParams.bTraceComplex = false;
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = false;
+
+	FCollisionShape Shape = FCollisionShape::MakeSphere(Radius);
+	return World->SweepMultiByChannel(OutHitResults, Origin, Origin, FQuat::Identity, ECC_Pawn, Shape, TraceParams);
+}
+
+
 EASTeam USoSASTasks::GetASTeam(const AActor* Target)
 {
+	if (Target == nullptr)
+	{
+		return EASTeam::Default;
+	}
+
 	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
 
 	if (TargetASComp == nullptr)
@@ -325,6 +367,7 @@ bool USoSASTasks::ASApplyRootMotionJumpForce(const ACharacter* TargetCharacter, 
 	return true;
 }
 
+
 bool USoSASTasks::ASPlayAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate, FName StartSectionName)
 {
 	if (SourceAbility == nullptr || Target == nullptr || AnimMontage == nullptr)
@@ -345,6 +388,7 @@ bool USoSASTasks::ASPlayAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter
 	return true;
 }
 
+
 USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSASComponent* OwningASComp)
 {
 	if (Ability == nullptr)
@@ -357,6 +401,7 @@ USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbili
 	AbilityInstance->InitializeAbility();
 	return AbilityInstance;
 }
+
 
 void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
 {

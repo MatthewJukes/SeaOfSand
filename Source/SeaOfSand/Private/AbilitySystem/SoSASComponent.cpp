@@ -84,7 +84,6 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 {
 	// Check if effect should expire
-	float CurrentTime = GetWorld()->GetTimeSeconds();
 	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect.EffectStartTime;
 	if (EffectElapsedTime >= Effect.EffectDuration)
 	{
@@ -103,11 +102,18 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 			HandleASEffectAttributeModifierValue(Effect, Module, false);
 		}
 
+		for (FASEffectAbilityModule& Module : Effect.AbilityModules)
+		{
+			HandleASEffectAbility(Effect, Module);
+		}
+
 		for (FASEffectDamageModule& Module : Effect.DamageModules)
 		{
 			FString RowString;
-			DamageCalculation(Module.DamageValue * Effect.CurrentStacks, *Module.DamageType.GetRow<FASDamageType>(RowString));
+			DamageCalculation(Module.DamageValue * Effect.CurrentStacks, Module.DamageType);
 		}
+
+		Effect.bFirstTick = false;
 	}
 }
 
@@ -160,6 +166,32 @@ void USoSASComponent::HandleASEffectAttributeModifierValue(FASEffectData& Effect
 }
 
 
+void USoSASComponent::HandleASEffectAbility(FASEffectData& Effect, FASEffectAbilityModule& Module)
+{
+	if (Module.Ability == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: Module Ability is NULL"), *Effect.EffectName.ToString())
+		return;
+	}
+
+	if (Module.UseAbilityOn == EASEffectAbilityTickType::FirstTick && !Effect.bFirstTick)
+	{
+		return;
+	}
+
+	if (Module.UseAbilityOn == EASEffectAbilityTickType::LastTick)
+	{
+		float EffectTimeRemaining = Effect.EffectDuration - (GetWorld()->GetTimeSeconds() - Effect.EffectStartTime);
+		if (EffectTimeRemaining > Effect.TickRate)
+		{
+			return;
+		}
+	}
+
+	USoSInventoryComponent* SourceInventory = Cast<USoSInventoryComponent>(Effect.Source->GetComponentByClass(USoSInventoryComponent::StaticClass()));
+	Module.Ability->StartAbility(Effect.Source, SourceInventory->GetCurrentWeapon());
+}
+
 void USoSASComponent::TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventType)
 {
 	switch (EventType)
@@ -181,16 +213,37 @@ void USoSASComponent::TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventTy
 }
 
 
-void USoSASComponent::DamageCalculation(float Damage, FASDamageType& DamageType)
+void USoSASComponent::DamageCalculation(float Damage, EASDamageTypeName DamageTypeName)
 {
+	FASDamageType* DamageType = new FASDamageType;
+	DamageType->ArmourPenetration = 0;
+	DamageType->ArmourDamage = 50;
+
+	FString ReferenceString = FString("");
+
+	switch (DamageTypeName)
+	{
+	case EASDamageTypeName::Default:
+		DamageType = DamageTypeDataTable->FindRow<FASDamageType>(FName("Default"), ReferenceString);
+		break;
+	case EASDamageTypeName::Pure:
+		DamageType = DamageTypeDataTable->FindRow<FASDamageType>(FName("Pure"), ReferenceString);
+		break;
+	case EASDamageTypeName::Fire:
+		DamageType = DamageTypeDataTable->FindRow<FASDamageType>(FName("Fire"), ReferenceString);
+		break;
+	default:
+		break;
+	}
+
 	float MaxRawDamageReductionByArmour = FMath::Max(1.0f, ASAttributeTotalValues.ArmourCurrentValue * 0.1f); // 10% of current armour
 	
 	// Calculate armour penetration
-	float HealthDamage = Damage * (DamageType.ArmourPenetration * 0.01f);
+	float HealthDamage = Damage * (DamageType->ArmourPenetration * 0.01f);
 	HealthDamage += (Damage - HealthDamage) - FMath::Min(MaxRawDamageReductionByArmour, (Damage - HealthDamage));
 
 	// Calculate armour damage
-	float ArmourDamage = (Damage - HealthDamage) * (DamageType.ArmourDamage * 0.01f);
+	float ArmourDamage = (Damage - HealthDamage) * (DamageType->ArmourDamage * 0.01f);
 
 	AddValueToASAttributeBaseValues(EASAttributeName::HealthCurrent, -HealthDamage);
 	AddValueToASAttributeBaseValues(EASAttributeName::ArmourCurrent, -ArmourDamage);
