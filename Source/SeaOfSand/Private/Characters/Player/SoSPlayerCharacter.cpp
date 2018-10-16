@@ -103,18 +103,18 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
-	AbilityBar.AbilityOne = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityOneClass, ASComp);
-	AbilityBar.AbilityTwo = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityTwoClass, ASComp);
-	AbilityBar.AbilityThree = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityThreeClass, ASComp);
-	AbilityBar.AbilityFour = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFourClass, ASComp);
-	AbilityBar.AbilityFive = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityFiveClass, ASComp);
-	AbilityBar.AbilitySix = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySixClass, ASComp);
-	AbilityBar.AbilitySeven = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySevenClass, ASComp);
-	AbilityBar.AbilityEight = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityEightClass, ASComp);
-	AbilityBar.AbilitySprint = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintClass, ASComp);
-	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilitySprintEndClass, ASComp);
-	AbilityBar.AbilityAimEnd = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityAimEndClass, ASComp);
-	AbilityBar.AbilityDash = USoSASTasks::CreateASAbilityInstance(AbilityBar.AbilityDashClass, ASComp);
+	AbilityBar.AbilityOne = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityOneClass, ASComp);
+	AbilityBar.AbilityTwo = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityTwoClass, ASComp);
+	AbilityBar.AbilityThree = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityThreeClass, ASComp);
+	AbilityBar.AbilityFour = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFourClass, ASComp);
+	AbilityBar.AbilityFive = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFiveClass, ASComp);
+	AbilityBar.AbilitySix = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySixClass, ASComp);
+	AbilityBar.AbilitySeven = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySevenClass, ASComp);
+	AbilityBar.AbilityEight = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityEightClass, ASComp);
+	AbilityBar.AbilitySprint = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintClass, ASComp);
+	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintEndClass, ASComp);
+	AbilityBar.AbilityAimEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityAimEndClass, ASComp);
+	AbilityBar.AbilityDash = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityDashClass, ASComp);
 }
 
 

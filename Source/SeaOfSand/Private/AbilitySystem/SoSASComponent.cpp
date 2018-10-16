@@ -455,14 +455,14 @@ void USoSASComponent::ASActionStart()
 void USoSASComponent::ASReadyComboAction()
 {
 	LastAbilityToStartMontage->SetComboReady(true);
-	LastAbilityToStartMontage->ASReadyComboAction();
+	LastAbilityToStartMontage->ReadyComboAction();
 }
 
 
 void USoSASComponent::ASActionComplete()
 {
 	LastAbilityToStartMontage->SetComboReady(false);
-	LastAbilityToStartMontage->ASActionComplete();
+	LastAbilityToStartMontage->ActionComplete();
 
 	OwnerState = EASOwnerState::Normal;
 }

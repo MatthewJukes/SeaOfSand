@@ -55,11 +55,11 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 	EffectToApply.EffectDuration = EffectDuration == 0.0f ? INFINITY : EffectDuration;
 
 	// Check to see if effect already exists on target
-	float ApplicationTime = ASGetWorldFromContextObject(Source)->GetTimeSeconds();
+	float ApplicationTime = AbilityGetWorldFromContextObject(Source)->GetTimeSeconds();
 	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
 	if (CheckIfTargetHasEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
-		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
+		ReapplyEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
 		TargetASComp->OnEffectUpdate.Broadcast(TargetASComp, TargetCurrentEffectsArray[EffectIndex], EASEffectUpdateEventType::Reapplied);
 	}
 	else // Apply effect to target
@@ -68,7 +68,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 		USoSASComponent* SourceASComp = Cast<USoSASComponent>(Source->GetComponentByClass(USoSASComponent::StaticClass()));
 		for (FASEffectAbilityModule& Module : EffectToApply.AbilityModules)
 		{
-			Module.Ability = CreateASAbilityInstance(Module.AbilityClass, SourceASComp);
+			Module.Ability = CreateAbilityInstance(Module.AbilityClass, SourceASComp);
 		}
 
 		// Set effect status trackers
@@ -143,7 +143,7 @@ bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float
 }
 
 
-FVector USoSASTasks::ASGetAimHitLocation(const AActor* Target)
+FVector USoSASTasks::GetAimHitLocation(const AActor* Target)
 {
 	USoSASComponent* ASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
 
@@ -156,14 +156,14 @@ FVector USoSASTasks::ASGetAimHitLocation(const AActor* Target)
 }
 
 
-bool USoSASTasks::ASWeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation)
+bool USoSASTasks::WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation)
 {
 	if (Source == nullptr)
 	{
 		return false;
 	}
 
-	UWorld* World = ASGetWorldFromContextObject(Source);
+	UWorld* World = AbilityGetWorldFromContextObject(Source);
 	if (World == nullptr)
 	{
 		return false;
@@ -186,14 +186,14 @@ bool USoSASTasks::ASWeaponTrace(const AActor* Source, FHitResult& OutHit, const 
 }
 
 
-bool USoSASTasks::FireASProjectile(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform)
+bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform)
 {
 	if (Projectile == nullptr || Source == nullptr)
 	{
 		return false;
 	}
 
-	UWorld* World = ASGetWorldFromContextObject(Source);
+	UWorld* World = AbilityGetWorldFromContextObject(Source);
 	if (World == nullptr)
 	{
 		return false;
@@ -209,11 +209,11 @@ bool USoSASTasks::FireASProjectile(AActor* Source, TSubclassOf<ASoSASProjectileB
 }
 
 
-bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FVector &SocketLocation)
+bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FVector &SocketLocation)
 {
 	FHitResult Hit;
-	FVector EndLocation = ASGetAimHitLocation(Source);
-	if (ASWeaponTrace(Source, Hit, SocketLocation, EndLocation))
+	FVector EndLocation = GetAimHitLocation(Source);
+	if (WeaponTrace(Source, Hit, SocketLocation, EndLocation))
 	{
 		EndLocation = Hit.Location;
 	}
@@ -223,7 +223,7 @@ bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(AActor* Source, TSubcl
 	EndLocation.Normalize();
 
 	FTransform ProjectileTransform = FTransform(FRotator(EndLocation.ToOrientationRotator()), SocketLocation);
-	if (!FireASProjectile(Source, Projectile, ProjectileTransform))
+	if (!FireProjectile(Source, Projectile, ProjectileTransform))
 	{
 		return false;
 	}
@@ -232,7 +232,7 @@ bool USoSASTasks::FireASProjectileFromWeaponAtAimLocation(AActor* Source, TSubcl
 }
 
 
-bool USoSASTasks::ASMeleeHitCheck(const AActor* Source, AActor* Target, TArray<AActor*>& PreviouslyHitActors)
+bool USoSASTasks::MeleeHitCheck(const AActor* Source, AActor* Target, TArray<AActor*>& PreviouslyHitActors)
 {
 	if (Source == nullptr || Target == nullptr)
 	{
@@ -258,7 +258,7 @@ bool USoSASTasks::ASMeleeHitCheck(const AActor* Source, AActor* Target, TArray<A
 }
 
 
-bool USoSASTasks::ASGetTargetsInSphere(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius)
+bool USoSASTasks::GetTargetsInRadius(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius)
 {
 	TArray<AActor*> Targets;
 
@@ -267,7 +267,7 @@ bool USoSASTasks::ASGetTargetsInSphere(const AActor* Source, TArray<FHitResult> 
 		return false;
 	}
 
-	UWorld* World = ASGetWorldFromContextObject(Source);
+	UWorld* World = AbilityGetWorldFromContextObject(Source);
 	if (World == nullptr)
 	{
 		return false;
@@ -331,7 +331,7 @@ bool USoSASTasks::TeamCheck(const AActor* ActorOne, const AActor* ActorTwo)
 }
 
 
-bool USoSASTasks::ASApplyRootMotionConstantForce(const ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish)
+bool USoSASTasks::ApplyRootMotionConstantForce(const ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish)
 {
 	if (TargetCharacter == nullptr)
 	{
@@ -362,7 +362,7 @@ bool USoSASTasks::ASApplyRootMotionConstantForce(const ACharacter* TargetCharact
 }
 
 
-bool USoSASTasks::ASApplyRootMotionJumpForce(const ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve)
+bool USoSASTasks::ApplyRootMotionJumpForce(const ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve)
 {
 	if (TargetCharacter == nullptr)
 	{
@@ -396,7 +396,7 @@ bool USoSASTasks::ASApplyRootMotionJumpForce(const ACharacter* TargetCharacter, 
 }
 
 
-bool USoSASTasks::ASPlayAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate, FName StartSectionName)
+bool USoSASTasks::PlayAbilityAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate, FName StartSectionName)
 {
 	if (SourceAbility == nullptr || Target == nullptr || AnimMontage == nullptr)
 	{
@@ -417,7 +417,7 @@ bool USoSASTasks::ASPlayAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter
 }
 
 
-USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSASComponent* OwningASComp)
+USoSASAbilityBase * USoSASTasks::CreateAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSASComponent* OwningASComp)
 {
 	if (Ability == nullptr)
 	{
@@ -431,7 +431,7 @@ USoSASAbilityBase * USoSASTasks::CreateASAbilityInstance(TSubclassOf<USoSASAbili
 }
 
 
-void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
+void USoSASTasks::ReapplyEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
 {
 	if (NewEffect.bAdditiveDuration && ExistingEffect.bAdditiveDuration)
 	{
@@ -454,7 +454,7 @@ void USoSASTasks::ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& 
 }
 
 
-UWorld* USoSASTasks::ASGetWorldFromContextObject(const UObject* WorldContextObject)
+UWorld* USoSASTasks::AbilityGetWorldFromContextObject(const UObject* WorldContextObject)
 {
 	if (WorldContextObject == nullptr || GEngine == nullptr)
 	{

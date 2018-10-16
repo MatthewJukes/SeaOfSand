@@ -34,22 +34,22 @@ public:
 	static bool DamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static FVector ASGetAimHitLocation(const AActor* Target);
+	static FVector GetAimHitLocation(const AActor* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ASWeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);
+	static bool WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool FireASProjectile(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform);
+	static bool FireProjectile(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FTransform &SpawnTransform);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool FireASProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FVector &SocketLocation);
+	static bool FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSASProjectileBase> Projectile, const FVector &SocketLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ASMeleeHitCheck(const AActor* Source, AActor* Target, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
+	static bool MeleeHitCheck(const AActor* Source, AActor* Target, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ASGetTargetsInSphere(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius);
+	static bool GetTargetsInRadius(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static ESoSTeam GetTeamFromTarget(const AActor* Target);
@@ -58,20 +58,20 @@ public:
 	static bool TeamCheck(const AActor* ActorOne, const AActor* ActorTwo);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ASApplyRootMotionConstantForce(const ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish);
+	static bool ApplyRootMotionConstantForce(const ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ASApplyRootMotionJumpForce(const ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve);
+	static bool ApplyRootMotionJumpForce(const ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve);
 	
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ASPlayAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate = 1.0f, FName StartSectionName = "None");
+	static bool PlayAbilityAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate = 1.0f, FName StartSectionName = "None");
 
-	static USoSASAbilityBase* CreateASAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSASComponent* OwningASComp);
+	static USoSASAbilityBase* CreateAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSASComponent* OwningASComp);
 
 private:
 
-	static void ReapplyASEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime);
+	static void ReapplyEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime);
 
 	UFUNCTION(meta = (WorldContext = "Instigator"), Category = "AbilityTask")
-	static UWorld* ASGetWorldFromContextObject(const UObject* WorldContextObject);
+	static UWorld* AbilityGetWorldFromContextObject(const UObject* WorldContextObject);
 };

@@ -30,10 +30,10 @@ void ASoSWeaponBase::BeginPlay()
 	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
 	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
 
-	WeaponAbilities.AbilityWeaponDraw = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponDrawClass, PlayerCharacter->GetPlayerASComponent());
-	WeaponAbilities.AbilityWeaponHolster = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponHolsterClass, PlayerCharacter->GetPlayerASComponent());
-	WeaponAbilities.AbilityWeaponPrimary = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponPrimaryClass, PlayerCharacter->GetPlayerASComponent());
-	WeaponAbilities.AbilityWeaponAlt = USoSASTasks::CreateASAbilityInstance(WeaponAbilities.AbilityWeaponAltClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponDraw = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponDrawClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponHolster = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponHolsterClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponPrimary = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponPrimaryClass, PlayerCharacter->GetPlayerASComponent());
+	WeaponAbilities.AbilityWeaponAlt = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponAltClass, PlayerCharacter->GetPlayerASComponent());
 }
 
 
