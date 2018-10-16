@@ -118,7 +118,7 @@ protected:
 	UDataTable* DamageTypeDataTable;
 
 	UPROPERTY(EditAnywhere, Category = "Character | Stats")
-	EASTeam Team;
+	ESoSTeam Team;
 
 	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	float HealthMaxStartValue;
@@ -180,7 +180,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	USoSInventoryComponent* GetOwnerInventory() const;
 
-	EASTeam GetASTeam() const;
+	ESoSTeam GetASTeam() const;
 
 	FVector* GetAimHitLocation() const;
 

@@ -55,7 +55,7 @@ enum class EASTag : uint8
 
 
 UENUM(BlueprintType)
-enum class EASTeam : uint8
+enum class ESoSTeam : uint8
 {
 	Default,
 	Player,

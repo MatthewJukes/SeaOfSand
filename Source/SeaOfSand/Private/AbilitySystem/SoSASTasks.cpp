@@ -15,7 +15,7 @@
 #include "DrawDebugHelpers.h"
 
 
-bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, AActor* Source, FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
+bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
 { 
 	if (Target == nullptr || Source == nullptr)
 	{
@@ -57,7 +57,7 @@ bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, AActor* Source, FA
 	// Check to see if effect already exists on target
 	float ApplicationTime = ASGetWorldFromContextObject(Source)->GetTimeSeconds();
 	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
-	if (CheckIfTargetHasASEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
+	if (CheckIfTargetHasEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyASEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
 		TargetASComp->OnEffectUpdate.Broadcast(TargetASComp, TargetCurrentEffectsArray[EffectIndex], EASEffectUpdateEventType::Reapplied);
@@ -91,7 +91,7 @@ bool USoSASTasks::ApplyASEffectToTarget(const AActor* Target, AActor* Source, FA
 } 
 
 
-bool USoSASTasks::CheckIfTargetHasASEffectActive(const AActor* Target, FName EffectName, int32& OutIndex)
+bool USoSASTasks::CheckIfTargetHasEffectActive(const AActor* Target, FName EffectName, int32& OutIndex)
 {
 	if (Target == nullptr)
 	{
@@ -122,7 +122,7 @@ bool USoSASTasks::CheckIfTargetHasASEffectActive(const AActor* Target, FName Eff
 }
 
 
-bool USoSASTasks::ASDamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType)
+bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType)
 {
 	if (Target == nullptr || Value <= 0.0f)
 	{
@@ -285,21 +285,49 @@ bool USoSASTasks::ASGetTargetsInSphere(const AActor* Source, TArray<FHitResult> 
 }
 
 
-EASTeam USoSASTasks::GetASTeam(const AActor* Target)
+ESoSTeam USoSASTasks::GetTeamFromTarget(const AActor* Target)
 {
 	if (Target == nullptr)
 	{
-		return EASTeam::Default;
+		return ESoSTeam::Default;
 	}
 
 	USoSASComponent* TargetASComp = Cast<USoSASComponent>(Target->GetComponentByClass(USoSASComponent::StaticClass()));
 
 	if (TargetASComp == nullptr)
 	{
-		return EASTeam::Default;
+		return ESoSTeam::Default;
 	}
 
 	return TargetASComp->GetASTeam();
+}
+
+
+bool USoSASTasks::TeamCheck(const AActor* ActorOne, const AActor* ActorTwo)
+{
+	if (ActorOne == ActorTwo)
+	{
+		return true;
+	}
+
+	if (ActorOne == nullptr || ActorTwo == nullptr)
+	{
+		return false;
+	}
+
+	USoSASComponent* ASCompOne = Cast<USoSASComponent>(ActorOne->GetComponentByClass(USoSASComponent::StaticClass()));
+	USoSASComponent* ASCompTwo = Cast<USoSASComponent>(ActorTwo->GetComponentByClass(USoSASComponent::StaticClass()));
+	if (ASCompOne == nullptr || ASCompTwo == nullptr)
+	{
+		return false;
+	}
+
+	if (ASCompOne->GetASTeam() == ASCompTwo->GetASTeam())
+	{
+		return true;
+	}
+
+	return false;
 }
 
 

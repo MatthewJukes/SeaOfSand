@@ -619,7 +619,7 @@ USoSInventoryComponent* USoSASComponent::GetOwnerInventory() const
 	return OwnerInventory;
 }
 
-EASTeam USoSASComponent::GetASTeam() const
+ESoSTeam USoSASComponent::GetASTeam() const
 {
 	return Team;
 }
