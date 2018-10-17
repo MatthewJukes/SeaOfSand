@@ -7,13 +7,13 @@
 #include "SoSASEffectData.generated.h"
 
 class USoSASAbilityBase;
-enum class EASAttributeName : uint8;
-enum class EASDamageTypeName : uint8;
-enum class EASTag : uint8;
+enum class EAttributeName : uint8;
+enum class ESoSDamageTypeName : uint8;
+enum class EAbilityTag : uint8;
 
 
 UENUM(BlueprintType)
-enum class EASEffectAlignment : uint8
+enum class EEffectAlignment : uint8
 {
 	Positive,
 	Neutral,
@@ -22,7 +22,7 @@ enum class EASEffectAlignment : uint8
 
 
 UENUM(BlueprintType)
-enum class EASEffectValueType : uint8 // Attribute modification formula type
+enum class EEffectValueType : uint8 // Attribute modification formula type
 {
 	Additive,
 	Multiplicative,
@@ -31,7 +31,7 @@ enum class EASEffectValueType : uint8 // Attribute modification formula type
 
 
 UENUM(BlueprintType)
-enum class EASEffectAbilityTickType : uint8
+enum class EEffectAbilityTickType : uint8
 {
 	EveryTick,
 	FirstTick,
@@ -40,15 +40,15 @@ enum class EASEffectAbilityTickType : uint8
 
 
 USTRUCT(BlueprintType)
-struct FASEffectAttributeModifierModule
+struct FEffectAttributeModifierModule
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EASAttributeName AttributeToEffect;
+	EAttributeName AttributeToEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EASEffectValueType ModifierValueType;
+	EEffectValueType ModifierValueType;
 
 	// Magnitude of the effect. Multiplicative and Subtractive should be given in percentage values. 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
@@ -63,12 +63,12 @@ struct FASEffectAttributeModifierModule
 
 
 USTRUCT(BlueprintType)
-struct FASEffectDamageModule
+struct FEffectDamageModule
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EASDamageTypeName DamageType;
+	ESoSDamageTypeName DamageType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "0.001", UIMin = "0.001"))
 	float DamageValue;
@@ -76,7 +76,7 @@ struct FASEffectDamageModule
 
 
 USTRUCT(BlueprintType)
-struct FASEffectAbilityModule
+struct FEffectAbilityModule
 {
 	GENERATED_BODY()
 
@@ -84,7 +84,7 @@ struct FASEffectAbilityModule
 	TSubclassOf<USoSASAbilityBase> AbilityClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EASEffectAbilityTickType UseAbilityOn;
+	EEffectAbilityTickType UseAbilityOn;
 
 	UPROPERTY()
 	USoSASAbilityBase* Ability;
@@ -92,7 +92,7 @@ struct FASEffectAbilityModule
 
 
 USTRUCT(BlueprintType)
-struct FASEffectData : public FTableRowBase
+struct FEffectData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -111,7 +111,7 @@ struct FASEffectData : public FTableRowBase
 	bool bHideFromUI;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Parameters")
-	EASEffectAlignment EffectAlignment;
+	EEffectAlignment EffectAlignment;
 
 	// The rate in seconds at which the value is reapplied over the duration of the effect, 0 means the effect will tick only once
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Parameters")
@@ -130,25 +130,25 @@ struct FASEffectData : public FTableRowBase
 	bool bAdditiveDuration;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
-	TArray<FASEffectAttributeModifierModule> AttributeModifierModules;
+	TArray<FEffectAttributeModifierModule> AttributeModifierModules;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
-	TArray<FASEffectDamageModule> DamageModules;
+	TArray<FEffectDamageModule> DamageModules;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
-	TArray<FASEffectAbilityModule> AbilityModules;
+	TArray<FEffectAbilityModule> AbilityModules;
 
 	// Tags to apply to target
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
-	TArray<EASTag> EffectAppliesTags;
+	TArray<EAbilityTag> EffectAppliesTags;
 
 	// Tags that will stop the effect from being applied or remove it if in effect
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
-	TArray<EASTag> EffectBlockedByTags;
+	TArray<EAbilityTag> EffectBlockedByTags;
 
 	// Tags required for the effect to to be applied, effect will not be removed if the tag is removed/expires
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
-	TArray<EASTag> EffectRequiresTags;
+	TArray<EAbilityTag> EffectRequiresTags;
 
 	// Effect status trackers
 

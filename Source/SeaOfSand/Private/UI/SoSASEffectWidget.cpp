@@ -9,7 +9,7 @@ USoSASEffectWidget::USoSASEffectWidget()
 
 }
 
-FASEffectData* USoSASEffectWidget::GetEffect()
+FEffectData* USoSASEffectWidget::GetEffect()
 {
 	return EffectReference;
 }

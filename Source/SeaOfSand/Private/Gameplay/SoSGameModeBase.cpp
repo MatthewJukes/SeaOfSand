@@ -35,6 +35,6 @@ void ASoSGameModeBase::CheckASComponents()
 {
 	for (USoSASComponent* ASComp : ASComponentsToCheck)
 	{
-		ASComp->LoopOverCurrentASEffectsArray();
+		ASComp->LoopOverCurrentEffectsArray();
 	}
 }

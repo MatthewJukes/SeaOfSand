@@ -12,7 +12,7 @@ ASoSMeleeWeapon::ASoSMeleeWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 
 	DamageCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("DamageCapsule"));
-	DamageCapsule->AttachToComponent(RootComponent);
+	DamageCapsule->SetupAttachment(RootComponent);
 
 	WeaponType = EWeaponType::Melee;
 }

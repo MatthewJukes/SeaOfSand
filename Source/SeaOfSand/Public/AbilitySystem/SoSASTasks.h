@@ -25,13 +25,13 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ApplyEffectToTarget(const AActor* Target, AActor* Source, UPARAM(ref) FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
+	static bool ApplyEffectToTarget(const AActor* Target, AActor* Source, UPARAM(ref) FEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool CheckIfTargetHasEffectActive(const AActor* Target, FName EffectName, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool DamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType);
+	static bool DamageTarget(const AActor* Target, const AActor* Source, float Value, ESoSDamageTypeName DamageType);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static FVector GetAimHitLocation(const AActor* Target);
@@ -70,7 +70,7 @@ public:
 
 private:
 
-	static void ReapplyEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime);
+	static void ReapplyEffect(FEffectData& ExistingEffect, FEffectData& NewEffect, int32 StackToApply, float ApplicationTime);
 
 	UFUNCTION(meta = (WorldContext = "Instigator"), Category = "AbilityTask")
 	static UWorld* AbilityGetWorldFromContextObject(const UObject* WorldContextObject);

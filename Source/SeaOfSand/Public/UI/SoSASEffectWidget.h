@@ -17,11 +17,11 @@ protected:
 
 	USoSASEffectWidget();
 
-	FASEffectData* EffectReference;	
+	FEffectData* EffectReference;	
 
 public:
 
-	FASEffectData* GetEffect();
+	FEffectData* GetEffect();
 
 	//UFUNCTION(BlueprintCallable, "EffectWidget")
 	//void SetEffectReference(FASEffectData& Effect);

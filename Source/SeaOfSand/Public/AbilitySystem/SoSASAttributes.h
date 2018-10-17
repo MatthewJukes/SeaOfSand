@@ -8,7 +8,7 @@
 
 
 UENUM(BlueprintType)
-enum class EASAttributeName : uint8
+enum class EAttributeName : uint8
 {
 	HealthMax,
 	HealthCurrent,
@@ -21,7 +21,7 @@ enum class EASAttributeName : uint8
 
 
 USTRUCT(BlueprintType)
-struct FASAttributeData
+struct FAttributeData
 {
 	GENERATED_BODY()
 
@@ -42,7 +42,7 @@ struct FASAttributeData
 
 
 UENUM(BlueprintType)
-enum class EASTag : uint8
+enum class EAbilityTag : uint8
 {
 	Sprinting,
 	SprintEnd,
@@ -64,7 +64,7 @@ enum class ESoSTeam : uint8
 
 
 UENUM(BlueprintType)
-enum class EASDamageTypeName : uint8
+enum class ESoSDamageTypeName : uint8
 {
 	Default,
 	Pure,
@@ -73,16 +73,16 @@ enum class EASDamageTypeName : uint8
 
 
 USTRUCT(BlueprintType)
-struct FASDamageType : public FTableRowBase
+struct FSoSDamageType : public FTableRowBase
 {
 	GENERATED_BODY()
 		
 	// Percent of damage that bypasses armour
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "0.0", UIMin = "0.0", ClampMax = "100.0", UIMax = "100.0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DamageType", meta = (ClampMin = "0.0", UIMin = "0.0", ClampMax = "100.0", UIMax = "100.0"))
 	float ArmourPenetration;
 
 	// Percent of negated damage armour takes instead 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect", meta = (ClampMin = "0.0", UIMin = "0.0"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DamageType", meta = (ClampMin = "0.0", UIMin = "0.0"))
 	float ArmourDamage;
 
 };

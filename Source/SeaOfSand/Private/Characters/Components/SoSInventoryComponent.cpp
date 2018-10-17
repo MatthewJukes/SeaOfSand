@@ -162,7 +162,7 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 		return;
 	}
 
-	if (PlayerCharacter->GetPlayerASComponent()->GetASOwnerState() == EASOwnerState::PerformingAction)
+	if (PlayerCharacter->GetPlayerASComponent()->GetOwnerState() == EASOwnerState::PerformingAction)
 	{
 		return;
 	}

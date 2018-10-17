@@ -21,7 +21,7 @@ USoSASComponent::USoSASComponent()
 	EnergyMaxStartValue = 100;
 	SpeedStartValue = 400;
 
-	CurrentASEffects.Reserve(10);
+	CurrentEffects.Reserve(10);
 
 	ConstructorHelpers::FObjectFinder<UDataTable> DT_DamageTypes(TEXT("DataTable'/Game/AbilitySystem/Data/DT_ASDamageTypes.DT_ASDamageTypes'"));
 	DamageTypeDataTable = DT_DamageTypes.Object;
@@ -33,21 +33,21 @@ void USoSASComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ASAttributeBaseValues.HealthMaxValue = HealthMaxStartValue;
-	ASAttributeBaseValues.HealthCurrentValue = HealthMaxStartValue;
-	ASAttributeBaseValues.ArmourMaxValue = ArmourMaxStartValue;
-	ASAttributeBaseValues.ArmourCurrentValue = ArmourMaxStartValue;
-	ASAttributeBaseValues.EnergyMaxValue = EnergyMaxStartValue;
-	ASAttributeBaseValues.EnergyCurrentValue = EnergyMaxStartValue;
-	ASAttributeBaseValues.SpeedValue = SpeedStartValue;
+	AttributeBaseValues.HealthMaxValue = HealthMaxStartValue;
+	AttributeBaseValues.HealthCurrentValue = HealthMaxStartValue;
+	AttributeBaseValues.ArmourMaxValue = ArmourMaxStartValue;
+	AttributeBaseValues.ArmourCurrentValue = ArmourMaxStartValue;
+	AttributeBaseValues.EnergyMaxValue = EnergyMaxStartValue;
+	AttributeBaseValues.EnergyCurrentValue = EnergyMaxStartValue;
+	AttributeBaseValues.SpeedValue = SpeedStartValue;
 
-	ASAttributeTempMultiplierValues.HealthMaxValue = 1;
-	ASAttributeTempMultiplierValues.HealthCurrentValue = 1;
-	ASAttributeTempMultiplierValues.ArmourMaxValue = 1;
-	ASAttributeTempMultiplierValues.ArmourCurrentValue = 1;
-	ASAttributeTempMultiplierValues.EnergyMaxValue = 1;
-	ASAttributeTempMultiplierValues.EnergyCurrentValue = 1;
-	ASAttributeTempMultiplierValues.SpeedValue = 1;
+	AttributeTempMultiplierValues.HealthMaxValue = 1;
+	AttributeTempMultiplierValues.HealthCurrentValue = 1;
+	AttributeTempMultiplierValues.ArmourMaxValue = 1;
+	AttributeTempMultiplierValues.ArmourCurrentValue = 1;
+	AttributeTempMultiplierValues.EnergyMaxValue = 1;
+	AttributeTempMultiplierValues.EnergyCurrentValue = 1;
+	AttributeTempMultiplierValues.SpeedValue = 1;
 
 	SoSGameMode = Cast<ASoSGameModeBase>(GetWorld()->GetAuthGameMode());
 	SoSGameMode->AddASComponentToArray(this);
@@ -58,22 +58,22 @@ void USoSASComponent::BeginPlay()
 }
 
 
-void USoSASComponent::LoopOverCurrentASEffectsArray()
+void USoSASComponent::LoopOverCurrentEffectsArray()
 {
 	int32 Index = 0;
 	TArray<int32> EffectIndexToRemove;
-	for (FASEffectData& Effect : CurrentASEffects)
+	for (FEffectData& Effect : CurrentEffects)
 	{
-		CheckASEffectStatus(Effect);
+		CheckEffectStatus(Effect);
 		if (Effect.bExpired)
 		{
 			EffectIndexToRemove.Add(Index);
 		}
 		Index++;
 	}
-	RemoveASEffectFromArrayByIndexArray(EffectIndexToRemove);
+	RemoveEffectFromArrayByIndexArray(EffectIndexToRemove);
 
-	CalculateASAttributeTotalValues();
+	CalculateAttributeTotalValues();
 	//UE_LOG(LogTemp, Warning, TEXT("ASComp: %s, MaxHealth: %f"), *this->GetFName().ToString(), ASAttributeTotalValues.HealthMaxValue);
 	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
 	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
@@ -81,13 +81,13 @@ void USoSASComponent::LoopOverCurrentASEffectsArray()
 }
 
 
-void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
+void USoSASComponent::CheckEffectStatus(FEffectData& Effect)
 {
 	// Check if effect should expire
 	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect.EffectStartTime;
 	if (EffectElapsedTime >= Effect.EffectDuration)
 	{
-		EndASEffect(Effect);
+		EndEffect(Effect);
 		return;
 	}
 
@@ -97,17 +97,17 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 	{
 		Effect.LastTickTime = GetWorld()->GetTimeSeconds();
 		
-		for (FASEffectAttributeModifierModule& Module : Effect.AttributeModifierModules)
+		for (FEffectAttributeModifierModule& Module : Effect.AttributeModifierModules)
 		{
-			HandleASEffectAttributeModifierValue(Effect, Module, false);
+			HandleEffectAttributeModifierValue(Effect, Module, false);
 		}
 
-		for (FASEffectAbilityModule& Module : Effect.AbilityModules)
+		for (FEffectAbilityModule& Module : Effect.AbilityModules)
 		{
-			HandleASEffectAbility(Effect, Module);
+			HandleEffectAbility(Effect, Module);
 		}
 
-		for (FASEffectDamageModule& Module : Effect.DamageModules)
+		for (FEffectDamageModule& Module : Effect.DamageModules)
 		{
 			FString RowString;
 			DamageCalculation(Module.DamageValue * Effect.CurrentStacks, Module.DamageType);
@@ -118,7 +118,7 @@ void USoSASComponent::CheckASEffectStatus(FASEffectData& Effect)
 }
 
 
-void USoSASComponent::HandleASEffectAttributeModifierValue(FASEffectData& Effect, FASEffectAttributeModifierModule& Module, bool bUseTotalValue)
+void USoSASComponent::HandleEffectAttributeModifierValue(FEffectData& Effect, FEffectAttributeModifierModule& Module, bool bUseTotalValue)
 { 
 	float PosNegMultiplier = Module.ModifierValue < 0 ? -1 : 1;
 	float NewValue = Effect.bNonTicking ? FMath::Abs(Module.ModifierValue) * Effect.NewStacks * PosNegMultiplier : FMath::Abs(Module.ModifierValue) * Effect.CurrentStacks * PosNegMultiplier;
@@ -129,16 +129,16 @@ void USoSASComponent::HandleASEffectAttributeModifierValue(FASEffectData& Effect
 	{
 		switch (Module.ModifierValueType)
 		{
-		case EASEffectValueType::Additive:
-			AddValueToASAttributeData(ASAttributeTempAdditiveValues, Module.AttributeToEffect, NewValue);
+		case EEffectValueType::Additive:
+			AddValueToAttributeData(AttributeTempAdditiveValues, Module.AttributeToEffect, NewValue);
 			break;
-		case EASEffectValueType::Multiplicative:
+		case EEffectValueType::Multiplicative:
 			NewValue *= 0.01f;
-			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Module.AttributeToEffect, NewValue);
+			AddValueToAttributeData(AttributeTempMultiplierValues, Module.AttributeToEffect, NewValue);
 			break;
-		case EASEffectValueType::Subtractive:
+		case EEffectValueType::Subtractive:
 			NewValue *= 0.01f;
-			AddValueToASAttributeData(ASAttributeTempMultiplierValues, Module.AttributeToEffect, -NewValue);
+			AddValueToAttributeData(AttributeTempMultiplierValues, Module.AttributeToEffect, -NewValue);
 			break;
 		default:
 			break;
@@ -148,16 +148,16 @@ void USoSASComponent::HandleASEffectAttributeModifierValue(FASEffectData& Effect
 	{
 		switch (Module.ModifierValueType)
 		{
-		case EASEffectValueType::Additive:
-			AddValueToASAttributeData(ASAttributeBaseValues, Module.AttributeToEffect, NewValue);
+		case EEffectValueType::Additive:
+			AddValueToAttributeData(AttributeBaseValues, Module.AttributeToEffect, NewValue);
 			break;
-		case EASEffectValueType::Multiplicative:
+		case EEffectValueType::Multiplicative:
 			NewValue *= 0.01f;
-			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Module.AttributeToEffect, 1 + NewValue);
+			MultiplyAttributeDataByValue(AttributeBaseValues, Module.AttributeToEffect, 1 + NewValue);
 			break;
-		case EASEffectValueType::Subtractive:
+		case EEffectValueType::Subtractive:
 			NewValue *= 0.01f;
-			MultiplyASAttributeDataByValue(ASAttributeBaseValues, Module.AttributeToEffect, 1 - NewValue);
+			MultiplyAttributeDataByValue(AttributeBaseValues, Module.AttributeToEffect, 1 - NewValue);
 			break;
 		default:
 			break;
@@ -166,7 +166,7 @@ void USoSASComponent::HandleASEffectAttributeModifierValue(FASEffectData& Effect
 }
 
 
-void USoSASComponent::HandleASEffectAbility(FASEffectData& Effect, FASEffectAbilityModule& Module)
+void USoSASComponent::HandleEffectAbility(FEffectData& Effect, FEffectAbilityModule& Module)
 {
 	if (Module.Ability == nullptr)
 	{
@@ -174,12 +174,12 @@ void USoSASComponent::HandleASEffectAbility(FASEffectData& Effect, FASEffectAbil
 		return;
 	}
 
-	if (Module.UseAbilityOn == EASEffectAbilityTickType::FirstTick && !Effect.bFirstTick)
+	if (Module.UseAbilityOn == EEffectAbilityTickType::FirstTick && !Effect.bFirstTick)
 	{
 		return;
 	}
 
-	if (Module.UseAbilityOn == EASEffectAbilityTickType::LastTick)
+	if (Module.UseAbilityOn == EEffectAbilityTickType::LastTick)
 	{
 		float EffectTimeRemaining = Effect.EffectDuration - (GetWorld()->GetTimeSeconds() - Effect.EffectStartTime);
 		if (EffectTimeRemaining > Effect.TickRate)
@@ -192,16 +192,16 @@ void USoSASComponent::HandleASEffectAbility(FASEffectData& Effect, FASEffectAbil
 	Module.Ability->StartAbility(Effect.Source, SourceInventory->GetCurrentWeapon());
 }
 
-void USoSASComponent::TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventType)
+void USoSASComponent::TagUpdate(const EAbilityTag& Tag, EASTagUpdateEventType EventType)
 {
 	switch (EventType)
 	{
 	case EASTagUpdateEventType::Added:
-		for (FASEffectData& Effect : CurrentASEffects)
+		for (FEffectData& Effect : CurrentEffects)
 		{
 			if (Effect.EffectBlockedByTags.Contains(Tag))
 			{
-				EndASEffect(Effect);
+				EndEffect(Effect);
 			}
 		}
 		break;
@@ -213,9 +213,9 @@ void USoSASComponent::TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventTy
 }
 
 
-void USoSASComponent::DamageCalculation(float Damage, EASDamageTypeName DamageTypeName)
+void USoSASComponent::DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName)
 {
-	FASDamageType* DamageType = new FASDamageType;
+	FSoSDamageType* DamageType = new FSoSDamageType;
 	DamageType->ArmourPenetration = 0;
 	DamageType->ArmourDamage = 50;
 
@@ -223,20 +223,20 @@ void USoSASComponent::DamageCalculation(float Damage, EASDamageTypeName DamageTy
 
 	switch (DamageTypeName)
 	{
-	case EASDamageTypeName::Default:
-		DamageType = DamageTypeDataTable->FindRow<FASDamageType>(FName("Default"), ReferenceString);
+	case ESoSDamageTypeName::Default:
+		DamageType = DamageTypeDataTable->FindRow<FSoSDamageType>(FName("Default"), ReferenceString);
 		break;
-	case EASDamageTypeName::Pure:
-		DamageType = DamageTypeDataTable->FindRow<FASDamageType>(FName("Pure"), ReferenceString);
+	case ESoSDamageTypeName::Pure:
+		DamageType = DamageTypeDataTable->FindRow<FSoSDamageType>(FName("Pure"), ReferenceString);
 		break;
-	case EASDamageTypeName::Fire:
-		DamageType = DamageTypeDataTable->FindRow<FASDamageType>(FName("Fire"), ReferenceString);
+	case ESoSDamageTypeName::Fire:
+		DamageType = DamageTypeDataTable->FindRow<FSoSDamageType>(FName("Fire"), ReferenceString);
 		break;
 	default:
 		break;
 	}
 
-	float MaxRawDamageReductionByArmour = FMath::Max(1.0f, ASAttributeTotalValues.ArmourCurrentValue * 0.1f); // 10% of current armour
+	float MaxRawDamageReductionByArmour = FMath::Max(1.0f, AttributeTotalValues.ArmourCurrentValue * 0.1f); // 10% of current armour
 	
 	// Calculate armour penetration
 	float HealthDamage = Damage * (DamageType->ArmourPenetration * 0.01f);
@@ -245,34 +245,34 @@ void USoSASComponent::DamageCalculation(float Damage, EASDamageTypeName DamageTy
 	// Calculate armour damage
 	float ArmourDamage = (Damage - HealthDamage) * (DamageType->ArmourDamage * 0.01f);
 
-	AddValueToASAttributeBaseValues(EASAttributeName::HealthCurrent, -HealthDamage);
-	AddValueToASAttributeBaseValues(EASAttributeName::ArmourCurrent, -ArmourDamage);
+	AddValueToAttributeBaseValues(EAttributeName::HealthCurrent, -HealthDamage);
+	AddValueToAttributeBaseValues(EAttributeName::ArmourCurrent, -ArmourDamage);
 }
 
 
-void USoSASComponent::AddValueToASAttributeData(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value)
+void USoSASComponent::AddValueToAttributeData(FAttributeData& AttributeData, EAttributeName Attribute, float Value)
 {
 	switch (Attribute)
 	{
-	case EASAttributeName::HealthMax:
+	case EAttributeName::HealthMax:
 		AttributeData.HealthMaxValue += Value;
 		break;
-	case EASAttributeName::HealthCurrent:
+	case EAttributeName::HealthCurrent:
 		AttributeData.HealthCurrentValue += Value;
 		break;
-	case EASAttributeName::ArmourMax:
+	case EAttributeName::ArmourMax:
 		AttributeData.ArmourMaxValue += Value;
 		break;
-	case EASAttributeName::ArmourCurrent:
+	case EAttributeName::ArmourCurrent:
 		AttributeData.ArmourCurrentValue += Value;
 		break;
-	case EASAttributeName::EnergyMax:
+	case EAttributeName::EnergyMax:
 		AttributeData.EnergyMaxValue += Value;
 		break;
-	case EASAttributeName::EnergyCurrent:
+	case EAttributeName::EnergyCurrent:
 		AttributeData.EnergyCurrentValue += Value;
 		break;
-	case EASAttributeName::Speed:
+	case EAttributeName::Speed:
 		AttributeData.SpeedValue += Value;
 		break;
 	default:
@@ -281,29 +281,29 @@ void USoSASComponent::AddValueToASAttributeData(FASAttributeData& AttributeData,
 }
 
 
-void USoSASComponent::MultiplyASAttributeDataByValue(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value)
+void USoSASComponent::MultiplyAttributeDataByValue(FAttributeData& AttributeData, EAttributeName Attribute, float Value)
 {
 	switch (Attribute)
 	{
-	case EASAttributeName::HealthMax:
+	case EAttributeName::HealthMax:
 		AttributeData.HealthMaxValue *= Value;
 		break;
-	case EASAttributeName::HealthCurrent:
+	case EAttributeName::HealthCurrent:
 		AttributeData.HealthCurrentValue *= Value;
 		break;
-	case EASAttributeName::ArmourMax:
+	case EAttributeName::ArmourMax:
 		AttributeData.ArmourMaxValue *= Value;
 		break;
-	case EASAttributeName::ArmourCurrent:
+	case EAttributeName::ArmourCurrent:
 		AttributeData.ArmourCurrentValue *= Value;
 		break;
-	case EASAttributeName::EnergyMax:
+	case EAttributeName::EnergyMax:
 		AttributeData.EnergyMaxValue *= Value;
 		break;
-	case EASAttributeName::EnergyCurrent:
+	case EAttributeName::EnergyCurrent:
 		AttributeData.EnergyCurrentValue *= Value;
 		break;
-	case EASAttributeName::Speed:
+	case EAttributeName::Speed:
 		AttributeData.SpeedValue *= Value;
 		break;
 	default:
@@ -312,24 +312,24 @@ void USoSASComponent::MultiplyASAttributeDataByValue(FASAttributeData& Attribute
 }
 
 
-void USoSASComponent::CalculateASAttributeTotalValues()
+void USoSASComponent::CalculateAttributeTotalValues()
 {
-	ASAttributeTotalValues.HealthMaxValue = FMath::Max(1.0f, ASAttributeBaseValues.HealthMaxValue * ASAttributeTempMultiplierValues.HealthMaxValue + ASAttributeTempAdditiveValues.HealthMaxValue);
+	AttributeTotalValues.HealthMaxValue = FMath::Max(1.0f, AttributeBaseValues.HealthMaxValue * AttributeTempMultiplierValues.HealthMaxValue + AttributeTempAdditiveValues.HealthMaxValue);
 
-	ASAttributeTotalValues.HealthCurrentValue = FMath::Clamp(ASAttributeBaseValues.HealthCurrentValue * ASAttributeTempMultiplierValues.HealthCurrentValue + ASAttributeTempAdditiveValues.HealthCurrentValue, 0.0f, ASAttributeTotalValues.HealthMaxValue);
-	ASAttributeBaseValues.HealthCurrentValue = FMath::Clamp(ASAttributeBaseValues.HealthCurrentValue, 0.0f, ASAttributeTotalValues.HealthMaxValue + (ASAttributeBaseValues.HealthCurrentValue - (ASAttributeBaseValues.HealthCurrentValue * ASAttributeTempMultiplierValues.HealthCurrentValue + ASAttributeTempAdditiveValues.HealthCurrentValue)));
+	AttributeTotalValues.HealthCurrentValue = FMath::Clamp(AttributeBaseValues.HealthCurrentValue * AttributeTempMultiplierValues.HealthCurrentValue + AttributeTempAdditiveValues.HealthCurrentValue, 0.0f, AttributeTotalValues.HealthMaxValue);
+	AttributeBaseValues.HealthCurrentValue = FMath::Clamp(AttributeBaseValues.HealthCurrentValue, 0.0f, AttributeTotalValues.HealthMaxValue + (AttributeBaseValues.HealthCurrentValue - (AttributeBaseValues.HealthCurrentValue * AttributeTempMultiplierValues.HealthCurrentValue + AttributeTempAdditiveValues.HealthCurrentValue)));
 
-	ASAttributeTotalValues.ArmourMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.ArmourMaxValue * ASAttributeTempMultiplierValues.ArmourMaxValue + ASAttributeTempAdditiveValues.ArmourMaxValue);
+	AttributeTotalValues.ArmourMaxValue = FMath::Max(0.0f, AttributeBaseValues.ArmourMaxValue * AttributeTempMultiplierValues.ArmourMaxValue + AttributeTempAdditiveValues.ArmourMaxValue);
 
-	ASAttributeTotalValues.ArmourCurrentValue = FMath::Clamp(ASAttributeBaseValues.ArmourCurrentValue * ASAttributeTempMultiplierValues.ArmourCurrentValue + ASAttributeTempAdditiveValues.ArmourCurrentValue, 0.0f, ASAttributeTotalValues.ArmourMaxValue);
-	ASAttributeBaseValues.ArmourCurrentValue = FMath::Clamp(ASAttributeBaseValues.ArmourCurrentValue, 0.0f, ASAttributeTotalValues.ArmourMaxValue + (ASAttributeBaseValues.ArmourCurrentValue - (ASAttributeBaseValues.ArmourCurrentValue * ASAttributeTempMultiplierValues.ArmourCurrentValue + ASAttributeTempAdditiveValues.ArmourCurrentValue)));
+	AttributeTotalValues.ArmourCurrentValue = FMath::Clamp(AttributeBaseValues.ArmourCurrentValue * AttributeTempMultiplierValues.ArmourCurrentValue + AttributeTempAdditiveValues.ArmourCurrentValue, 0.0f, AttributeTotalValues.ArmourMaxValue);
+	AttributeBaseValues.ArmourCurrentValue = FMath::Clamp(AttributeBaseValues.ArmourCurrentValue, 0.0f, AttributeTotalValues.ArmourMaxValue + (AttributeBaseValues.ArmourCurrentValue - (AttributeBaseValues.ArmourCurrentValue * AttributeTempMultiplierValues.ArmourCurrentValue + AttributeTempAdditiveValues.ArmourCurrentValue)));
 
-	ASAttributeTotalValues.EnergyMaxValue = FMath::Max(0.0f, ASAttributeBaseValues.EnergyMaxValue * ASAttributeTempMultiplierValues.EnergyMaxValue + ASAttributeTempAdditiveValues.EnergyMaxValue);
+	AttributeTotalValues.EnergyMaxValue = FMath::Max(0.0f, AttributeBaseValues.EnergyMaxValue * AttributeTempMultiplierValues.EnergyMaxValue + AttributeTempAdditiveValues.EnergyMaxValue);
 
-	ASAttributeTotalValues.EnergyCurrentValue = FMath::Clamp(ASAttributeBaseValues.EnergyCurrentValue * ASAttributeTempMultiplierValues.EnergyCurrentValue + ASAttributeTempAdditiveValues.EnergyCurrentValue, 0.0f, ASAttributeTotalValues.EnergyMaxValue);
-	ASAttributeBaseValues.EnergyCurrentValue = FMath::Clamp(ASAttributeBaseValues.EnergyCurrentValue, 0.0f, ASAttributeTotalValues.EnergyMaxValue + (ASAttributeBaseValues.EnergyCurrentValue - (ASAttributeBaseValues.EnergyCurrentValue * ASAttributeTempMultiplierValues.EnergyCurrentValue + ASAttributeTempAdditiveValues.EnergyCurrentValue)));
+	AttributeTotalValues.EnergyCurrentValue = FMath::Clamp(AttributeBaseValues.EnergyCurrentValue * AttributeTempMultiplierValues.EnergyCurrentValue + AttributeTempAdditiveValues.EnergyCurrentValue, 0.0f, AttributeTotalValues.EnergyMaxValue);
+	AttributeBaseValues.EnergyCurrentValue = FMath::Clamp(AttributeBaseValues.EnergyCurrentValue, 0.0f, AttributeTotalValues.EnergyMaxValue + (AttributeBaseValues.EnergyCurrentValue - (AttributeBaseValues.EnergyCurrentValue * AttributeTempMultiplierValues.EnergyCurrentValue + AttributeTempAdditiveValues.EnergyCurrentValue)));
 
-	ASAttributeTotalValues.SpeedValue = FMath::Max(0.0f, ASAttributeBaseValues.SpeedValue * ASAttributeTempMultiplierValues.SpeedValue + ASAttributeTempAdditiveValues.SpeedValue);
+	AttributeTotalValues.SpeedValue = FMath::Max(0.0f, AttributeBaseValues.SpeedValue * AttributeTempMultiplierValues.SpeedValue + AttributeTempAdditiveValues.SpeedValue);
 
 	if (ComponentOwner == nullptr)
 	{
@@ -338,25 +338,25 @@ void USoSASComponent::CalculateASAttributeTotalValues()
 
 	if (UCharacterMovementComponent* CharacterMovement = ComponentOwner->GetCharacterMovement())
 	{
-		CharacterMovement->MaxWalkSpeed = ASAttributeTotalValues.SpeedValue;
+		CharacterMovement->MaxWalkSpeed = AttributeTotalValues.SpeedValue;
 	}
 }
 
 
-void USoSASComponent::AddValueToASAttributeBaseValues(EASAttributeName Attribute, float Value)
+void USoSASComponent::AddValueToAttributeBaseValues(EAttributeName Attribute, float Value)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Effect Added: %f"), Value)
-	AddValueToASAttributeData(ASAttributeBaseValues, Attribute, Value);
+	AddValueToAttributeData(AttributeBaseValues, Attribute, Value);
 }
 
 
-void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
+void USoSASComponent::AddEffectToArray(FEffectData& EffectToAdd)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Effect Added: %s"), *EffectToAdd.EffectName.ToString())
-	CurrentASEffects.Add(EffectToAdd);
-	for (EASTag Tag : EffectToAdd.EffectAppliesTags)
+	CurrentEffects.Add(EffectToAdd);
+	for (EAbilityTag Tag : EffectToAdd.EffectAppliesTags)
 	{
-		CurrentASEffectTags.Add(Tag);
+		CurrentEffectTags.Add(Tag);
 		OnTagUpdate.Broadcast(Tag, EASTagUpdateEventType::Added);
 	}
 
@@ -364,25 +364,25 @@ void USoSASComponent::AddASEffectToArray(FASEffectData& EffectToAdd)
 }
 
 
-void USoSASComponent::RemoveASEffectFromArrayByIndex(int32 Index)
+void USoSASComponent::RemoveEffectFromArrayByIndex(int32 Index)
 {
-	OnEffectUpdate.Broadcast(this, CurrentASEffects[Index], EASEffectUpdateEventType::Removed);
+	OnEffectUpdate.Broadcast(this, CurrentEffects[Index], EASEffectUpdateEventType::Removed);
 
-	UE_LOG(LogTemp, Warning, TEXT("Effect Removed: %s"), *CurrentASEffects[Index].EffectName.ToString())
-	CurrentASEffects.RemoveAt(Index);
+	UE_LOG(LogTemp, Warning, TEXT("Effect Removed: %s"), *CurrentEffects[Index].EffectName.ToString())
+	CurrentEffects.RemoveAt(Index);
 }
 
 
-void USoSASComponent::RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove)
+void USoSASComponent::RemoveEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove)
 {
 	for (int32 Index = EffectIndexesToRemove.Num()-1; Index >= 0; Index--)
 	{
-		RemoveASEffectFromArrayByIndex(EffectIndexesToRemove[Index]);
+		RemoveEffectFromArrayByIndex(EffectIndexesToRemove[Index]);
 	}
 }
 
 
-void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
+void USoSASComponent::EndEffect(FEffectData& EffectToEnd)
 {
 	if (EffectToEnd.bExpired)
 	{
@@ -391,24 +391,24 @@ void USoSASComponent::EndASEffect(FASEffectData& EffectToEnd)
 
 	EffectToEnd.bExpired = true;
 
-	for (FASEffectAttributeModifierModule& Module : EffectToEnd.AttributeModifierModules)
+	for (FEffectAttributeModifierModule& Module : EffectToEnd.AttributeModifierModules)
 	{
 		if (Module.bTemporaryModifier)
 		{
 			Module.TotalValue = -Module.TotalValue;
-			HandleASEffectAttributeModifierValue(EffectToEnd, Module, true);
+			HandleEffectAttributeModifierValue(EffectToEnd, Module, true);
 		}
 	}
 
-	for (EASTag Tag : EffectToEnd.EffectAppliesTags)
+	for (EAbilityTag Tag : EffectToEnd.EffectAppliesTags)
 	{
-		CurrentASEffectTags.Remove(Tag);
+		CurrentEffectTags.Remove(Tag);
 		OnTagUpdate.Broadcast(Tag, EASTagUpdateEventType::Removed);
 	}
 }
 
 
-bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
+bool USoSASComponent::UseAbility(USoSASAbilityBase* Ability)
 {
 	if (Ability == nullptr)
 	{
@@ -421,13 +421,13 @@ bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 		return false;
 	}
 
-	if (!ASAbilityCheckCooldownAndCharges(Ability))
+	if (!AbilityCheckCooldownAndCharges(Ability))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability %s on cooldown"), *Ability->GetName());
 		return false;
 	}
 
-	if (ASAbilityHandleResource(Ability->GetResourceType(), Ability->GetCost()))
+	if (AbilityHandleResource(Ability->GetResourceType(), Ability->GetCost()))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 
@@ -440,7 +440,7 @@ bool USoSASComponent::UseASAbility(USoSASAbilityBase* Ability)
 }
 
 
-void USoSASComponent::ASActionStart()
+void USoSASComponent::AbilityActionStart()
 {
 	ASoSPlayerCharacter* Player = Cast<ASoSPlayerCharacter>(ComponentOwner); // TODO create a SoSCharacterBase class
 	Player->SprintEnd();
@@ -452,14 +452,14 @@ void USoSASComponent::ASActionStart()
 }
 
 
-void USoSASComponent::ASReadyComboAction()
+void USoSASComponent::AbilityReadyComboAction()
 {
 	LastAbilityToStartMontage->SetComboReady(true);
 	LastAbilityToStartMontage->ReadyComboAction();
 }
 
 
-void USoSASComponent::ASActionComplete()
+void USoSASComponent::AbilityActionComplete()
 {
 	LastAbilityToStartMontage->SetComboReady(false);
 	LastAbilityToStartMontage->ActionComplete();
@@ -468,7 +468,7 @@ void USoSASComponent::ASActionComplete()
 }
 
 
-bool USoSASComponent::ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck)
+bool USoSASComponent::AbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck)
 {
 	if (GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated() < AbilityToCheck->GetCooldown())
 	{
@@ -496,23 +496,23 @@ bool USoSASComponent::ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* Abilit
 }
 
 
-bool USoSASComponent::ASAbilityHandleResource(EASResourceType Type, float Cost)
+bool USoSASComponent::AbilityHandleResource(EASResourceType Type, float Cost)
 {
 	switch (Type)
 	{
 	case EASResourceType::Energy:
-		if (ASAttributeTotalValues.EnergyCurrentValue < Cost)
+		if (AttributeTotalValues.EnergyCurrentValue < Cost)
 		{
 			return false;
 		}
-		AddValueToASAttributeData(ASAttributeBaseValues, EASAttributeName::EnergyCurrent, -Cost);
+		AddValueToAttributeData(AttributeBaseValues, EAttributeName::EnergyCurrent, -Cost);
 		break;
 	case EASResourceType::Health:
-		if (ASAttributeTotalValues.HealthCurrentValue+1 < Cost)
+		if (AttributeTotalValues.HealthCurrentValue+1 < Cost)
 		{
 			return false;
 		}
-		AddValueToASAttributeData(ASAttributeBaseValues, EASAttributeName::HealthCurrent, -Cost);
+		AddValueToAttributeData(AttributeBaseValues, EAttributeName::HealthCurrent, -Cost);
 		break;
 	default:
 		break;
@@ -526,29 +526,29 @@ bool USoSASComponent::ASAbilityHandleResource(EASResourceType Type, float Cost)
 // Getters and Setters
 
 
-float USoSASComponent::GetASAttributeDataValue(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const
+float USoSASComponent::GetAttributeDataValue(FAttributeData* AttributeData, EAttributeName AttributeToGet) const
 {
 	switch (AttributeToGet)
 	{
-	case EASAttributeName::HealthMax:
+	case EAttributeName::HealthMax:
 		return AttributeData->HealthMaxValue;
 		break;
-	case EASAttributeName::HealthCurrent:
+	case EAttributeName::HealthCurrent:
 		return AttributeData->HealthCurrentValue;
 		break;
-	case EASAttributeName::ArmourMax:
+	case EAttributeName::ArmourMax:
 		return AttributeData->ArmourMaxValue;
 		break;
-	case EASAttributeName::ArmourCurrent:
+	case EAttributeName::ArmourCurrent:
 		return AttributeData->ArmourCurrentValue;
 		break;
-	case EASAttributeName::EnergyMax:
+	case EAttributeName::EnergyMax:
 		return AttributeData->EnergyMaxValue;
 		break;
-	case EASAttributeName::EnergyCurrent:
+	case EAttributeName::EnergyCurrent:
 		return AttributeData->EnergyCurrentValue;
 		break;
-	case EASAttributeName::Speed:
+	case EAttributeName::Speed:
 		return AttributeData->SpeedValue;
 		break;
 	default:
@@ -558,30 +558,30 @@ float USoSASComponent::GetASAttributeDataValue(FASAttributeData* AttributeData, 
 }
 
 
-float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet) const
+float USoSASComponent::GetAttributeTotalValue(EAttributeName AttributeToGet) const
 {
 	switch (AttributeToGet)
 	{
-	case EASAttributeName::HealthMax:
-		return ASAttributeTotalValues.HealthMaxValue;
+	case EAttributeName::HealthMax:
+		return AttributeTotalValues.HealthMaxValue;
 		break;
-	case EASAttributeName::HealthCurrent:
-		return ASAttributeTotalValues.HealthCurrentValue;
+	case EAttributeName::HealthCurrent:
+		return AttributeTotalValues.HealthCurrentValue;
 		break;
-	case EASAttributeName::ArmourMax:
-		return ASAttributeTotalValues.ArmourMaxValue;
+	case EAttributeName::ArmourMax:
+		return AttributeTotalValues.ArmourMaxValue;
 		break;
-	case EASAttributeName::ArmourCurrent:
-		return ASAttributeTotalValues.ArmourCurrentValue;
+	case EAttributeName::ArmourCurrent:
+		return AttributeTotalValues.ArmourCurrentValue;
 		break;
-	case EASAttributeName::EnergyMax:
-		return ASAttributeTotalValues.EnergyMaxValue;
+	case EAttributeName::EnergyMax:
+		return AttributeTotalValues.EnergyMaxValue;
 		break;
-	case EASAttributeName::EnergyCurrent:
-		return ASAttributeTotalValues.EnergyCurrentValue;
+	case EAttributeName::EnergyCurrent:
+		return AttributeTotalValues.EnergyCurrentValue;
 		break;
-	case EASAttributeName::Speed:
-		return ASAttributeTotalValues.SpeedValue;
+	case EAttributeName::Speed:
+		return AttributeTotalValues.SpeedValue;
 		break;
 	default:
 		return -1;
@@ -590,19 +590,19 @@ float USoSASComponent::GetASAttributeTotalValue(EASAttributeName AttributeToGet)
 }
 
 
-TArray<FASEffectData>& USoSASComponent::GetCurrentEffectsArray()
+TArray<FEffectData>& USoSASComponent::GetCurrentEffectsArray()
 {
-	return CurrentASEffects;
+	return CurrentEffects;
 }
 
 
-TArray<EASTag>& USoSASComponent::GetCurrentASEffectTags()
+TArray<EAbilityTag>& USoSASComponent::GetCurrentEffectTags()
 {
-	return CurrentASEffectTags;
+	return CurrentEffectTags;
 }
 
 
-EASOwnerState USoSASComponent::GetASOwnerState() const
+EASOwnerState USoSASComponent::GetOwnerState() const
 {
 	return OwnerState;
 }
@@ -619,7 +619,7 @@ USoSInventoryComponent* USoSASComponent::GetOwnerInventory() const
 	return OwnerInventory;
 }
 
-ESoSTeam USoSASComponent::GetASTeam() const
+ESoSTeam USoSASComponent::GetTeam() const
 {
 	return Team;
 }
@@ -631,7 +631,7 @@ FVector* USoSASComponent::GetAimHitLocation() const
 }
 
 
-void USoSASComponent::SetASOwnerState(EASOwnerState NewState)
+void USoSASComponent::SetOwnerState(EASOwnerState NewState)
 {
 	OwnerState = NewState;
 }

@@ -47,7 +47,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	// Configure character movement 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->MaxWalkSpeed = ASComp->GetASAttributeTotalValue(EASAttributeName::Speed);
+	GetCharacterMovement()->MaxWalkSpeed = ASComp->GetAttributeTotalValue(EAttributeName::Speed);
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -183,7 +183,7 @@ void ASoSPlayerCharacter::SprintStart()
 	{
 		AimEnd();
 		SprintZoom(true);
-		ASComp->SetASOwnerState(EASOwnerState::Sprinting);
+		ASComp->SetOwnerState(EASOwnerState::Sprinting);
 		
 		if (InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
@@ -198,7 +198,7 @@ void ASoSPlayerCharacter::SprintStart()
 
 void ASoSPlayerCharacter::SprintEnd()
 {
-	if (ASComp->GetASOwnerState() != EASOwnerState::Sprinting)
+	if (ASComp->GetOwnerState() != EASOwnerState::Sprinting)
 	{
 		return;
 	}
@@ -206,7 +206,7 @@ void ASoSPlayerCharacter::SprintEnd()
 	if (UseAbility(AbilityBar.AbilitySprintEnd))
 	{
 		SprintZoom(false);
-		ASComp->SetASOwnerState(EASOwnerState::Normal);
+		ASComp->SetOwnerState(EASOwnerState::Normal);
 	
 		if (InventoryComp->GetCurrentWeapon()->GetWeaponState() != EWeaponState::Holstered && InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
@@ -239,14 +239,14 @@ void ASoSPlayerCharacter::AimStart()
 	{
 		SprintEnd();
 		AimZoom(true);
-		ASComp->SetASOwnerState(EASOwnerState::Aiming);
+		ASComp->SetOwnerState(EASOwnerState::Aiming);
 	}	
 }
 
 
 void ASoSPlayerCharacter::AimEnd()
 {
-	if (ASComp->GetASOwnerState() != EASOwnerState::Aiming)
+	if (ASComp->GetOwnerState() != EASOwnerState::Aiming)
 	{
 		return;
 	}
@@ -254,7 +254,7 @@ void ASoSPlayerCharacter::AimEnd()
 	if (UseAbility(AbilityBar.AbilityAimEnd))
 	{
 		AimZoom(false);
-		ASComp->SetASOwnerState(EASOwnerState::Normal);
+		ASComp->SetOwnerState(EASOwnerState::Normal);
 	}
 }
 
@@ -332,7 +332,7 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index)
 
 bool ASoSPlayerCharacter::UseAbility(USoSASAbilityBase* Ability)
 {
-	return ASComp->UseASAbility(Ability);
+	return ASComp->UseAbility(Ability);
 }
 
 

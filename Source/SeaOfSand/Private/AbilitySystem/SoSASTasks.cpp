@@ -15,7 +15,7 @@
 #include "DrawDebugHelpers.h"
 
 
-bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
+bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
 { 
 	if (Target == nullptr || Source == nullptr)
 	{
@@ -30,8 +30,8 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 
 	// Check blocked by tags
 	int EffectIndex;
-	TArray<EASTag>& TargetTags = TargetASComp->GetCurrentASEffectTags();
-	for (EASTag Tag : EffectToApply.EffectBlockedByTags)
+	TArray<EAbilityTag>& TargetTags = TargetASComp->GetCurrentEffectTags();
+	for (EAbilityTag Tag : EffectToApply.EffectBlockedByTags)
 	{
 		if (TargetTags.Contains(Tag))
 		{
@@ -40,7 +40,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 	}
 
 	// Check required tags
-	for (EASTag Tag : EffectToApply.EffectRequiresTags)
+	for (EAbilityTag Tag : EffectToApply.EffectRequiresTags)
 	{
 		if (!TargetTags.Contains(Tag))
 		{
@@ -56,7 +56,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 
 	// Check to see if effect already exists on target
 	float ApplicationTime = AbilityGetWorldFromContextObject(Source)->GetTimeSeconds();
-	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
+	TArray<FEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
 	if (CheckIfTargetHasEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
@@ -66,7 +66,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 	{
 		// Create ability instances
 		USoSASComponent* SourceASComp = Cast<USoSASComponent>(Source->GetComponentByClass(USoSASComponent::StaticClass()));
-		for (FASEffectAbilityModule& Module : EffectToApply.AbilityModules)
+		for (FEffectAbilityModule& Module : EffectToApply.AbilityModules)
 		{
 			Module.Ability = CreateAbilityInstance(Module.AbilityClass, SourceASComp);
 		}
@@ -84,7 +84,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FASE
 		EffectToApply.LastTickTime = EffectToApply.bDelayFirstTick ? ApplicationTime : ApplicationTime - EffectToApply.TickRate;
 
 		// Add effect to array
-		TargetASComp->AddASEffectToArray(EffectToApply);
+		TargetASComp->AddEffectToArray(EffectToApply);
 	} 
 
 	return true;
@@ -107,8 +107,8 @@ bool USoSASTasks::CheckIfTargetHasEffectActive(const AActor* Target, FName Effec
 	}
 
 	OutIndex = 0;
-	TArray<FASEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
-	for (FASEffectData& Effect : TargetCurrentEffectsArray)
+	TArray<FEffectData>& TargetCurrentEffectsArray = TargetASComp->GetCurrentEffectsArray();
+	for (FEffectData& Effect : TargetCurrentEffectsArray)
 	{
 		if (Effect.EffectName == EffectName)
 		{
@@ -122,7 +122,7 @@ bool USoSASTasks::CheckIfTargetHasEffectActive(const AActor* Target, FName Effec
 }
 
 
-bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float Value, EASDamageTypeName DamageType)
+bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float Value, ESoSDamageTypeName DamageType)
 {
 	if (Target == nullptr || Value <= 0.0f)
 	{
@@ -299,7 +299,7 @@ ESoSTeam USoSASTasks::GetTeamFromTarget(const AActor* Target)
 		return ESoSTeam::Default;
 	}
 
-	return TargetASComp->GetASTeam();
+	return TargetASComp->GetTeam();
 }
 
 
@@ -322,7 +322,7 @@ bool USoSASTasks::TeamCheck(const AActor* ActorOne, const AActor* ActorTwo)
 		return false;
 	}
 
-	if (ASCompOne->GetASTeam() == ASCompTwo->GetASTeam())
+	if (ASCompOne->GetTeam() == ASCompTwo->GetTeam())
 	{
 		return true;
 	}
@@ -431,7 +431,7 @@ USoSASAbilityBase * USoSASTasks::CreateAbilityInstance(TSubclassOf<USoSASAbility
 }
 
 
-void USoSASTasks::ReapplyEffect(FASEffectData& ExistingEffect, FASEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
+void USoSASTasks::ReapplyEffect(FEffectData& ExistingEffect, FEffectData& NewEffect, int32 StackToApply, float ApplicationTime)
 {
 	if (NewEffect.bAdditiveDuration && ExistingEffect.bAdditiveDuration)
 	{

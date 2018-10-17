@@ -44,8 +44,8 @@ enum class EASTagUpdateEventType : uint8
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEffectUpdate, USoSASComponent*, ASComp, const FASEffectData&, Effect, EASEffectUpdateEventType, EventType);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagUpdate, const EASTag&, Tag, EASTagUpdateEventType, EventType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEffectUpdate, USoSASComponent*, ASComp, const FEffectData&, Effect, EASEffectUpdateEventType, EventType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagUpdate, const EAbilityTag&, Tag, EASTagUpdateEventType, EventType);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSASComponent : public UActorComponent
@@ -62,24 +62,24 @@ protected:
 
 public:
 
-	void LoopOverCurrentASEffectsArray();
+	void LoopOverCurrentEffectsArray();
 
-	void AddASEffectToArray(FASEffectData& EffectToAdd);
+	void AddEffectToArray(FEffectData& EffectToAdd);
 
-	void AddValueToASAttributeBaseValues(EASAttributeName Attribute, float Value);
+	void AddValueToAttributeBaseValues(EAttributeName Attribute, float Value);
 
-	bool UseASAbility(USoSASAbilityBase* Ability);
+	bool UseAbility(USoSASAbilityBase* Ability);
 
-	void DamageCalculation(float Damage, EASDamageTypeName DamageTypeName);
-
-	UFUNCTION(BlueprintCallable, Category = "ASComponent")
-	void ASActionStart();
+	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
-	void ASReadyComboAction();
+	void AbilityActionStart();
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
-	void ASActionComplete();
+	void AbilityReadyComboAction();
+
+	UFUNCTION(BlueprintCallable, Category = "ASComponent")
+	void AbilityActionComplete();
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEffectUpdate OnEffectUpdate;
@@ -89,17 +89,17 @@ public:
 
 protected:
 
-	TArray<FASEffectData> CurrentASEffects;
+	TArray<FEffectData> CurrentEffects;
 
-	TArray<EASTag> CurrentASEffectTags;
+	TArray<EAbilityTag> CurrentEffectTags;
 
-	FASAttributeData ASAttributeBaseValues;
+	FAttributeData AttributeBaseValues;
 
-	FASAttributeData ASAttributeTotalValues;
+	FAttributeData AttributeTotalValues;
 
-	FASAttributeData ASAttributeTempAdditiveValues;
+	FAttributeData AttributeTempAdditiveValues;
 
-	FASAttributeData ASAttributeTempMultiplierValues;
+	FAttributeData AttributeTempMultiplierValues;
 
 	EASOwnerState OwnerState;
 
@@ -132,47 +132,47 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Character | Stats")
 	float SpeedStartValue;
 
-	void CheckASEffectStatus(FASEffectData& Effect);
+	void CheckEffectStatus(FEffectData& Effect);
 
-	void HandleASEffectAttributeModifierValue(FASEffectData& Effect, FASEffectAttributeModifierModule& Module, bool bUseTotalValue);
+	void HandleEffectAttributeModifierValue(FEffectData& Effect, FEffectAttributeModifierModule& Module, bool bUseTotalValue);
 
-	void HandleASEffectAbility(FASEffectData& Effect, FASEffectAbilityModule& Module);
+	void HandleEffectAbility(FEffectData& Effect, FEffectAbilityModule& Module);
 
 	UFUNCTION()
-	void TagUpdate(const EASTag& Tag, EASTagUpdateEventType EventType);
+	void TagUpdate(const EAbilityTag& Tag, EASTagUpdateEventType EventType);
 
-	void AddValueToASAttributeData(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);
+	void AddValueToAttributeData(FAttributeData& AttributeData, EAttributeName Attribute, float Value);
 
-	void MultiplyASAttributeDataByValue(FASAttributeData& AttributeData, EASAttributeName Attribute, float Value);
+	void MultiplyAttributeDataByValue(FAttributeData& AttributeData, EAttributeName Attribute, float Value);
 
-	void CalculateASAttributeTotalValues();
+	void CalculateAttributeTotalValues();
 
-	void RemoveASEffectFromArrayByIndex(int32 Index);
+	void RemoveEffectFromArrayByIndex(int32 Index);
 
-	void RemoveASEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove);
+	void RemoveEffectFromArrayByIndexArray(const TArray<int32>& EffectIndexesToRemove);
 
-	void EndASEffect(FASEffectData& EffectToEnd);
+	void EndEffect(FEffectData& EffectToEnd);
 
-	bool ASAbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck);
+	bool AbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck);
 
-	bool ASAbilityHandleResource(EASResourceType Type, float Cost);
+	bool AbilityHandleResource(EASResourceType Type, float Cost);
 
 ////////////////////////////////////////////////
 // Getters and Setters
 
 public:
 	
-	float GetASAttributeDataValue(FASAttributeData* AttributeData, EASAttributeName AttributeToGet) const;
+	float GetAttributeDataValue(FAttributeData* AttributeData, EAttributeName AttributeToGet) const;
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
-	float GetASAttributeTotalValue(EASAttributeName AttributeToGet) const;
+	float GetAttributeTotalValue(EAttributeName AttributeToGet) const;
 
-	TArray<FASEffectData>& GetCurrentEffectsArray();
+	TArray<FEffectData>& GetCurrentEffectsArray();
 
-	TArray<EASTag>& GetCurrentASEffectTags();
+	TArray<EAbilityTag>& GetCurrentEffectTags();
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
-	EASOwnerState GetASOwnerState() const;
+	EASOwnerState GetOwnerState() const;
 
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	USoSASAbilityBase* GetLastAbilityToStartMontage() const;
@@ -180,11 +180,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ASComponent")
 	USoSInventoryComponent* GetOwnerInventory() const;
 
-	ESoSTeam GetASTeam() const;
+	ESoSTeam GetTeam() const;
 
 	FVector* GetAimHitLocation() const;
 
-	void SetASOwnerState(EASOwnerState NewState);
+	void SetOwnerState(EASOwnerState NewState);
 
 	void SetOwnerInventory(USoSInventoryComponent* InventoryComp);
 
