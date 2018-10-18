@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSGameModeBase.h"
-#include "SoSASComponent.h"
+#include "SoSCombatComponent.h"
 
 
 ASoSGameModeBase::ASoSGameModeBase()
@@ -14,27 +14,27 @@ void ASoSGameModeBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	CheckASComponents();
+	CheckCombatComponents();
 }
 
 
-void ASoSGameModeBase::AddASComponentToArray(USoSASComponent* ASComp)
+void ASoSGameModeBase::AddCombatComponentToArray(USoSCombatComponent* CombatComp)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASComp Added"))
-	ASComponentsToCheck.Add(ASComp);
+	UE_LOG(LogTemp, Warning, TEXT("CombatComp Added"))
+	CombatComponentsToCheck.Add(CombatComp);
 }
 
 
-void ASoSGameModeBase::RemoveASComponentToArray(USoSASComponent* ASComp)
+void ASoSGameModeBase::RemoveCombatComponentToArray(USoSCombatComponent* CombatComp)
 {
-	ASComponentsToCheck.RemoveSwap(ASComp);
+	CombatComponentsToCheck.RemoveSwap(CombatComp);
 }
 
 
-void ASoSGameModeBase::CheckASComponents()
+void ASoSGameModeBase::CheckCombatComponents()
 {
-	for (USoSASComponent* ASComp : ASComponentsToCheck)
+	for (USoSCombatComponent* CombatComp : CombatComponentsToCheck)
 	{
-		ASComp->LoopOverCurrentEffectsArray();
+		CombatComp->LoopOverCurrentEffectsArray();
 	}
 }

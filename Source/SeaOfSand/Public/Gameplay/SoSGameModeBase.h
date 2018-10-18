@@ -6,7 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "SoSGameModeBase.generated.h"
 
-class USoSASComponent;
+class USoSCombatComponent;
 
 UCLASS()
 class SEAOFSAND_API ASoSGameModeBase : public AGameModeBase
@@ -21,14 +21,14 @@ public:
 
 public:
 
-	void AddASComponentToArray(USoSASComponent* ASComp);
+	void AddCombatComponentToArray(USoSCombatComponent* CombatComp);
 
-	void RemoveASComponentToArray(USoSASComponent* ASComp);
+	void RemoveCombatComponentToArray(USoSCombatComponent* CombatComp);
 
 protected:
 
-	TArray<USoSASComponent*> ASComponentsToCheck;	
+	TArray<USoSCombatComponent*> CombatComponentsToCheck;	
 
-	void CheckASComponents();
+	void CheckCombatComponents();
 	
 };

@@ -10,12 +10,12 @@ class UCameraComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
 class USoSInventoryComponent;
-class USoSASComponent;
+class USoSCombatComponent;
 class USoSASAbilityBase;
 
 
 USTRUCT(BlueprintType)
-struct FPlayerASAbilitiesData
+struct FPlayerAbilitiesData
 {
 	GENERATED_BODY()
 
@@ -121,7 +121,7 @@ protected:
 	USoSInventoryComponent* InventoryComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSASComponent* ASComp;
+	USoSCombatComponent* CombatComp;
 
 public:
 
@@ -163,7 +163,7 @@ protected:
 	float InteractTraceRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	FPlayerASAbilitiesData AbilityBar;
+	FPlayerAbilitiesData AbilityBar;
 
 	void MoveForward(float AxisValue);
 
@@ -207,10 +207,10 @@ public:
 	USoSInventoryComponent* GetPlayerInventory() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
-	USoSASComponent* GetPlayerASComponent() const;
+	USoSCombatComponent* GetPlayerCombatComponent() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
-	FPlayerASAbilitiesData& GetASAbilityBar() ;
+	FPlayerAbilitiesData& GetASAbilityBar() ;
 
 	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 };

@@ -21,9 +21,6 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSHealthComponent* HealthComp;
-
 
 public:
 

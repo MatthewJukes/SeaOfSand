@@ -3,7 +3,7 @@
 #include "SoSPlayerCharacter.h"
 #include "SoSPlayerController.h"
 #include "SoSASTasks.h"
-#include "SoSASComponent.h"
+#include "SoSCombatComponent.h"
 #include "SoSASAbilityBase.h"
 #include "SoSInventoryComponent.h"
 #include "BaseVehicle.h"
@@ -29,8 +29,8 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
 
 	// Setup health component
-	ASComp = CreateDefaultSubobject<USoSASComponent>(TEXT("ASComp"));
-	ASComp->SetAimHitLocation(&AimHitLocation);
+	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
+	CombatComp->SetAimHitLocation(&AimHitLocation);
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -47,7 +47,7 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	// Configure character movement 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->MaxWalkSpeed = ASComp->GetAttributeTotalValue(EAttributeName::Speed);
+	GetCharacterMovement()->MaxWalkSpeed = CombatComp->GetAttributeTotalValue(EAttributeName::Speed);
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -103,18 +103,18 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
-	AbilityBar.AbilityOne = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityOneClass, ASComp);
-	AbilityBar.AbilityTwo = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityTwoClass, ASComp);
-	AbilityBar.AbilityThree = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityThreeClass, ASComp);
-	AbilityBar.AbilityFour = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFourClass, ASComp);
-	AbilityBar.AbilityFive = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFiveClass, ASComp);
-	AbilityBar.AbilitySix = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySixClass, ASComp);
-	AbilityBar.AbilitySeven = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySevenClass, ASComp);
-	AbilityBar.AbilityEight = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityEightClass, ASComp);
-	AbilityBar.AbilitySprint = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintClass, ASComp);
-	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintEndClass, ASComp);
-	AbilityBar.AbilityAimEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityAimEndClass, ASComp);
-	AbilityBar.AbilityDash = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityDashClass, ASComp);
+	AbilityBar.AbilityOne = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityOneClass, CombatComp);
+	AbilityBar.AbilityTwo = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityTwoClass, CombatComp);
+	AbilityBar.AbilityThree = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityThreeClass, CombatComp);
+	AbilityBar.AbilityFour = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFourClass, CombatComp);
+	AbilityBar.AbilityFive = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFiveClass, CombatComp);
+	AbilityBar.AbilitySix = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySixClass, CombatComp);
+	AbilityBar.AbilitySeven = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySevenClass, CombatComp);
+	AbilityBar.AbilityEight = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityEightClass, CombatComp);
+	AbilityBar.AbilitySprint = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintClass, CombatComp);
+	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintEndClass, CombatComp);
+	AbilityBar.AbilityAimEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityAimEndClass, CombatComp);
+	AbilityBar.AbilityDash = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityDashClass, CombatComp);
 }
 
 
@@ -183,7 +183,7 @@ void ASoSPlayerCharacter::SprintStart()
 	{
 		AimEnd();
 		SprintZoom(true);
-		ASComp->SetOwnerState(EASOwnerState::Sprinting);
+		CombatComp->SetOwnerState(EOwnerState::Sprinting);
 		
 		if (InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
@@ -198,7 +198,7 @@ void ASoSPlayerCharacter::SprintStart()
 
 void ASoSPlayerCharacter::SprintEnd()
 {
-	if (ASComp->GetOwnerState() != EASOwnerState::Sprinting)
+	if (CombatComp->GetOwnerState() != EOwnerState::Sprinting)
 	{
 		return;
 	}
@@ -206,7 +206,7 @@ void ASoSPlayerCharacter::SprintEnd()
 	if (UseAbility(AbilityBar.AbilitySprintEnd))
 	{
 		SprintZoom(false);
-		ASComp->SetOwnerState(EASOwnerState::Normal);
+		CombatComp->SetOwnerState(EOwnerState::Normal);
 	
 		if (InventoryComp->GetCurrentWeapon()->GetWeaponState() != EWeaponState::Holstered && InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
@@ -239,14 +239,14 @@ void ASoSPlayerCharacter::AimStart()
 	{
 		SprintEnd();
 		AimZoom(true);
-		ASComp->SetOwnerState(EASOwnerState::Aiming);
+		CombatComp->SetOwnerState(EOwnerState::Aiming);
 	}	
 }
 
 
 void ASoSPlayerCharacter::AimEnd()
 {
-	if (ASComp->GetOwnerState() != EASOwnerState::Aiming)
+	if (CombatComp->GetOwnerState() != EOwnerState::Aiming)
 	{
 		return;
 	}
@@ -254,7 +254,7 @@ void ASoSPlayerCharacter::AimEnd()
 	if (UseAbility(AbilityBar.AbilityAimEnd))
 	{
 		AimZoom(false);
-		ASComp->SetOwnerState(EASOwnerState::Normal);
+		CombatComp->SetOwnerState(EOwnerState::Normal);
 	}
 }
 
@@ -332,7 +332,7 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index)
 
 bool ASoSPlayerCharacter::UseAbility(USoSASAbilityBase* Ability)
 {
-	return ASComp->UseAbility(Ability);
+	return CombatComp->UseAbility(Ability);
 }
 
 
@@ -417,13 +417,13 @@ USoSInventoryComponent * ASoSPlayerCharacter::GetPlayerInventory() const
 }
 
 
-USoSASComponent* ASoSPlayerCharacter::GetPlayerASComponent() const
+USoSCombatComponent* ASoSPlayerCharacter::GetPlayerCombatComponent() const
 {
-	return ASComp;
+	return CombatComp;
 }
 
 
-FPlayerASAbilitiesData& ASoSPlayerCharacter::GetASAbilityBar()
+FPlayerAbilitiesData& ASoSPlayerCharacter::GetASAbilityBar()
 {
 	return AbilityBar;
 }

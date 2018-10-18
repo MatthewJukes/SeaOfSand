@@ -11,3 +11,4 @@
 
 #define COLLISION_CROSSHAIR           ECC_GameTraceChannel1
 #define COLLISION_WEAPON              ECC_GameTraceChannel2
+#define COLLISION_ABILITY             ECC_GameTraceChannel4
