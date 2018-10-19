@@ -2,7 +2,7 @@
 
 #include "SoSCombatComponent.h"
 #include "SoSGameModeBase.h"
-#include "SoSASAbilityBase.h"
+#include "SoSAbilityBase.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSInventoryComponent.h"
 #include "SoSWeaponBase.h"
@@ -408,7 +408,7 @@ void USoSCombatComponent::EndEffect(FEffectData& EffectToEnd)
 }
 
 
-bool USoSCombatComponent::UseAbility(USoSASAbilityBase* Ability)
+bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability)
 {
 	if (Ability == nullptr)
 	{
@@ -468,7 +468,7 @@ void USoSCombatComponent::AbilityActionComplete()
 }
 
 
-bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck)
+bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck)
 {
 	if (GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated() < AbilityToCheck->GetCooldown())
 	{
@@ -608,7 +608,7 @@ EOwnerState USoSCombatComponent::GetOwnerState() const
 }
 
 
-USoSASAbilityBase* USoSCombatComponent::GetLastAbilityToStartMontage() const
+USoSAbilityBase* USoSCombatComponent::GetLastAbilityToStartMontage() const
 {
 	return LastAbilityToStartMontage;
 }
@@ -655,7 +655,7 @@ void USoSCombatComponent::SetAimHitLocation(FVector* AimHitLocationReference)
 }
 
 
-void USoSCombatComponent::SetLastAbilityToStartMontage(USoSASAbilityBase* Ability)
+void USoSCombatComponent::SetLastAbilityToStartMontage(USoSAbilityBase* Ability)
 {
 	LastAbilityToStartMontage = Ability;
 }

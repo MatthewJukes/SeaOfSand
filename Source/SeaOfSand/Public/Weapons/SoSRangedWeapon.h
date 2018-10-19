@@ -7,7 +7,7 @@
 #include "SoSRangedWeapon.generated.h"
 
 class UAudioComponent;
-class USoSASAbilityBase;
+class USoSAbilityBase;
 
 
 UCLASS()

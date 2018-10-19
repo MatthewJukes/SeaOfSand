@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WidgetBlueprint.h"
-#include "SoSASEffectData.h"
+#include "SoSEffectData.h"
 #include "SoSASEffectWidget.generated.h"
 
 

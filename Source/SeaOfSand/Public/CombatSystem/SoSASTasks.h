@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SoSASEffectData.h"
+#include "SoSEffectData.h"
 #include "SoSASAttributes.h"
 #include "Engine/DataTable.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SoSASTasks.generated.h"
 
 class ASoSProjectileBase;
-class USoSASAbilityBase;
+class USoSAbilityBase;
 class USoSCombatComponent;
 class ACharacter;
 class UWorld;
@@ -64,9 +64,9 @@ public:
 	static bool ApplyRootMotionJumpForce(const ACharacter* TargetCharacter, const FRotator &Rotation, float Distance, float Height, float Duration, bool bFinishOnLanded, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish, UCurveVector* PathOffsetCurve, UCurveFloat* TimeMappingCurve);
 	
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool PlayAbilityAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate = 1.0f, FName StartSectionName = "None");
+	static bool PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate = 1.0f, FName StartSectionName = "None");
 
-	static USoSASAbilityBase* CreateAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSCombatComponent* OwningCombatComp);
+	static USoSAbilityBase* CreateAbilityInstance(TSubclassOf<USoSAbilityBase> Ability, USoSCombatComponent* OwningCombatComp);
 
 private:
 

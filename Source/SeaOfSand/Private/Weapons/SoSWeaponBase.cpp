@@ -4,7 +4,7 @@
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSASTasks.h"
-#include "SoSASAbilityBase.h"
+#include "SoSAbilityBase.h"
 #include "Components/SkeletalMeshComponent.h"
 
 

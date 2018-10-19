@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
-#include "SoSASEffectData.generated.h"
+#include "SoSEffectData.generated.h"
 
-class USoSASAbilityBase;
+class USoSAbilityBase;
 enum class EAttributeName : uint8;
 enum class ESoSDamageTypeName : uint8;
 enum class EAbilityTag : uint8;
@@ -81,13 +81,13 @@ struct FEffectAbilityModule
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	TSubclassOf<USoSASAbilityBase> AbilityClass;
+	TSubclassOf<USoSAbilityBase> AbilityClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	EEffectAbilityTickType UseAbilityOn;
 
 	UPROPERTY()
-	USoSASAbilityBase* Ability;
+	USoSAbilityBase* Ability;
 };
 
 

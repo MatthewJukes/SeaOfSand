@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "SoSASAttributes.h"
-#include "SoSASEffectData.h"
+#include "SoSEffectData.h"
 #include "Components/ActorComponent.h"
 #include "SoSCombatComponent.generated.h"
 
 class USoSInventoryComponent;
-class USoSASAbilityBase;
+class USoSAbilityBase;
 class ASoSGameModeBase;
 class ASoSWeaponBase;
 class ACharacter;
@@ -68,7 +68,7 @@ public:
 
 	void AddValueToAttributeBaseValues(EAttributeName Attribute, float Value);
 
-	bool UseAbility(USoSASAbilityBase* Ability);
+	bool UseAbility(USoSAbilityBase* Ability);
 
 	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
 
@@ -103,7 +103,7 @@ protected:
 
 	EOwnerState OwnerState;
 
-	USoSASAbilityBase* LastAbilityToStartMontage;
+	USoSAbilityBase* LastAbilityToStartMontage;
 
 	ASoSGameModeBase* SoSGameMode;
 
@@ -153,7 +153,7 @@ protected:
 
 	void EndEffect(FEffectData& EffectToEnd);
 
-	bool AbilityCheckCooldownAndCharges(USoSASAbilityBase* AbilityToCheck);
+	bool AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck);
 
 	bool AbilityHandleResource(EASResourceType Type, float Cost);
 
@@ -175,7 +175,7 @@ public:
 	EOwnerState GetOwnerState() const;
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
-	USoSASAbilityBase* GetLastAbilityToStartMontage() const;
+	USoSAbilityBase* GetLastAbilityToStartMontage() const;
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	USoSInventoryComponent* GetOwnerInventory() const;
@@ -193,5 +193,5 @@ public:
 
 	void SetAimHitLocation(FVector* AimHitLocationReference);
 
-	void SetLastAbilityToStartMontage(USoSASAbilityBase* Ability);
+	void SetLastAbilityToStartMontage(USoSAbilityBase* Ability);
 };

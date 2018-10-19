@@ -4,7 +4,7 @@
 #include "SoSPlayerController.h"
 #include "SoSASTasks.h"
 #include "SoSCombatComponent.h"
-#include "SoSASAbilityBase.h"
+#include "SoSAbilityBase.h"
 #include "SoSInventoryComponent.h"
 #include "BaseVehicle.h"
 #include "SoSRangedWeapon.h"
@@ -330,7 +330,7 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index)
 }
 
 
-bool ASoSPlayerCharacter::UseAbility(USoSASAbilityBase* Ability)
+bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability)
 {
 	return CombatComp->UseAbility(Ability);
 }

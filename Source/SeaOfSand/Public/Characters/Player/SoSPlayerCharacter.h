@@ -11,7 +11,7 @@ class USpringArmComponent;
 class ASoSPlayerController;
 class USoSInventoryComponent;
 class USoSCombatComponent;
-class USoSASAbilityBase;
+class USoSAbilityBase;
 
 
 USTRUCT(BlueprintType)
@@ -20,76 +20,76 @@ struct FPlayerAbilitiesData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityOneClass;
+	TSubclassOf<USoSAbilityBase> AbilityOneClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityTwoClass;
+	TSubclassOf<USoSAbilityBase> AbilityTwoClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityThreeClass;
+	TSubclassOf<USoSAbilityBase> AbilityThreeClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityFourClass;
+	TSubclassOf<USoSAbilityBase> AbilityFourClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityFiveClass;
+	TSubclassOf<USoSAbilityBase> AbilityFiveClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySixClass;
+	TSubclassOf<USoSAbilityBase> AbilitySixClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySevenClass;
+	TSubclassOf<USoSAbilityBase> AbilitySevenClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityEightClass;
+	TSubclassOf<USoSAbilityBase> AbilityEightClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySprintClass; 
+	TSubclassOf<USoSAbilityBase> AbilitySprintClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilitySprintEndClass;
+	TSubclassOf<USoSAbilityBase> AbilitySprintEndClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityAimEndClass;
+	TSubclassOf<USoSAbilityBase> AbilityAimEndClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSASAbilityBase> AbilityDashClass;
+	TSubclassOf<USoSAbilityBase> AbilityDashClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityOne;
+	USoSAbilityBase* AbilityOne;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityTwo;
+	USoSAbilityBase* AbilityTwo;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityThree;
+	USoSAbilityBase* AbilityThree;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityFour;
+	USoSAbilityBase* AbilityFour;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityFive;
+	USoSAbilityBase* AbilityFive;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySix;
+	USoSAbilityBase* AbilitySix;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySeven;
+	USoSAbilityBase* AbilitySeven;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityEight;
+	USoSAbilityBase* AbilityEight;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySprint;
+	USoSAbilityBase* AbilitySprint;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilitySprintEnd;
+	USoSAbilityBase* AbilitySprintEnd;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityAimEnd;
+	USoSAbilityBase* AbilityAimEnd;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSASAbilityBase* AbilityDash;
+	USoSAbilityBase* AbilityDash;
 }; 
 
 DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
@@ -138,7 +138,7 @@ public:
 
 	void AimEnd(); // stop/interrupt aiming
 
-	bool UseAbility(USoSASAbilityBase* Ability);
+	bool UseAbility(USoSAbilityBase* Ability);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "SoSASAbilityBase.generated.h"
+#include "SoSAbilityBase.generated.h"
 
 class ASoSWeaponBase;
 class USoSCombatComponent;
@@ -17,13 +17,13 @@ enum class EASResourceType : uint8
 };
 
 UCLASS(BlueprintType, Blueprintable)
-class SEAOFSAND_API USoSASAbilityBase : public UObject
+class SEAOFSAND_API USoSAbilityBase : public UObject
 {
 	GENERATED_BODY()
 
 protected:
 
-	USoSASAbilityBase();
+	USoSAbilityBase();
 
 public:
 

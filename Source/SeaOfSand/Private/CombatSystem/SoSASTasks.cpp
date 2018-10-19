@@ -3,7 +3,7 @@
 #include "SoSASTasks.h"
 #include "SeaOfSand.h"
 #include "SoSCombatComponent.h"
-#include "SoSASAbilityBase.h"
+#include "SoSAbilityBase.h"
 #include "SoSProjectileBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -396,7 +396,7 @@ bool USoSASTasks::ApplyRootMotionJumpForce(const ACharacter* TargetCharacter, co
 }
 
 
-bool USoSASTasks::PlayAbilityAnimMontage(USoSASAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate, FName StartSectionName)
+bool USoSASTasks::PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate, FName StartSectionName)
 {
 	if (SourceAbility == nullptr || Target == nullptr || AnimMontage == nullptr)
 	{
@@ -417,14 +417,14 @@ bool USoSASTasks::PlayAbilityAnimMontage(USoSASAbilityBase* SourceAbility, AChar
 }
 
 
-USoSASAbilityBase * USoSASTasks::CreateAbilityInstance(TSubclassOf<USoSASAbilityBase> Ability, USoSCombatComponent* OwningCombatComp)
+USoSAbilityBase * USoSASTasks::CreateAbilityInstance(TSubclassOf<USoSAbilityBase> Ability, USoSCombatComponent* OwningCombatComp)
 {
 	if (Ability == nullptr)
 	{
 		return nullptr;
 	}
 
-	USoSASAbilityBase* AbilityInstance = NewObject<USoSASAbilityBase>(Ability, Ability.Get());
+	USoSAbilityBase* AbilityInstance = NewObject<USoSAbilityBase>(Ability, Ability.Get());
 	AbilityInstance->SetOwningCombatComp(OwningCombatComp);
 	AbilityInstance->InitializeAbility();
 	return AbilityInstance;

@@ -8,7 +8,7 @@
 
 class ASoSPlayerController;
 class ASoSPlayerCharacter;
-class USoSASAbilityBase;
+class USoSAbilityBase;
 	
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
@@ -33,28 +33,28 @@ struct FWeaponAbilitiesData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponDrawClass;
+	TSubclassOf<USoSAbilityBase> AbilityWeaponDrawClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponHolsterClass;
+	TSubclassOf<USoSAbilityBase> AbilityWeaponHolsterClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponPrimaryClass;
+	TSubclassOf<USoSAbilityBase> AbilityWeaponPrimaryClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
-	TSubclassOf<USoSASAbilityBase> AbilityWeaponAltClass;
+	TSubclassOf<USoSAbilityBase> AbilityWeaponAltClass;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponDraw;
+	USoSAbilityBase* AbilityWeaponDraw;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponHolster;
+	USoSAbilityBase* AbilityWeaponHolster;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponPrimary;
+	USoSAbilityBase* AbilityWeaponPrimary;
 
 	UPROPERTY()
-	USoSASAbilityBase* AbilityWeaponAlt;
+	USoSAbilityBase* AbilityWeaponAlt;
 };
 
 UCLASS()
