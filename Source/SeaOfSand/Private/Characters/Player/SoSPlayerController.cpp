@@ -30,7 +30,7 @@ void ASoSPlayerController::BeginPlay()
 
 	UpdateCurrentPawn();
 	PlayerCharacter = Cast<ASoSPlayerCharacter>(CurrentPlayerPawn);
-	PlayerInventory = PlayerCharacter->GetPlayerInventory();
+	PlayerInventory = PlayerCharacter->GetCharacterInventory();
 	PlayerHUD = Cast<ASoSPlayerHUD>(GetHUD());
 }
 

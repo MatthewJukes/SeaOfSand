@@ -125,9 +125,13 @@ struct FEffectData : public FTableRowBase
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Parameters", meta = (ClampMin = "1"))
 	int32 MaxStacks = 1;
 
-	// If reapplied, duration added to remaining duration;
+	// If reapplied, duration added to remaining duration
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Parameters")
 	bool bAdditiveDuration;
+
+	// Max duration for additive duration
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Parameters", meta = (EditCondition = "bAdditiveDuration"))
+	float MaxDuration;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
 	TArray<FEffectAttributeModifierModule> AttributeModifierModules;

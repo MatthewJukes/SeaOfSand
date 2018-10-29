@@ -20,17 +20,7 @@
 // Set defaults
 ASoSPlayerCharacter::ASoSPlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
-	// Setup inventory
-	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
-
-	// Setup health component
-	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
-	CombatComp->SetAimHitLocation(&AimHitLocation);
+	PrimaryActorTick.bCanEverTick = true;	
 
 	// Setup camera boom
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -43,17 +33,6 @@ ASoSPlayerCharacter::ASoSPlayerCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
-	// Configure character movement 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->MaxWalkSpeed = CombatComp->GetAttributeTotalValue(EAttributeName::Speed);
-	GetCharacterMovement()->AirControl = 0.2f;
-
-	// Don't rotate when the controller rotates. Let that just affect the camera.
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;	
 
 	// Configure interact
 	InteractTraceRange = 250.f;
@@ -187,7 +166,7 @@ void ASoSPlayerCharacter::SprintStart()
 		
 		if (InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
-			SetPlayerMovementType(true, false);
+			SetCharacterMovementType(true, false);
 		}
 	}
 
@@ -210,7 +189,7 @@ void ASoSPlayerCharacter::SprintEnd()
 	
 		if (InventoryComp->GetCurrentWeapon()->GetWeaponState() != EWeaponState::Holstered && InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Ranged)
 		{
-			SetPlayerMovementType(false, true);
+			SetCharacterMovementType(false, true);
 		}
 	}
 }
@@ -411,28 +390,7 @@ ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
 }
 
 
-USoSInventoryComponent * ASoSPlayerCharacter::GetPlayerInventory() const
-{
-	return InventoryComp;
-}
-
-
-USoSCombatComponent* ASoSPlayerCharacter::GetPlayerCombatComponent() const
-{
-	return CombatComp;
-}
-
-
 FPlayerAbilitiesData& ASoSPlayerCharacter::GetASAbilityBar()
 {
 	return AbilityBar;
-}
-
-void ASoSPlayerCharacter::SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
-{
-	if (UCharacterMovementComponent* CharacterMovement = GetCharacterMovement())
-	{
-		CharacterMovement->bOrientRotationToMovement = bOrientRotationToMovement;
-		CharacterMovement->bUseControllerDesiredRotation = bUseControllerDesiredRotation;
-	}
 }

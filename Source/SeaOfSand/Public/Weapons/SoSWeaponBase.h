@@ -6,10 +6,11 @@
 #include "GameFramework/Actor.h"
 #include "SoSWeaponBase.generated.h"
 
-class ASoSPlayerController;
-class ASoSPlayerCharacter;
+
+class ASoSCharacterBase;
 class USoSAbilityBase;
-	
+
+
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
@@ -79,9 +80,7 @@ public:
 
 protected:
 
-	ASoSPlayerController* PlayerController;
-
-	ASoSPlayerCharacter* PlayerCharacter;
+	ASoSCharacterBase* OwningCharacter;
 
 	EWeaponState WeaponState;
 	

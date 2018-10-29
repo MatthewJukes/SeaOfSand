@@ -34,6 +34,9 @@ public:
 	static bool DamageTarget(const AActor* Target, const AActor* Source, float Value, ESoSDamageTypeName DamageType);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
+	static bool AddValueToTargetsAttribute(const AActor* Target, const AActor* Source, EAttributeName Attribute, float Value);
+
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static FVector GetAimHitLocation(const AActor* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
@@ -46,7 +49,7 @@ public:
 	static bool FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool MeleeHitCheck(const AActor* Source, AActor* Target, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
+	static bool MeleeHitCheck(AActor* Target, const AActor* Source, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool GetTargetsInRadius(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius);

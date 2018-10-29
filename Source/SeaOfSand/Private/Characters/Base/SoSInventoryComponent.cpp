@@ -2,6 +2,7 @@
 
 #include "SoSInventoryComponent.h"
 #include "SoSPlayerController.h"
+#include "SoSCharacterBase.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSCombatComponent.h"
 #include "SoSPlayerHUD.h"
@@ -25,8 +26,8 @@ void USoSInventoryComponent::OnComponentCreated()
 	Super::OnComponentCreated();
 
 	// Get the player character
-	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
-	if (PlayerCharacter)
+	OwningCharacter = Cast<ASoSCharacterBase>(GetOwner());
+	if (OwningCharacter)
 	{
 		SpawnWeapon(RangedWeaponClass);
 		SpawnWeapon(MeleeWeaponClass);
@@ -38,15 +39,13 @@ void USoSInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (PlayerCharacter)
+	if (OwningCharacter)
 	{
 		if (EquippedWeapons.IsValidIndex(0))
 		{
 			CurrentWeapon = EquippedWeapons[0];
 			CurrentWeaponArrayID = 0;
 		}
-
-		PlayerCharacter->GetPlayerCombatComponent()->SetOwnerInventory(this);
 	}
 }
 
@@ -54,7 +53,7 @@ void USoSInventoryComponent::SpawnWeapon(TSubclassOf<ASoSWeaponBase> WeaponToSpa
 {
 	// Spawn new weapon
 	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = PlayerCharacter;
+	SpawnParams.Owner = OwningCharacter;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	ASoSWeaponBase* NewWeapon = GetWorld()->SpawnActor<ASoSWeaponBase>(WeaponToSpawn, SpawnParams);
@@ -85,17 +84,17 @@ void USoSInventoryComponent::AttachWeaponToSocket(ASoSWeaponBase* Weapon, bool b
 {
 	if (bDrawWeapon)
 	{
-		Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RightHandAttachPoint);
+		Weapon->AttachToComponent(OwningCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RightHandAttachPoint);
 	}
 	else
 	{
 		switch (Weapon->GetWeaponType())
 		{
 		case EWeaponType::Ranged:
-			Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RightHipAttachPoint);
+			Weapon->AttachToComponent(OwningCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, RightHipAttachPoint);
 			break;
 		case EWeaponType::Melee:
-			Weapon->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LeftHipAttachPoint);
+			Weapon->AttachToComponent(OwningCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, LeftHipAttachPoint);
 			break;
 		default:
 			break;
@@ -110,11 +109,12 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 		return;
 	}
 
+	ASoSPlayerCharacter* PlayerCharacter = Cast<ASoSPlayerCharacter>(OwningCharacter);
 	if (CurrentWeapon->GetWeaponState() == EWeaponState::Holstered) // draw weapon
 	{
 		if (!bQuickSwitch)
 		{
-			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDraw))
+			if (!OwningCharacter->GetCharacterCombatComponent()->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDraw))
 			{
 				return;
 			}
@@ -123,10 +123,10 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 		AttachWeaponToSocket(CurrentWeapon, true);
 		CurrentWeapon->SetWeaponState(EWeaponState::Idle);
 
-		if (CurrentWeapon->GetWeaponType() == EWeaponType::Ranged)
+		if (CurrentWeapon->GetWeaponType() == EWeaponType::Ranged && PlayerCharacter != nullptr)
 		{
 			PlayerCharacter->OffsetCamera(true);
-			PlayerCharacter->SetPlayerMovementType(false, true);
+			PlayerCharacter->SetCharacterMovementType(false, true);
 			PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
 		}
 	}
@@ -134,7 +134,7 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 	{
 		if (!bQuickSwitch)
 		{
-			if (!PlayerCharacter->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolster))
+			if (!OwningCharacter->GetCharacterCombatComponent()->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolster))
 			{
 				return;
 			}
@@ -148,7 +148,7 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 		{
 			//CurrentWeapon->InterruptReload();
 			PlayerCharacter->OffsetCamera(false);
-			PlayerCharacter->SetPlayerMovementType(true, false);
+			PlayerCharacter->SetCharacterMovementType(true, false);
 			PlayerCharacter->GetPlayerController()->GetPlayerHUD()->ToggleCrosshair();
 		}
 	}
@@ -157,12 +157,12 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 
 void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 {
-	if (PlayerCharacter == nullptr)
+	if (OwningCharacter == nullptr)
 	{
 		return;
 	}
 
-	if (PlayerCharacter->GetPlayerCombatComponent()->GetOwnerState() == EOwnerState::PerformingAction)
+	if (OwningCharacter->GetCharacterCombatComponent()->GetOwnerState() == EOwnerState::PerformingAction)
 	{
 		return;
 	}

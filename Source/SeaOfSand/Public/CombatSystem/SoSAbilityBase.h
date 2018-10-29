@@ -31,7 +31,7 @@ public:
 	void InitializeAbility();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Ability")
-	bool StartAbility(AActor* Source, ASoSWeaponBase* Weapon);
+	bool StartAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void ReadyComboAction();

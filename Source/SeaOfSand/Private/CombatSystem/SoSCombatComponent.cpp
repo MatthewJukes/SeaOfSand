@@ -3,6 +3,7 @@
 #include "SoSCombatComponent.h"
 #include "SoSGameModeBase.h"
 #include "SoSAbilityBase.h"
+#include "SoSCharacterBase.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSInventoryComponent.h"
 #include "SoSWeaponBase.h"
@@ -38,7 +39,7 @@ void USoSCombatComponent::BeginPlay()
 	AttributeBaseValues.ArmourMaxValue = ArmourMaxStartValue;
 	AttributeBaseValues.ArmourCurrentValue = ArmourMaxStartValue;
 	AttributeBaseValues.EnergyMaxValue = EnergyMaxStartValue;
-	AttributeBaseValues.EnergyCurrentValue = EnergyMaxStartValue;
+	AttributeBaseValues.EnergyCurrentValue = 0;
 	AttributeBaseValues.SpeedValue = SpeedStartValue;
 
 	AttributeTempMultiplierValues.HealthMaxValue = 1;
@@ -49,10 +50,10 @@ void USoSCombatComponent::BeginPlay()
 	AttributeTempMultiplierValues.EnergyCurrentValue = 1;
 	AttributeTempMultiplierValues.SpeedValue = 1;
 
-	SoSGameMode = Cast<ASoSGameModeBase>(GetWorld()->GetAuthGameMode());
+	ASoSGameModeBase* SoSGameMode = Cast<ASoSGameModeBase>(GetWorld()->GetAuthGameMode());
 	SoSGameMode->AddCombatComponentToArray(this);
 
-	ComponentOwner = Cast<ACharacter>(GetOwner());
+	OwningCharacter = Cast<ASoSCharacterBase>(GetOwner());
 
 	OnTagUpdate.AddDynamic(this, &USoSCombatComponent::TagUpdate);
 }
@@ -189,7 +190,7 @@ void USoSCombatComponent::HandleEffectAbility(FEffectData& Effect, FEffectAbilit
 	}
 
 	USoSInventoryComponent* SourceInventory = Cast<USoSInventoryComponent>(Effect.Source->GetComponentByClass(USoSInventoryComponent::StaticClass()));
-	Module.Ability->StartAbility(Effect.Source, SourceInventory->GetCurrentWeapon());
+	Module.Ability->StartAbility(Effect.Source, SourceInventory->GetCurrentWeapon(), 0); // TODO get value from source
 }
 
 void USoSCombatComponent::TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType EventType)
@@ -331,12 +332,12 @@ void USoSCombatComponent::CalculateAttributeTotalValues()
 
 	AttributeTotalValues.SpeedValue = FMath::Max(0.0f, AttributeBaseValues.SpeedValue * AttributeTempMultiplierValues.SpeedValue + AttributeTempAdditiveValues.SpeedValue);
 
-	if (ComponentOwner == nullptr)
+	if (OwningCharacter == nullptr)
 	{
 		return;
 	}
 
-	if (UCharacterMovementComponent* CharacterMovement = ComponentOwner->GetCharacterMovement())
+	if (UCharacterMovementComponent* CharacterMovement = OwningCharacter->GetCharacterMovement())
 	{
 		CharacterMovement->MaxWalkSpeed = AttributeTotalValues.SpeedValue;
 	}
@@ -408,7 +409,7 @@ void USoSCombatComponent::EndEffect(FEffectData& EffectToEnd)
 }
 
 
-bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability)
+bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, float ClassSpecificFloatValue /*= 0*/)
 {
 	if (Ability == nullptr)
 	{
@@ -433,7 +434,7 @@ bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability)
 
 		UWorld* World = GetWorld();
 		Ability->SetLastTimeActivated(World->GetTimeSeconds());
-		return Ability->StartAbility(GetOwner(), OwnerInventory->GetCurrentWeapon());
+		return Ability->StartAbility(GetOwner(), OwningCharacter->GetCharacterInventory()->GetCurrentWeapon(), ClassSpecificFloatValue);
 	}
 
 	return false;
@@ -442,9 +443,12 @@ bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability)
 
 void USoSCombatComponent::AbilityActionStart()
 {
-	ASoSPlayerCharacter* Player = Cast<ASoSPlayerCharacter>(ComponentOwner); // TODO create a SoSCharacterBase class
-	Player->SprintEnd();
-	Player->AimEnd();
+	ASoSPlayerCharacter* Player = Cast<ASoSPlayerCharacter>(OwningCharacter);
+	if (Player != nullptr)
+	{
+		Player->SprintEnd();
+		Player->AimEnd();
+	}
 
 	LastAbilityToStartMontage->SetComboReady(false);
 
@@ -614,9 +618,9 @@ USoSAbilityBase* USoSCombatComponent::GetLastAbilityToStartMontage() const
 }
 
 
-USoSInventoryComponent* USoSCombatComponent::GetOwnerInventory() const
+ASoSCharacterBase* USoSCombatComponent::GetOwningCharacter() const
 {
-	return OwnerInventory;
+	return OwningCharacter;
 }
 
 ESoSTeam USoSCombatComponent::GetTeam() const
@@ -634,12 +638,6 @@ FVector* USoSCombatComponent::GetAimHitLocation() const
 void USoSCombatComponent::SetOwnerState(EOwnerState NewState)
 {
 	OwnerState = NewState;
-}
-
-
-void USoSCombatComponent::SetOwnerInventory(USoSInventoryComponent* InventoryComp)
-{
-	OwnerInventory = InventoryComp;
 }
 
 

@@ -16,3 +16,14 @@ ASoSProjectileBase::ASoSProjectileBase()
 }
 
 
+AActor* ASoSProjectileBase::GetProjectileSource() const
+{
+	return ProjectileSource;
+}
+
+
+void ASoSProjectileBase::SetProjectileSource(AActor* Source)
+{
+	ProjectileSource = Source;
+}
+

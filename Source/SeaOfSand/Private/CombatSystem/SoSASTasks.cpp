@@ -143,6 +143,25 @@ bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float
 }
 
 
+bool USoSASTasks::AddValueToTargetsAttribute(const AActor* Target, const AActor* Source, EAttributeName Attribute, float Value)
+{
+	if (Target == nullptr || Source == nullptr)
+	{
+		return false;
+	}
+
+	USoSCombatComponent* CombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
+
+	if (CombatComp == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target has no CombatComp"))
+		return false;
+	}
+
+	CombatComp->AddValueToAttributeBaseValues(Attribute, Value);
+	return true;
+}
+
 FVector USoSASTasks::GetAimHitLocation(const AActor* Target)
 {
 	USoSCombatComponent* CombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
@@ -204,6 +223,7 @@ bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase>
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	ASoSProjectileBase* NewProjectile = World->SpawnActor<ASoSProjectileBase>(Projectile, SpawnTransform, SpawnParams);
+	NewProjectile->SetProjectileSource(Source);
 
 	return NewProjectile != nullptr;
 }
@@ -232,7 +252,7 @@ bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclas
 }
 
 
-bool USoSASTasks::MeleeHitCheck(const AActor* Source, AActor* Target, TArray<AActor*>& PreviouslyHitActors)
+bool USoSASTasks::MeleeHitCheck(AActor* Target, const AActor* Source, TArray<AActor*>& PreviouslyHitActors)
 {
 	if (Source == nullptr || Target == nullptr)
 	{
@@ -435,7 +455,7 @@ void USoSASTasks::ReapplyEffect(FEffectData& ExistingEffect, FEffectData& NewEff
 {
 	if (NewEffect.bAdditiveDuration && ExistingEffect.bAdditiveDuration)
 	{
-		ExistingEffect.EffectDuration += NewEffect.EffectDuration;
+		ExistingEffect.EffectDuration = FMath::Min(ExistingEffect.MaxDuration, ExistingEffect.EffectDuration + NewEffect.EffectDuration);
 	}
 	else if(NewEffect.EffectDuration > ApplicationTime - ExistingEffect.EffectStartTime)
 	{

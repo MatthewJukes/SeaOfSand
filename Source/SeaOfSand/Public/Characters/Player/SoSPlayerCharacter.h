@@ -3,14 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "SoSCharacterBase.h"
 #include "SoSPlayerCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
-class USoSInventoryComponent;
-class USoSCombatComponent;
 class USoSAbilityBase;
 
 
@@ -95,7 +93,7 @@ struct FPlayerAbilitiesData
 DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
 
 UCLASS()
-class SEAOFSAND_API ASoSPlayerCharacter : public ACharacter
+class SEAOFSAND_API ASoSPlayerCharacter : public ASoSCharacterBase
 {
 	GENERATED_BODY()	
 
@@ -116,12 +114,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UCameraComponent* FollowCamera;
-
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSInventoryComponent* InventoryComp;
-
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	USoSCombatComponent* CombatComp;
 
 public:
 
@@ -152,8 +144,6 @@ public:
 protected:
 
 	ASoSPlayerController* PlayerController;
-
-	FVector AimHitLocation;
 
 	bool bCanDoubleJump;
 
@@ -204,13 +194,5 @@ public:
 	ASoSPlayerController* GetPlayerController() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
-	USoSInventoryComponent* GetPlayerInventory() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	USoSCombatComponent* GetPlayerCombatComponent() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	FPlayerAbilitiesData& GetASAbilityBar() ;
-
-	void SetPlayerMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
+	FPlayerAbilitiesData& GetASAbilityBar();
 };

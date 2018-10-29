@@ -5,6 +5,7 @@
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSInventoryComponent.h"
+#include "SoSCombatComponent.h"
 #include "Components/AudioComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -41,7 +42,7 @@ void ASoSRangedWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire())
 	{
-		if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
+		if (OwningCharacter->GetCharacterCombatComponent()->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
 		{
 			SetWeaponState(EWeaponState::Attacking);
 
@@ -60,7 +61,7 @@ void ASoSRangedWeapon::HandleFiring()
 
 bool ASoSRangedWeapon::CheckIfWeaponCanFire()
 {
-	if (PlayerCharacter)
+	if (OwningCharacter)
 	{
 		if (GetWeaponState() == EWeaponState::Reloading || CurrentAmmoInClip == 0)
 		{
@@ -82,7 +83,7 @@ void ASoSRangedWeapon::UseAmmo()
 
 void ASoSRangedWeapon::StartReload()
 {
-	if (PlayerCharacter)
+	if (OwningCharacter)
 	{
 		if (WeaponState != EWeaponState::Reloading && CurrentAmmoInClip < MaxAmmoPerClip && WeaponState != EWeaponState::Holstered)
 		{

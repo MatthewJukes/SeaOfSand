@@ -8,11 +8,10 @@
 #include "Components/ActorComponent.h"
 #include "SoSCombatComponent.generated.h"
 
-class USoSInventoryComponent;
+
 class USoSAbilityBase;
-class ASoSGameModeBase;
+class ASoSCharacterBase;
 class ASoSWeaponBase;
-class ACharacter;
 enum class EASResourceType : uint8;
 
 
@@ -68,7 +67,7 @@ public:
 
 	void AddValueToAttributeBaseValues(EAttributeName Attribute, float Value);
 
-	bool UseAbility(USoSAbilityBase* Ability);
+	bool UseAbility(USoSAbilityBase* Ability, float ClassSpecificFloatValue = 0);
 
 	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
 
@@ -105,11 +104,7 @@ protected:
 
 	USoSAbilityBase* LastAbilityToStartMontage;
 
-	ASoSGameModeBase* SoSGameMode;
-
-	ACharacter* ComponentOwner;
-
-	USoSInventoryComponent* OwnerInventory;
+	ASoSCharacterBase* OwningCharacter;
 
 	FName WeaponProjectileOriginSocketName;
 
@@ -178,7 +173,7 @@ public:
 	USoSAbilityBase* GetLastAbilityToStartMontage() const;
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
-	USoSInventoryComponent* GetOwnerInventory() const;
+	ASoSCharacterBase* GetOwningCharacter() const;
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	ESoSTeam GetTeam() const;
@@ -186,8 +181,6 @@ public:
 	FVector* GetAimHitLocation() const;
 
 	void SetOwnerState(EOwnerState NewState);
-
-	void SetOwnerInventory(USoSInventoryComponent* InventoryComp);
 
 	void SetWeaponProjectileOriginSocketName(FName SocketName);
 

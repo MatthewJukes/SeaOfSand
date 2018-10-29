@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "SoSInventoryComponent.generated.h"
 
-class ASoSPlayerCharacter;
+class ASoSCharacterBase;
 class ASoSWeaponBase;
 class ASoSRangedWeapon;
 class ASoSMeleeWeapon;
@@ -37,7 +37,7 @@ private:
 
 	TArray<ASoSWeaponBase*> EquippedWeapons;
 	
-	ASoSPlayerCharacter* PlayerCharacter;
+	ASoSCharacterBase* OwningCharacter;
 
 	ASoSWeaponBase* CurrentWeapon;
 

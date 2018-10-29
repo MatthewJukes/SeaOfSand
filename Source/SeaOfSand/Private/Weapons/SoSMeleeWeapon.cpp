@@ -4,6 +4,7 @@
 #include "SoSPlayerController.h"
 #include "SoSPlayerCharacter.h"
 #include "SoSInventoryComponent.h"
+#include "SoSCombatComponent.h"
 #include "Components/CapsuleComponent.h"
 
 
@@ -26,7 +27,7 @@ void ASoSMeleeWeapon::BeginPlay()
 
 void ASoSMeleeWeapon::StartAttack()
 {
-	if (PlayerCharacter->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
+	if (OwningCharacter->GetCharacterCombatComponent()->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
 	{
 		SetWeaponState(EWeaponState::Attacking);
 	}

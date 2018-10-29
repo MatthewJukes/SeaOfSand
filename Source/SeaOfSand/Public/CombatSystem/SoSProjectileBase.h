@@ -32,7 +32,15 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UPROPERTY(BlueprintReadOnly, Category = "Projectile")
+	AActor* ProjectileSource;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	float BaseDamage;
 
+public:
+
+	AActor* GetProjectileSource() const;
+
+	void SetProjectileSource(AActor* Source);
 };

@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSWeaponBase.h"
-#include "SoSPlayerController.h"
-#include "SoSPlayerCharacter.h"
+#include "SoSCharacterBase.h"
 #include "SoSASTasks.h"
 #include "SoSAbilityBase.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -27,13 +26,12 @@ void ASoSWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = Cast<ASoSPlayerController>(GetWorld()->GetFirstPlayerController());
-	PlayerCharacter = Cast<ASoSPlayerCharacter>(GetOwner());
+	OwningCharacter = Cast<ASoSCharacterBase>(GetOwner());
 
-	WeaponAbilities.AbilityWeaponDraw = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponDrawClass, PlayerCharacter->GetPlayerCombatComponent());
-	WeaponAbilities.AbilityWeaponHolster = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponHolsterClass, PlayerCharacter->GetPlayerCombatComponent());
-	WeaponAbilities.AbilityWeaponPrimary = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponPrimaryClass, PlayerCharacter->GetPlayerCombatComponent());
-	WeaponAbilities.AbilityWeaponAlt = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponAltClass, PlayerCharacter->GetPlayerCombatComponent());
+	WeaponAbilities.AbilityWeaponDraw = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponDrawClass, OwningCharacter->GetCharacterCombatComponent());
+	WeaponAbilities.AbilityWeaponHolster = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponHolsterClass, OwningCharacter->GetCharacterCombatComponent());
+	WeaponAbilities.AbilityWeaponPrimary = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponPrimaryClass, OwningCharacter->GetCharacterCombatComponent());
+	WeaponAbilities.AbilityWeaponAlt = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponAltClass, OwningCharacter->GetCharacterCombatComponent());
 }
 
 
