@@ -11,6 +11,10 @@ class ASoSWeaponBase;
 class ASoSRangedWeapon;
 class ASoSMeleeWeapon;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponSwitch);
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSInventoryComponent : public UActorComponent
 {
@@ -30,6 +34,9 @@ public:
 	void HolsterUnholster(bool bQuickSwitch = false);
 
 	void CycleWeapons(bool bNextWeapon = true);
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnWeaponSwitch OnWeaponSwitch;
 
 private:
 

@@ -8,6 +8,7 @@
 
 class USoSEclipseMeleeAbility;
 class USoSEclipseRangedAbility;
+class USoSEclipseOffhandAbility;
 class USoSEclipseAuxiliaryAbility;
 
 USTRUCT(BlueprintType)
@@ -16,28 +17,37 @@ struct FPlayerEclipseAbilitiesData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityOneClass;
+	TSubclassOf<USoSEclipseMeleeAbility> MeleeAbilityOneClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityTwoClass;
+	TSubclassOf<USoSEclipseMeleeAbility> MeleeAbilityTwoClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityThreeClass;
+	TSubclassOf<USoSEclipseMeleeAbility> MeleeAbilityThreeClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityFourClass;
+	TSubclassOf<USoSEclipseRangedAbility> RangedAbilityOneClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityFiveClass;
+	TSubclassOf<USoSEclipseRangedAbility> RangedAbilityTwoClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilitySixClass;
+	TSubclassOf<USoSEclipseRangedAbility> RangedAbilityThreeClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilitySevenClass;
+	TSubclassOf<USoSEclipseOffhandAbility> OffhandAbilityOneClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityEightClass;
+	TSubclassOf<USoSEclipseOffhandAbility> OffhandAbilityTwoClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+	TSubclassOf<USoSEclipseAuxiliaryAbility> AuxAbilityOneClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+	TSubclassOf<USoSEclipseAuxiliaryAbility> AuxAbilityTwoClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
+	TSubclassOf<USoSEclipseAuxiliaryAbility> AuxAbilityThreeClass;
 };
 
 
@@ -46,7 +56,31 @@ class SEAOFSAND_API ASoSPlayerEclipseClass : public ASoSPlayerCharacter
 {
 	GENERATED_BODY()
 	
+public:
+
+	ASoSPlayerEclipseClass();
 	
+protected:
+
+	virtual void BeginPlay() override;
 	
-	
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Eclipse")
+	void AddValueToEclipseRatio(float Value);
+
+protected:
+
+	float EclipseRatio; // 0 - 100
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
+	FPlayerEclipseAbilitiesData ClassAbilities;
+
+	virtual bool UseAbility(USoSAbilityBase* Ability, bool bReleashed) override;
+
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Eclipse")
+	float GetEclipseRatio() const;
+
 };

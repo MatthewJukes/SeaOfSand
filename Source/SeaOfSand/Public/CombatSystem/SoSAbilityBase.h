@@ -6,15 +6,27 @@
 #include "UObject/NoExportTypes.h"
 #include "SoSAbilityBase.generated.h"
 
+
 class ASoSWeaponBase;
 class USoSCombatComponent;
 
+
 UENUM()
-enum class EASResourceType : uint8
+enum class EAbilityResourceType : uint8
 {
 	Energy,
 	Health
 };
+
+
+UENUM()
+enum class EAbilityCastType : uint8
+{
+	Default,
+	Instant,
+	Cast //TODO define types as needed
+};
+
 
 UCLASS(BlueprintType, Blueprintable)
 class SEAOFSAND_API USoSAbilityBase : public UObject
@@ -32,6 +44,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Ability")
 	bool StartAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Ability")
+	bool ReleashAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void ReadyComboAction();
@@ -57,6 +72,9 @@ protected:
 
 	USoSCombatComponent* OwningCombatComp;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	EAbilityCastType CastType;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001"))
 	float Cooldown;
 
@@ -73,12 +91,15 @@ protected:
 	int32 MaxCharges;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
-	EASResourceType ResourceType;
+	EAbilityResourceType ResourceType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	UTexture2D* AbilityIcon;
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	EAbilityCastType GetCastType();
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	float GetLastTimeActivated() const;
@@ -111,7 +132,7 @@ public:
 	UTexture2D* GetAbilityIcon() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
-	EASResourceType GetResourceType() const;
+	EAbilityResourceType GetResourceType() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	USoSCombatComponent* GetOwningCombatComp() const;

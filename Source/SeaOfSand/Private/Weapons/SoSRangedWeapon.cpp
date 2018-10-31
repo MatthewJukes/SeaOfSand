@@ -38,6 +38,23 @@ void ASoSRangedWeapon::StartAttack()
 	HandleFiring();
 }
 
+void ASoSRangedWeapon::EndAttack()
+{
+	if (GetWeaponState() == EWeaponState::Attacking)
+	{
+		if (OwningCharacter->GetCharacterCombatComponent()->UseAbility(WeaponAbilities.AbilityWeaponPrimary, true))
+		{
+			SetWeaponState(EWeaponState::Idle);
+
+			UseAmmo();
+
+			PlayMuzzleEffect();
+
+			ShotAudioComponent->Play();
+		}
+	}
+}
+
 void ASoSRangedWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire())
@@ -45,12 +62,6 @@ void ASoSRangedWeapon::HandleFiring()
 		if (OwningCharacter->GetCharacterCombatComponent()->UseAbility(WeaponAbilities.AbilityWeaponPrimary))
 		{
 			SetWeaponState(EWeaponState::Attacking);
-
-			UseAmmo();		
-
-			PlayMuzzleEffect();
-
-			ShotAudioComponent->Play();
 		}
 	}
 	else if (CurrentAmmoInClip == 0 && bCanReload && CurrentAmmo > 0)

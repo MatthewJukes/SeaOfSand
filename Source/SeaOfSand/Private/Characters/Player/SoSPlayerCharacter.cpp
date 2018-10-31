@@ -54,24 +54,33 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis("Turn", this, &ASoSPlayerCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &ASoSPlayerCharacter::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("USe", IE_Pressed, this, &ASoSPlayerCharacter::Interact);
+	PlayerInputComponent->BindAction("Use", IE_Pressed, this, &ASoSPlayerCharacter::Interact);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASoSPlayerCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASoSPlayerCharacter::SprintEnd);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASoSPlayerCharacter::CrouchStart);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASoSPlayerCharacter::CrouchEnd);
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ASoSPlayerCharacter::AimStart);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ASoSPlayerCharacter::AimEnd);
+	PlayerInputComponent->BindAction("Alternate", IE_Pressed, this, &ASoSPlayerCharacter::AimStart);
+	PlayerInputComponent->BindAction("Alternate", IE_Released, this, &ASoSPlayerCharacter::AimEnd);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartDash);
 
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 1);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 2);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 3);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 4);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 5);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 6);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 7);
-	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 8);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 1, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 2, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 3, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 4, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 5, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 6, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 7, false);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 8, false);
+
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 1, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 2, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityThree", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 3, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFour", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 4, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityFive", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 5, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySix", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 6, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilitySeven", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 7, true);
+	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityEight", IE_Released, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 8, true);
 }
 
 // Called when the game starts or when spawned
@@ -82,14 +91,6 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
-	AbilityBar.AbilityOne = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityOneClass, CombatComp);
-	AbilityBar.AbilityTwo = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityTwoClass, CombatComp);
-	AbilityBar.AbilityThree = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityThreeClass, CombatComp);
-	AbilityBar.AbilityFour = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFourClass, CombatComp);
-	AbilityBar.AbilityFive = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityFiveClass, CombatComp);
-	AbilityBar.AbilitySix = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySixClass, CombatComp);
-	AbilityBar.AbilitySeven = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySevenClass, CombatComp);
-	AbilityBar.AbilityEight = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityEightClass, CombatComp);
 	AbilityBar.AbilitySprint = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintClass, CombatComp);
 	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintEndClass, CombatComp);
 	AbilityBar.AbilityAimEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityAimEndClass, CombatComp);
@@ -275,43 +276,49 @@ void ASoSPlayerCharacter::StartDash()
 }
 
 
-void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index)
+void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index, bool bReleased)
 {
+	USoSAbilityBase* AbilityToUse;
+	bool bMeleeWeapon = InventoryComp->GetCurrentWeapon()->GetWeaponType() == EWeaponType::Melee ? true : false;
+
 	switch (index)
 	{
 	case 1:
-		UseAbility(AbilityBar.AbilityOne);
+		AbilityToUse = bMeleeWeapon ? AbilityBar.MeleeAbilityOne : AbilityBar.RangedAbilityOne;
 		break;
 	case 2:
-		UseAbility(AbilityBar.AbilityTwo);
+		AbilityToUse = bMeleeWeapon ? AbilityBar.MeleeAbilityTwo : AbilityBar.RangedAbilityTwo;
 		break;
 	case 3:
-		UseAbility(AbilityBar.AbilityThree);
+		AbilityToUse = bMeleeWeapon ? AbilityBar.MeleeAbilityThree : AbilityBar.RangedAbilityThree;
 		break;
 	case 4:
-		UseAbility(AbilityBar.AbilityFour);
+		AbilityToUse = AbilityBar.OffhandAbilityOne;
 		break;
 	case 5:
-		UseAbility(AbilityBar.AbilityFive);
+		AbilityToUse = AbilityBar.OffhandAbilityTwo;
 		break;
 	case 6:
-		UseAbility(AbilityBar.AbilitySix);
+		AbilityToUse = AbilityBar.AuxAbilityOne;
 		break;
 	case 7:
-		UseAbility(AbilityBar.AbilitySeven);
+		AbilityToUse = AbilityBar.AuxAbilityTwo;
 		break;
 	case 8:
-		UseAbility(AbilityBar.AbilityEight);
+		AbilityToUse = AbilityBar.AuxAbilityThree;
 		break;
 	default:
+		AbilityToUse = nullptr;
 		break;
 	}
+
+	UseAbility(AbilityToUse, bReleased);
 }
 
 
-bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability)
+bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability, bool bReleashed)
 {
-	return CombatComp->UseAbility(Ability);
+	return CombatComp->UseAbility(Ability, bReleashed);
 }
 
 

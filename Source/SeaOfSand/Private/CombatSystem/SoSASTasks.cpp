@@ -205,7 +205,7 @@ bool USoSASTasks::WeaponTrace(const AActor* Source, FHitResult& OutHit, const FV
 }
 
 
-bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform)
+bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed)
 {
 	if (Projectile == nullptr || Source == nullptr)
 	{
@@ -218,18 +218,17 @@ bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase>
 		return false;
 	}
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = Source;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	ASoSProjectileBase* NewProjectile = World->SpawnActor<ASoSProjectileBase>(Projectile, SpawnTransform, SpawnParams);
+	ASoSProjectileBase* NewProjectile = World->SpawnActorDeferred<ASoSProjectileBase>(Projectile, SpawnTransform, Source, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	NewProjectile->SetProjectileSource(Source);
+	NewProjectile->SetProjectileDamage(ProjectileDamage);
+	NewProjectile->SetProjectileSpeed(ProjectileSpeed);
+	NewProjectile->FinishSpawning(SpawnTransform);
 
 	return NewProjectile != nullptr;
 }
 
 
-bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation)
+bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread)
 {
 	FHitResult Hit;
 	FVector EndLocation = GetAimHitLocation(Source);
@@ -241,9 +240,10 @@ bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclas
 	// Convert end location to direction
 	EndLocation = EndLocation - SocketLocation;
 	EndLocation.Normalize();
+	EndLocation = FMath::VRandCone(EndLocation, FMath::DegreesToRadians(ProjectileSpread));
 
 	FTransform ProjectileTransform = FTransform(FRotator(EndLocation.ToOrientationRotator()), SocketLocation);
-	if (!FireProjectile(Source, Projectile, ProjectileTransform))
+	if (!FireProjectile(Source, Projectile, ProjectileTransform, ProjectileDamage, ProjectileSpeed))
 	{
 		return false;
 	}
@@ -423,6 +423,12 @@ bool USoSASTasks::PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharac
 		return false;
 	}
 
+	if (SourceAbility->GetCastType() == EAbilityCastType::Instant)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Instant cast abilities cannot play a montage"));
+		return false;
+	}
+
 	USoSCombatComponent* TargetCombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
 	if (TargetCombatComp == nullptr)
 	{
@@ -434,6 +440,12 @@ bool USoSASTasks::PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharac
 	Target->PlayAnimMontage(AnimMontage, PlayRate, StartSectionName);
 
 	return true;
+}
+
+
+float USoSASTasks::GetTimeSeconds(const UObject* WorldContextObject)
+{
+	return AbilityGetWorldFromContextObject(WorldContextObject)->GetTimeSeconds();
 }
 
 

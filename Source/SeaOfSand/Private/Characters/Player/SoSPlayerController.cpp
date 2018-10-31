@@ -14,8 +14,8 @@ void ASoSPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	if (InputComponent)
 	{
-		InputComponent->BindAction("Fire", IE_Pressed, this, &ASoSPlayerController::StartFiring);
-		InputComponent->BindAction("Fire", IE_Released, this, &ASoSPlayerController::StopFiring);
+		InputComponent->BindAction("Primary", IE_Pressed, this, &ASoSPlayerController::StartPrimaryAttack);
+		InputComponent->BindAction("Primary", IE_Released, this, &ASoSPlayerController::EndPrimaryAttack);
 		InputComponent->BindAction("Holster", IE_Pressed, this, &ASoSPlayerController::HolsterUnholster);
 		InputComponent->BindAction("Reload", IE_Pressed, this, &ASoSPlayerController::Reload);
 		InputComponent->BindAction("NextWeapon", IE_Pressed, this, &ASoSPlayerController::NextWeapon);
@@ -47,7 +47,7 @@ void ASoSPlayerController::ToggleVehicleHud()
 	}
 }
 
-void ASoSPlayerController::StartFiring()
+void ASoSPlayerController::StartPrimaryAttack()
 {
 	if (PlayerInventory)
 	{
@@ -63,7 +63,7 @@ void ASoSPlayerController::StartFiring()
 	}
 }
 
-void ASoSPlayerController::StopFiring()
+void ASoSPlayerController::EndPrimaryAttack()
 {
 	if (PlayerInventory)
 	{

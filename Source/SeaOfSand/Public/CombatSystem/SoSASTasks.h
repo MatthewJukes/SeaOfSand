@@ -43,10 +43,10 @@ public:
 	static bool WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform);
+	static bool FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation);
+	static bool FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread = 0);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool MeleeHitCheck(AActor* Target, const AActor* Source, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
@@ -68,6 +68,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharacter* Target, UAnimMontage* AnimMontage, float PlayRate = 1.0f, FName StartSectionName = "None");
+
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
+	static float GetTimeSeconds(const UObject* WorldContextObject);
 
 	static USoSAbilityBase* CreateAbilityInstance(TSubclassOf<USoSAbilityBase> Ability, USoSCombatComponent* OwningCombatComp);
 

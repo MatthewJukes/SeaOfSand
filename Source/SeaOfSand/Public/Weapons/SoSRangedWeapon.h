@@ -30,6 +30,8 @@ public:
 
 	void StartAttack() override;
 
+	void EndAttack() override;
+
 	void StartReload();
 
 	void InterruptReload();

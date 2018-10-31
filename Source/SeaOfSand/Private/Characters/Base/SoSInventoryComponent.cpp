@@ -183,6 +183,7 @@ void USoSInventoryComponent::CycleWeapons(bool bNextWeapon)
 		CurrentWeapon = EquippedWeapons[CurrentWeaponArrayID];
 	}
 
+	OnWeaponSwitch.Broadcast();
 	if (bWeaponWasDrawn) { HolsterUnholster(true); }
 }
 

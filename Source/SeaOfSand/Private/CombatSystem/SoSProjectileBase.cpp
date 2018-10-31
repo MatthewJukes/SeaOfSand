@@ -16,6 +16,14 @@ ASoSProjectileBase::ASoSProjectileBase()
 }
 
 
+void ASoSProjectileBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//ProjectileMovement->InitialSpeed = ProjectileSpeed;
+	ProjectileMovement->Velocity = GetActorForwardVector() * ProjectileSpeed;
+}
+
 AActor* ASoSProjectileBase::GetProjectileSource() const
 {
 	return ProjectileSource;
@@ -25,5 +33,17 @@ AActor* ASoSProjectileBase::GetProjectileSource() const
 void ASoSProjectileBase::SetProjectileSource(AActor* Source)
 {
 	ProjectileSource = Source;
+}
+
+
+void ASoSProjectileBase::SetProjectileDamage(float Value)
+{
+	ProjectileDamage = Value;
+}
+
+
+void ASoSProjectileBase::SetProjectileSpeed(float Value)
+{
+	ProjectileSpeed = Value;
 }
 

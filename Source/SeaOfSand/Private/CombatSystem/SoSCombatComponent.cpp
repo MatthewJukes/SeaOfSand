@@ -409,7 +409,7 @@ void USoSCombatComponent::EndEffect(FEffectData& EffectToEnd)
 }
 
 
-bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, float ClassSpecificFloatValue /*= 0*/)
+bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, bool bReleashed, float ClassSpecificFloatValue /*= 0*/)
 {
 	if (Ability == nullptr)
 	{
@@ -417,24 +417,29 @@ bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, float ClassSpecif
 		return false;
 	}
 
-	if (OwnerState == EOwnerState::PerformingAction && !Ability->GetComboReady())
+	if (OwnerState == EOwnerState::PerformingAction && !Ability->GetComboReady() && Ability->GetCastType() != EAbilityCastType::Instant)
 	{
 		return false;
 	}
 
-	if (!AbilityCheckCooldownAndCharges(Ability))
+	if (!AbilityCheckCooldownAndCharges(Ability, bReleashed))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability %s on cooldown"), *Ability->GetName());
 		return false;
 	}
 
-	if (AbilityHandleResource(Ability->GetResourceType(), Ability->GetCost()))
+	if (AbilityHandleResource(Ability->GetResourceType(), Ability->GetCost(), bReleashed))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 
 		UWorld* World = GetWorld();
-		Ability->SetLastTimeActivated(World->GetTimeSeconds());
-		return Ability->StartAbility(GetOwner(), OwningCharacter->GetCharacterInventory()->GetCurrentWeapon(), ClassSpecificFloatValue);
+
+		if (bReleashed)
+		{
+			Ability->SetLastTimeActivated(World->GetTimeSeconds());
+		}
+		return bReleashed == false ? Ability->StartAbility(GetOwner(), OwningCharacter->GetCharacterInventory()->GetCurrentWeapon(), ClassSpecificFloatValue) 
+			                       : Ability->ReleashAbility(GetOwner(), OwningCharacter->GetCharacterInventory()->GetCurrentWeapon(), ClassSpecificFloatValue);
 	}
 
 	return false;
@@ -472,7 +477,7 @@ void USoSCombatComponent::AbilityActionComplete()
 }
 
 
-bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck)
+bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck, bool bReleashed)
 {
 	if (GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated() < AbilityToCheck->GetCooldown())
 	{
@@ -494,33 +499,46 @@ bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* Abilit
 		return false;
 	}
 
-	AbilityToCheck->SetLastChargeRemainder(NewCharges - FMath::TruncToInt(NewCharges));
-	AbilityToCheck->SetCurrentCharges(AbilityToCheck->GetCurrentCharges() - 1);
+	if (bReleashed)
+	{
+		AbilityToCheck->SetLastChargeRemainder(NewCharges - FMath::TruncToInt(NewCharges));
+		AbilityToCheck->SetCurrentCharges(AbilityToCheck->GetCurrentCharges() - 1);
+	}
 	return true;
 }
 
 
-bool USoSCombatComponent::AbilityHandleResource(EASResourceType Type, float Cost)
+bool USoSCombatComponent::AbilityHandleResource(EAbilityResourceType Type, float Cost, bool bReleashed)
 {
 	switch (Type)
 	{
-	case EASResourceType::Energy:
+	case EAbilityResourceType::Energy:
 		if (AttributeTotalValues.EnergyCurrentValue < Cost)
 		{
 			return false;
 		}
-		AddValueToAttributeData(AttributeBaseValues, EAttributeName::EnergyCurrent, -Cost);
+
+		if (bReleashed)
+		{
+			AddValueToAttributeData(AttributeBaseValues, EAttributeName::EnergyCurrent, -Cost);
+		}
 		break;
-	case EASResourceType::Health:
+	case EAbilityResourceType::Health:
 		if (AttributeTotalValues.HealthCurrentValue+1 < Cost)
 		{
 			return false;
 		}
-		AddValueToAttributeData(AttributeBaseValues, EAttributeName::HealthCurrent, -Cost);
+
+		if (bReleashed)
+		{
+			AddValueToAttributeData(AttributeBaseValues, EAttributeName::HealthCurrent, -Cost);
+		}
 		break;
 	default:
 		break;
 	}
+
+	
 
 	return true;
 }

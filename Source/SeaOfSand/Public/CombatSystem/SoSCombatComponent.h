@@ -12,7 +12,7 @@
 class USoSAbilityBase;
 class ASoSCharacterBase;
 class ASoSWeaponBase;
-enum class EASResourceType : uint8;
+enum class EAbilityResourceType : uint8;
 
 
 UENUM(BlueprintType)
@@ -67,7 +67,7 @@ public:
 
 	void AddValueToAttributeBaseValues(EAttributeName Attribute, float Value);
 
-	bool UseAbility(USoSAbilityBase* Ability, float ClassSpecificFloatValue = 0);
+	bool UseAbility(USoSAbilityBase* Ability, bool bReleashed = false, float ClassSpecificFloatValue = 0);
 
 	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
 
@@ -148,9 +148,9 @@ protected:
 
 	void EndEffect(FEffectData& EffectToEnd);
 
-	bool AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck);
+	bool AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck, bool bReleashed);
 
-	bool AbilityHandleResource(EASResourceType Type, float Cost);
+	bool AbilityHandleResource(EAbilityResourceType Type, float Cost, bool bReleashed);
 
 ////////////////////////////////////////////////
 // Getters and Setters

@@ -15,6 +15,12 @@ USoSAbilityBase::USoSAbilityBase()
 }
 
 
+EAbilityCastType USoSAbilityBase::GetCastType()
+{
+	return CastType;
+}
+
+
 float USoSAbilityBase::GetLastTimeActivated() const
 {
 	return LastTimeActivated;
@@ -73,7 +79,7 @@ UTexture2D* USoSAbilityBase::GetAbilityIcon() const
 }
 
 
-EASResourceType USoSAbilityBase::GetResourceType() const
+EAbilityResourceType USoSAbilityBase::GetResourceType() const
 {
 	return ResourceType;
 }

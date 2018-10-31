@@ -20,7 +20,7 @@ public:
 
 protected:
 
-	//virtual void
+	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Component")
 	USphereComponent* SphereComponent;
@@ -36,11 +36,18 @@ protected:
 	AActor* ProjectileSource;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
-	float BaseDamage;
+	float ProjectileDamage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
+	float ProjectileSpeed;
 
 public:
 
 	AActor* GetProjectileSource() const;
 
 	void SetProjectileSource(AActor* Source);
+
+	void SetProjectileDamage(float Value);
+
+	void SetProjectileSpeed(float Value);
 };

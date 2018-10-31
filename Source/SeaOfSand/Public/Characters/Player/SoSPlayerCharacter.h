@@ -18,30 +18,6 @@ struct FPlayerAbilitiesData
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityOneClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityTwoClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityThreeClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityFourClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityFiveClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilitySixClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilitySevenClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	TSubclassOf<USoSAbilityBase> AbilityEightClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
 	TSubclassOf<USoSAbilityBase> AbilitySprintClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
@@ -54,28 +30,37 @@ struct FPlayerAbilitiesData
 	TSubclassOf<USoSAbilityBase> AbilityDashClass;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilityOne;
+	USoSAbilityBase* MeleeAbilityOne;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilityTwo;
+	USoSAbilityBase* MeleeAbilityTwo;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilityThree;
+	USoSAbilityBase* MeleeAbilityThree;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilityFour;
+	USoSAbilityBase* RangedAbilityOne;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilityFive;
+	USoSAbilityBase* RangedAbilityTwo;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilitySix;
+	USoSAbilityBase* RangedAbilityThree;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilitySeven;
+	USoSAbilityBase* OffhandAbilityOne;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
-	USoSAbilityBase* AbilityEight;
+	USoSAbilityBase* OffhandAbilityTwo;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	USoSAbilityBase* AuxAbilityOne;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	USoSAbilityBase* AuxAbilityTwo;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ability")
+	USoSAbilityBase* AuxAbilityThree;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ability")
 	USoSAbilityBase* AbilitySprint;
@@ -90,7 +75,7 @@ struct FPlayerAbilitiesData
 	USoSAbilityBase* AbilityDash;
 }; 
 
-DECLARE_DELEGATE_OneParam(FUseAbilityDelegate, int32);
+DECLARE_DELEGATE_TwoParams(FUseAbilityDelegate, int32, bool);
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerCharacter : public ASoSCharacterBase
@@ -130,8 +115,6 @@ public:
 
 	void AimEnd(); // stop/interrupt aiming
 
-	bool UseAbility(USoSAbilityBase* Ability);
-
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);
 
@@ -152,8 +135,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	FPlayerAbilitiesData AbilityBar;
+
+	virtual bool UseAbility(USoSAbilityBase* Ability, bool bReleashed = false);
 
 	void MoveForward(float AxisValue);
 
@@ -182,7 +167,7 @@ protected:
 	FVector GetTraceDirection(FVector StartLocation) const;
 
 	UFUNCTION()
-	void UseAbilityActionBinding(int32 Index);
+	void UseAbilityActionBinding(int32 Index, bool bReleased);
 
 	//Timer handles
 	FTimerHandle TimerHandle_DoubleJump;
