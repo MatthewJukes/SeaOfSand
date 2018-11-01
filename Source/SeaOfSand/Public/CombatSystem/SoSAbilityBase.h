@@ -42,11 +42,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void InitializeAbility();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
 	bool StartAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+	virtual bool StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
 	bool ReleashAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+	virtual bool ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void ReadyComboAction();

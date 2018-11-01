@@ -5,6 +5,7 @@
 #include "SoSCombatComponent.h"
 #include "SoSAbilityBase.h"
 #include "SoSProjectileBase.h"
+#include "SoSPlayerEclipseClass.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -446,6 +447,54 @@ bool USoSASTasks::PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharac
 float USoSASTasks::GetTimeSeconds(const UObject* WorldContextObject)
 {
 	return AbilityGetWorldFromContextObject(WorldContextObject)->GetTimeSeconds();
+}
+
+
+bool USoSASTasks::CalculateEclipsePoints(AActor* Source, float EclipseRatio, int32 &SunPoints, int32 &MoonPoints)
+{ 
+	if (Source == nullptr)
+	{
+		return false;
+	}
+
+	ASoSPlayerEclipseClass* EclipseClass = Cast<ASoSPlayerEclipseClass>(Source);
+	if (EclipseClass == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Source NOT Eclipse class"))
+		return false;
+	}
+	
+	if (EclipseRatio < 5.0f)
+	{
+		SunPoints = 0;
+	}
+	else if (EclipseRatio < 17.5f)
+	{
+		SunPoints = 1;
+	}
+	else if (EclipseRatio < 40)
+	{
+		SunPoints = 2;
+	}
+	else if (EclipseRatio <= 60)
+	{
+		SunPoints = 3;
+	}
+	else if (EclipseRatio <= 82.5)
+	{
+		SunPoints = 4;
+	}
+	else if (EclipseRatio <= 95)
+	{
+		SunPoints = 5;
+	}
+	else
+	{
+		SunPoints = 6;
+	}
+
+	MoonPoints = 6 - SunPoints; 
+	return true;
 }
 
 

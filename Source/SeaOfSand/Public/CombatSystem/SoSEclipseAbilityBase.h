@@ -14,7 +14,25 @@ class SEAOFSAND_API USoSEclipseAbilityBase : public USoSAbilityBase
 {
 	GENERATED_BODY()
 	
+protected:
+
+	USoSEclipseAbilityBase();
 	
+protected:
+
+	int32 SunPoints;
+
+	int32 MoonPoints;
+
+	virtual bool StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
+
+	virtual bool ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
 	
-	
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Eclipse")
+	int32 GetSunPoints() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Eclipse")
+	int32 GetMoonPoints() const;
 };

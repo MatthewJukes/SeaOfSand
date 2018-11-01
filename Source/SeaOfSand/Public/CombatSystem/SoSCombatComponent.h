@@ -67,9 +67,10 @@ public:
 
 	void AddValueToAttributeBaseValues(EAttributeName Attribute, float Value);
 
-	bool UseAbility(USoSAbilityBase* Ability, bool bReleashed = false, float ClassSpecificFloatValue = 0);
-
 	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
+
+	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
+	bool UseAbility(USoSAbilityBase* Ability, bool bReleashed = false, float ClassSpecificFloatValue = 0);
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	void AbilityActionStart();

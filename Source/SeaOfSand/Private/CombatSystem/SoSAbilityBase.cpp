@@ -15,6 +15,18 @@ USoSAbilityBase::USoSAbilityBase()
 }
 
 
+bool USoSAbilityBase::StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+{
+	return true;
+}
+
+
+bool USoSAbilityBase::ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+{
+	return true;
+}
+
+
 EAbilityCastType USoSAbilityBase::GetCastType()
 {
 	return CastType;

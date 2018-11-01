@@ -72,6 +72,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static float GetTimeSeconds(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
+	static bool CalculateEclipsePoints(AActor* Source, float EclipseRatio, int32 &SunPoints, int32 &MoonPoints);
+
 	static USoSAbilityBase* CreateAbilityInstance(TSubclassOf<USoSAbilityBase> Ability, USoSCombatComponent* OwningCombatComp);
 
 private:
