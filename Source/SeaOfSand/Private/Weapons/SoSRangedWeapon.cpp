@@ -24,6 +24,7 @@ ASoSRangedWeapon::ASoSRangedWeapon()
 	bCanReload = true;
 }
 
+
 // Called when the game starts or when spawned
 void ASoSRangedWeapon::BeginPlay()
 {
@@ -33,10 +34,12 @@ void ASoSRangedWeapon::BeginPlay()
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, StartAmmo);
 }
 
+
 void ASoSRangedWeapon::StartAttack()
 {
 	HandleFiring();
 }
+
 
 void ASoSRangedWeapon::EndAttack()
 {
@@ -55,6 +58,7 @@ void ASoSRangedWeapon::EndAttack()
 	}
 }
 
+
 void ASoSRangedWeapon::HandleFiring()
 {
 	if (CheckIfWeaponCanFire())
@@ -69,6 +73,7 @@ void ASoSRangedWeapon::HandleFiring()
 		StartReload();
 	}
 }
+
 
 bool ASoSRangedWeapon::CheckIfWeaponCanFire()
 {
@@ -85,6 +90,7 @@ bool ASoSRangedWeapon::CheckIfWeaponCanFire()
 	}
 	return false;
 }
+
 
 void ASoSRangedWeapon::UseAmmo()
 {
@@ -104,6 +110,7 @@ void ASoSRangedWeapon::StartReload()
 	}
 }
 
+
 void ASoSRangedWeapon::InterruptReload()
 {
 	if (WeaponState == EWeaponState::Reloading)
@@ -113,12 +120,14 @@ void ASoSRangedWeapon::InterruptReload()
 	}
 }
 
+
 void ASoSRangedWeapon::ReloadWeapon()
 {
 	CurrentAmmoInClip = FMath::Min(MaxAmmoPerClip, CurrentAmmo);
 	GetWorldTimerManager().ClearTimer(TimerHandle_ReloadTime);
 	WeaponState = EWeaponState::Idle;
 }
+
 
 void ASoSRangedWeapon::PlayMuzzleEffect()
 {

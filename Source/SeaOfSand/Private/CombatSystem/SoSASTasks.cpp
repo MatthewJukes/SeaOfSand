@@ -436,6 +436,11 @@ bool USoSASTasks::PlayAbilityAnimMontage(USoSAbilityBase* SourceAbility, ACharac
 		return false;
 	}
 
+	if (SourceAbility != TargetCombatComp->GetLastAbilityToStartMontage() && TargetCombatComp->GetLastAbilityToStartMontage() != nullptr)
+	{
+		TargetCombatComp->GetLastAbilityToStartMontage()->EndCombo();
+	}
+
 	TargetCombatComp->SetLastAbilityToStartMontage(SourceAbility);
 
 	Target->PlayAnimMontage(AnimMontage, PlayRate, StartSectionName);

@@ -50,8 +50,11 @@ public:
 	bool ReleashAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 	virtual bool ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
-	void ReadyComboAction();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
+	void ReadyCombo();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
+	void EndCombo();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void ActionComplete();
@@ -139,13 +142,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	USoSCombatComponent* GetOwningCombatComp() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void SetComboReady(bool bNewComboReady);
+
 	void SetLastTimeActivated(float NewTime);
 
 	void SetLastChargeRemainder(float NewRemainder);
 
 	void SetCurrentCharges(int32 Charges);
-
-	void SetComboReady(bool bNewComboReady);
 
 	void SetOwningCombatComp(USoSCombatComponent* CombatComp);
 };

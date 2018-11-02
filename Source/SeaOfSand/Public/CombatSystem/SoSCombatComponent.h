@@ -76,9 +76,6 @@ public:
 	void AbilityActionStart();
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
-	void AbilityReadyComboAction();
-
-	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	void AbilityActionComplete();
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")

@@ -12,6 +12,7 @@ USoSAbilityBase::USoSAbilityBase()
 	Cooldown = 0.001f;
 	ChargeTime = 0.001f;
 	MaxCharges = 1;
+	bComboReady = false;
 }
 
 
@@ -24,6 +25,18 @@ bool USoSAbilityBase::StartAbility_Implementation(AActor* Source, ASoSWeaponBase
 bool USoSAbilityBase::ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
 {
 	return true;
+}
+
+
+void USoSAbilityBase::ReadyCombo_Implementation()
+{
+	bComboReady = true;
+}
+
+
+void USoSAbilityBase::EndCombo_Implementation()
+{
+	bComboReady = false;
 }
 
 

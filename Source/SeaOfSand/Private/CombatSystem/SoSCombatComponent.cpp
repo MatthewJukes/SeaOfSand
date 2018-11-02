@@ -193,6 +193,7 @@ void USoSCombatComponent::HandleEffectAbility(FEffectData& Effect, FEffectAbilit
 	Module.Ability->StartAbility(Effect.Source, SourceInventory->GetCurrentWeapon(), 0); // TODO get value from source
 }
 
+
 void USoSCombatComponent::TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType EventType)
 {
 	switch (EventType)
@@ -455,22 +456,12 @@ void USoSCombatComponent::AbilityActionStart()
 		Player->AimEnd();
 	}
 
-	LastAbilityToStartMontage->SetComboReady(false);
-
 	OwnerState = EOwnerState::PerformingAction;
-}
-
-
-void USoSCombatComponent::AbilityReadyComboAction()
-{
-	LastAbilityToStartMontage->SetComboReady(true);
-	LastAbilityToStartMontage->ReadyComboAction();
 }
 
 
 void USoSCombatComponent::AbilityActionComplete()
 {
-	LastAbilityToStartMontage->SetComboReady(false);
 	LastAbilityToStartMontage->ActionComplete();
 
 	OwnerState = EOwnerState::Normal;

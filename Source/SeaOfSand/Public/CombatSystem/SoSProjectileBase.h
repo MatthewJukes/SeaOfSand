@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "SoSAbilityActor.h"
 #include "SoSProjectileBase.generated.h"
 
 class USphereComponent;
 class UProjectileMovementComponent;
 
 UCLASS()
-class SEAOFSAND_API ASoSProjectileBase : public AActor
+class SEAOFSAND_API ASoSProjectileBase : public ASoSAbilityActor
 {
 	GENERATED_BODY()
 
