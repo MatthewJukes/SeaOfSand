@@ -71,12 +71,8 @@ public:
 
 protected:
 
-	float EclipseRatio; // 0 - 100
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	FPlayerEclipseAbilitiesData ClassAbilities;
-
-	virtual bool UseAbility(USoSAbilityBase* Ability, bool bReleashed) override;
 
 public:
 

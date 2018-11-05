@@ -22,7 +22,7 @@ bool USoSAbilityBase::StartAbility_Implementation(AActor* Source, ASoSWeaponBase
 }
 
 
-bool USoSAbilityBase::ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+bool USoSAbilityBase::ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
 {
 	return true;
 }

@@ -116,7 +116,7 @@ void ABaseVehicle::ExitVehicle()
 		CurrentDriver->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 		CurrentDriver->AddActorLocalTransform(SpawnTransform);
 		CurrentDriver->EnableCollsion();
-		CurrentDriver->bInVehicle = false;
+		CurrentDriver->SetInVehicle(false);
 		PlayerController->Possess(CurrentDriver);
 		PlayerController->UpdateCurrentPawn();
 		PlayerController->ToggleVehicleHud();

@@ -18,7 +18,7 @@ bool USoSEclipseAbilityBase::StartAbility_Implementation(AActor* Source, ASoSWea
 } 
 
 
-bool USoSEclipseAbilityBase::ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+bool USoSEclipseAbilityBase::ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
 {
 	return USoSASTasks::CalculateEclipsePoints(Source, ClassSpecificFloatValue, SunPoints, MoonPoints);
 }  

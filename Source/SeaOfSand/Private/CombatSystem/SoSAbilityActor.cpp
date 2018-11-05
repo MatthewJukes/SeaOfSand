@@ -13,6 +13,7 @@ ASoSAbilityActor::ASoSAbilityActor()
 	MaxLifetime = 999;
 }
 
+
 // Called when the game starts or when spawned
 void ASoSAbilityActor::BeginPlay()
 {
@@ -21,8 +22,21 @@ void ASoSAbilityActor::BeginPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle_AreaEffectTick, this, &ASoSAbilityActor::EndAbilityActor, MaxLifetime, true);
 }
 
+
 void ASoSAbilityActor::EndAbilityActor_Implementation()
 {
 	Destroy();
+}
+
+
+AActor * ASoSAbilityActor::GetAbilityActorSource() const
+{
+	return AbilityActorSource;
+}
+
+
+void ASoSAbilityActor::SetAbilityActorSource(AActor* Source)
+{
+	AbilityActorSource = Source;
 }
 

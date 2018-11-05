@@ -14,14 +14,17 @@ void ASoSPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	if (InputComponent)
 	{
-		InputComponent->BindAction("Primary", IE_Pressed, this, &ASoSPlayerController::StartPrimaryAttack);
-		InputComponent->BindAction("Primary", IE_Released, this, &ASoSPlayerController::EndPrimaryAttack);
+		InputComponent->BindAction("Primary", IE_Pressed, this, &ASoSPlayerController::PrimaryAttackStart);
+		InputComponent->BindAction("Primary", IE_Released, this, &ASoSPlayerController::PrimaryAttackEnd);
+		InputComponent->BindAction("Alternate", IE_Pressed, this, &ASoSPlayerController::AlternateAttackStart);
+		InputComponent->BindAction("Alternate", IE_Released, this, &ASoSPlayerController::AlternateAttackEnd);
 		InputComponent->BindAction("Holster", IE_Pressed, this, &ASoSPlayerController::HolsterUnholster);
 		InputComponent->BindAction("Reload", IE_Pressed, this, &ASoSPlayerController::Reload);
 		InputComponent->BindAction("NextWeapon", IE_Pressed, this, &ASoSPlayerController::NextWeapon);
 		InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &ASoSPlayerController::PrevWeapon);
 	}	
 }
+
 
 // Called when the game starts or when spawned
 void ASoSPlayerController::BeginPlay()
@@ -34,10 +37,12 @@ void ASoSPlayerController::BeginPlay()
 	PlayerHUD = Cast<ASoSPlayerHUD>(GetHUD());
 }
 
+
 void ASoSPlayerController::UpdateCurrentPawn()
 {
 	CurrentPlayerPawn = GetPawn();
 }
+
 
 void ASoSPlayerController::ToggleVehicleHud()
 {
@@ -47,29 +52,42 @@ void ASoSPlayerController::ToggleVehicleHud()
 	}
 }
 
-void ASoSPlayerController::StartPrimaryAttack()
+
+void ASoSPlayerController::PrimaryAttackStart()
 {
-	if (PlayerInventory)
+	if (PlayerCharacter)
 	{
-		if (PlayerInventory->GetCurrentWeapon()->GetWeaponState() == EWeaponState::Holstered) // Draw weapon if not drawn already
-		{
-			PlayerInventory->HolsterUnholster();
-		}
-		else
-		{
-			PlayerCharacter->SprintEnd();
-			PlayerInventory->GetCurrentWeapon()->StartAttack();
-		}		
+		PlayerCharacter->PrimaryAttackStart();
 	}
 }
 
-void ASoSPlayerController::EndPrimaryAttack()
+
+void ASoSPlayerController::PrimaryAttackEnd()
 {
-	if (PlayerInventory)
+	if (PlayerCharacter)
 	{
-		PlayerInventory->GetCurrentWeapon()->EndAttack();
+		PlayerCharacter->PrimaryAttackEnd();
 	}
 }
+
+
+void ASoSPlayerController::AlternateAttackStart()
+{
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->AlternateAttackStart();
+	}
+}
+
+
+void ASoSPlayerController::AlternateAttackEnd()
+{
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->AlternateAttackEnd();
+	}
+}
+
 
 void ASoSPlayerController::HolsterUnholster()
 {
@@ -79,6 +97,7 @@ void ASoSPlayerController::HolsterUnholster()
 	}
 }
 
+
 void ASoSPlayerController::Reload()
 {
 	if (PlayerInventory)
@@ -87,15 +106,18 @@ void ASoSPlayerController::Reload()
 	}
 }
 
+
 void ASoSPlayerController::NextWeapon()
 {
 	PlayerInventory->CycleWeapons();
 }
 
+
 void ASoSPlayerController::PrevWeapon()
 {
 	PlayerInventory->CycleWeapons(false);
 }
+
 
 FVector ASoSPlayerController::GetCrosshairHitLocation(bool bOffsetFromCamera, FVector OffsetTarget) const
 {
@@ -114,11 +136,13 @@ FVector ASoSPlayerController::GetCrosshairHitLocation(bool bOffsetFromCamera, FV
 	return FVector(0.f,0.f,0.f);
 }
 
+
 bool ASoSPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
 {
 	FVector CameraWorldLocation; // To be discarded
 	return DeprojectScreenPositionToWorld(ScreenLocation.X,	ScreenLocation.Y, CameraWorldLocation, LookDirection);
 }
+
 
 FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const
 {
@@ -151,10 +175,12 @@ FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection, bo
 	return EndLocation; // return end location if nothing hit
 }
 
+
 ASoSPlayerHUD * ASoSPlayerController::GetPlayerHUD() const
 {
 	return PlayerHUD;
 }
+
 
 FRotator ASoSPlayerController::GetAimOffsets() const
 {

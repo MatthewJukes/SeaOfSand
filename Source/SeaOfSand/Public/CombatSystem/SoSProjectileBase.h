@@ -32,9 +32,6 @@ public:
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Projectile")
-	AActor* ProjectileSource;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Projectile")
 	float ProjectileDamage;
 
@@ -42,10 +39,6 @@ protected:
 	float ProjectileSpeed;
 
 public:
-
-	AActor* GetProjectileSource() const;
-
-	void SetProjectileSource(AActor* Source);
 
 	void SetProjectileDamage(float Value);
 

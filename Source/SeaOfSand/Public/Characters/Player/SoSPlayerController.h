@@ -55,9 +55,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float CrosshairTraceRange = 100000.f;
 
-	void StartPrimaryAttack();
+	void PrimaryAttackStart();
 
-	void EndPrimaryAttack();
+	void PrimaryAttackEnd();
+
+	void AlternateAttackStart();
+
+	void AlternateAttackEnd();
 	
 	void HolsterUnholster();
 	

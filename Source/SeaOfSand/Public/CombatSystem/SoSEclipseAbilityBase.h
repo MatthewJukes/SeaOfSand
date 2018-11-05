@@ -26,7 +26,7 @@ protected:
 
 	virtual bool StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
 
-	virtual bool ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
+	virtual bool ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
 	
 public:
 

@@ -59,10 +59,8 @@ void ASoSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASoSPlayerCharacter::SprintEnd);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASoSPlayerCharacter::CrouchStart);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASoSPlayerCharacter::CrouchEnd);
-	PlayerInputComponent->BindAction("Alternate", IE_Pressed, this, &ASoSPlayerCharacter::AimStart);
-	PlayerInputComponent->BindAction("Alternate", IE_Released, this, &ASoSPlayerCharacter::AimEnd);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASoSPlayerCharacter::DoubleJump);
-	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::StartDash);
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &ASoSPlayerCharacter::DashStart);
 
 	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityOne", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 1, false);
 	PlayerInputComponent->BindAction<FUseAbilityDelegate>("UseAbilityTwo", IE_Pressed, this, &ASoSPlayerCharacter::UseAbilityActionBinding, 2, false);
@@ -264,7 +262,7 @@ void ASoSPlayerCharacter::ResetAirControl()
 }
 
 
-void ASoSPlayerCharacter::StartDash()
+void ASoSPlayerCharacter::DashStart()
 {
 	if (!bCanAirDash)
 	{
@@ -273,6 +271,90 @@ void ASoSPlayerCharacter::StartDash()
 
 	bCanAirDash = false;
 	UseAbility(AbilityBar.AbilityDash);
+}
+
+
+void ASoSPlayerCharacter::TargetingModeStart()
+{
+	bTargetingModeActive = true;
+}
+
+
+void ASoSPlayerCharacter::TargetingModeEnd()
+{
+	bTargetingModeActive = false;
+}
+
+
+void ASoSPlayerCharacter::PrimaryAttackStart()
+{
+	if (bTargetingModeActive)
+	{
+		if (CurrentAbilityTargeting == nullptr)
+		{
+			return;
+		}
+
+		if (CurrentAbilityTargeting->GetCastType() == EAbilityCastType::Aimed)
+		{
+			CombatComp->UseAbility(CurrentAbilityTargeting, false, ClassSpecificFloat);
+		}
+
+		return;
+	}
+
+
+	if (InventoryComp)
+	{
+		if (InventoryComp->GetCurrentWeapon()->GetWeaponState() == EWeaponState::Holstered) // Draw weapon if not drawn already
+		{
+			InventoryComp->HolsterUnholster();
+		}
+		else
+		{
+			SprintEnd();
+			InventoryComp->GetCurrentWeapon()->StartAttack();
+		}
+	}
+}
+
+
+void ASoSPlayerCharacter::PrimaryAttackEnd()
+{
+	if (bTargetingModeActive)
+	{
+		if (CurrentAbilityTargeting == nullptr)
+		{
+			return;
+		}
+
+		CombatComp->UseAbility(CurrentAbilityTargeting, true, ClassSpecificFloat);
+		TargetingModeEnd();
+		return;
+	}
+
+	if (InventoryComp)
+	{
+		InventoryComp->GetCurrentWeapon()->EndAttack();
+	}
+}
+
+
+void ASoSPlayerCharacter::AlternateAttackStart()
+{
+	if (bTargetingModeActive)
+	{
+		return;
+	}
+}
+
+
+void ASoSPlayerCharacter::AlternateAttackEnd()
+{
+	if (bTargetingModeActive)
+	{
+		TargetingModeEnd();
+	}
 }
 
 
@@ -316,9 +398,26 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index, bool bReleased)
 }
 
 
-bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability, bool bReleashed)
+bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability, bool bReleased)
 {
-	return CombatComp->UseAbility(Ability, bReleashed);
+	if (Ability->GetCastType() == EAbilityCastType::Default || Ability->GetCastType() == EAbilityCastType::Instant)
+	{
+		return CombatComp->UseAbility(Ability, bReleased, ClassSpecificFloat);
+	}
+	else if (Ability->GetCastType() == EAbilityCastType::AimedCharge && bReleased == true)
+	{
+		TargetingModeStart();
+		CurrentAbilityTargeting = Ability;
+		return CombatComp->UseAbility(Ability, false, ClassSpecificFloat);
+	}
+	else if (Ability->GetCastType() == EAbilityCastType::Aimed)
+	{
+		TargetingModeStart();
+		CurrentAbilityTargeting = Ability;
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -400,4 +499,28 @@ ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
 FPlayerAbilitiesData& ASoSPlayerCharacter::GetASAbilityBar()
 {
 	return AbilityBar;
+}
+
+
+bool ASoSPlayerCharacter::GetIsDoubleJumping() const
+{
+	return bIsDoubleJumping;
+}
+
+
+bool ASoSPlayerCharacter::GetInVehicle() const
+{
+	return bInVehicle;
+}
+
+
+bool ASoSPlayerCharacter::GetTargetingModeActive() const
+{
+	return bTargetingModeActive;
+}
+
+
+void ASoSPlayerCharacter::SetInVehicle(bool NewBool)
+{
+	bInVehicle = NewBool;
 }

@@ -22,9 +22,10 @@ enum class EAbilityResourceType : uint8
 UENUM()
 enum class EAbilityCastType : uint8
 {
-	Default,
-	Instant,
-	Cast //TODO define types as needed
+	Default,  // Ability start and release on key down and release. Cannot be cast while preforming action
+	Instant, //  Ability start and release on key down and release. Can be cast anytime but cannot have an animation
+	Aimed, // Enter targeting mode upon key release. Targeting keys control ability start and release
+	AimedCharge // Ability start on key down, enter targeting mode upon key release. Targeting keys then control ability release
 };
 
 
@@ -47,8 +48,8 @@ public:
 	virtual bool StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
-	bool ReleashAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
-	virtual bool ReleashAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+	bool ReleaseAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+	virtual bool ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
 	void ReadyCombo();

@@ -13,6 +13,8 @@ ASoSProjectileBase::ASoSProjectileBase()
 	RootComponent = SphereComponent;
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(("ProjectileMovement"));
+
+	MaxLifetime = 10;
 }
 
 
@@ -22,17 +24,6 @@ void ASoSProjectileBase::BeginPlay()
 
 	//ProjectileMovement->InitialSpeed = ProjectileSpeed;
 	ProjectileMovement->Velocity = GetActorForwardVector() * ProjectileSpeed;
-}
-
-AActor* ASoSProjectileBase::GetProjectileSource() const
-{
-	return ProjectileSource;
-}
-
-
-void ASoSProjectileBase::SetProjectileSource(AActor* Source)
-{
-	ProjectileSource = Source;
 }
 
 

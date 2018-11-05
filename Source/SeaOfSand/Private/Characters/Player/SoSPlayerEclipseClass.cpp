@@ -12,7 +12,7 @@
 
 ASoSPlayerEclipseClass::ASoSPlayerEclipseClass()
 {
-	EclipseRatio = 50;
+	ClassSpecificFloat = 50;
 }
 
 void ASoSPlayerEclipseClass::BeginPlay()
@@ -38,17 +38,11 @@ void ASoSPlayerEclipseClass::BeginPlay()
 
 void ASoSPlayerEclipseClass::AddValueToEclipseRatio(float Value)
 {
-	EclipseRatio = FMath::Clamp(EclipseRatio + Value, 0.0f, 100.0f);
-}
-
-
-bool ASoSPlayerEclipseClass::UseAbility(USoSAbilityBase* Ability, bool bReleashed)
-{
-	return CombatComp->UseAbility(Ability, bReleashed, EclipseRatio);
+	ClassSpecificFloat = FMath::Clamp(ClassSpecificFloat + Value, 0.0f, 100.0f);
 }
 
 
 float ASoSPlayerEclipseClass::GetEclipseRatio() const
 {
-	return EclipseRatio;
+	return ClassSpecificFloat;
 }

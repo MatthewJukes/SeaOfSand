@@ -2,8 +2,9 @@
 
 #include "SoSASTasks.h"
 #include "SeaOfSand.h"
-#include "SoSCombatComponent.h"
 #include "SoSAbilityBase.h"
+#include "SoSCombatComponent.h"
+#include "SoSAbilityActor.h"
 #include "SoSProjectileBase.h"
 #include "SoSPlayerEclipseClass.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -163,6 +164,7 @@ bool USoSASTasks::AddValueToTargetsAttribute(const AActor* Target, const AActor*
 	return true;
 }
 
+
 FVector USoSASTasks::GetAimHitLocation(const AActor* Target)
 {
 	USoSCombatComponent* CombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
@@ -206,6 +208,27 @@ bool USoSASTasks::WeaponTrace(const AActor* Source, FHitResult& OutHit, const FV
 }
 
 
+bool USoSASTasks::SpawnAbilityActor(AActor* Source, TSubclassOf<ASoSAbilityActor> AbilityActor, const FTransform &SpawnTransform)
+{
+	if (AbilityActor == nullptr || Source == nullptr)
+	{
+		return false;
+	}
+
+	UWorld* World = AbilityGetWorldFromContextObject(Source);
+	if (World == nullptr)
+	{
+		return false;
+	}
+
+	ASoSAbilityActor* NewAbilityActor = World->SpawnActorDeferred<ASoSAbilityActor>(AbilityActor, SpawnTransform, Source, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	NewAbilityActor->SetAbilityActorSource(Source);
+	NewAbilityActor->FinishSpawning(SpawnTransform);
+
+	return NewAbilityActor != nullptr;
+}
+
+
 bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed)
 {
 	if (Projectile == nullptr || Source == nullptr)
@@ -220,7 +243,7 @@ bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase>
 	}
 
 	ASoSProjectileBase* NewProjectile = World->SpawnActorDeferred<ASoSProjectileBase>(Projectile, SpawnTransform, Source, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	NewProjectile->SetProjectileSource(Source);
+	NewProjectile->SetAbilityActorSource(Source);
 	NewProjectile->SetProjectileDamage(ProjectileDamage);
 	NewProjectile->SetProjectileSpeed(ProjectileSpeed);
 	NewProjectile->FinishSpawning(SpawnTransform);

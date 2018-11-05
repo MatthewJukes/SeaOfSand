@@ -102,14 +102,18 @@ protected:
 
 public:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bIsDoubleJumping;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bInVehicle;
-
 	// Turn collision back on
 	void EnableCollsion();
+
+	void PrimaryAttackStart();
+
+	void PrimaryAttackEnd();
+
+	void AlternateAttackStart();
+
+	void AlternateAttackEnd();
+
+	void TargetingModeEnd();
 	
 	void SprintEnd(); // stop/interrupt sprinting
 
@@ -128,9 +132,17 @@ protected:
 
 	ASoSPlayerController* PlayerController;
 
+	bool bIsDoubleJumping;
+
 	bool bCanDoubleJump;
 
 	bool bCanAirDash;
+
+	bool bTargetingModeActive;
+
+	bool bInVehicle;
+
+	float ClassSpecificFloat;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractTraceRange;
@@ -138,7 +150,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abilities")
 	FPlayerAbilitiesData AbilityBar;
 
-	virtual bool UseAbility(USoSAbilityBase* Ability, bool bReleashed = false);
+	USoSAbilityBase* CurrentAbilityTargeting;
+
+	bool UseAbility(USoSAbilityBase* Ability, bool bReleased = false);
 
 	void MoveForward(float AxisValue);
 
@@ -152,7 +166,9 @@ protected:
 
 	void DoubleJump();
 
-	void StartDash();
+	void DashStart();
+
+	void TargetingModeStart();
 
 	void Interact(); // Player interaction/use objects in world
 
@@ -180,4 +196,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	FPlayerAbilitiesData& GetASAbilityBar();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	bool GetIsDoubleJumping() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	bool GetInVehicle() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	bool GetTargetingModeActive() const;
+
+	void SetInVehicle(bool NewBool);
 };

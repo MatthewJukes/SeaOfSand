@@ -70,7 +70,7 @@ public:
 	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
-	bool UseAbility(USoSAbilityBase* Ability, bool bReleashed = false, float ClassSpecificFloatValue = 0);
+	bool UseAbility(USoSAbilityBase* Ability, bool bReleased = false, float ClassSpecificFloatValue = 0);
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	void AbilityActionStart();
@@ -146,9 +146,9 @@ protected:
 
 	void EndEffect(FEffectData& EffectToEnd);
 
-	bool AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck, bool bReleashed);
+	bool AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck, bool bReleased);
 
-	bool AbilityHandleResource(EAbilityResourceType Type, float Cost, bool bReleashed);
+	bool AbilityHandleResource(EAbilityResourceType Type, float Cost, bool bReleased);
 
 ////////////////////////////////////////////////
 // Getters and Setters

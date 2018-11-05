@@ -23,6 +23,9 @@ public:
 
 protected:
 
+	UPROPERTY(BlueprintReadOnly, Category = "AbilityActor")
+	AActor* AbilityActorSource;
+
 	UPROPERTY(EditDefaultsOnly, Category = "AbilityActor")
 	float MaxLifetime;
 
@@ -31,4 +34,10 @@ protected:
 	virtual void EndAbilityActor_Implementation();
 	
 	FTimerHandle TimerHandle_AreaEffectTick;
+
+public:
+
+	AActor * GetAbilityActorSource() const;
+
+	void SetAbilityActorSource(AActor* Source);
 };

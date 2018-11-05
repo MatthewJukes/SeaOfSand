@@ -9,11 +9,12 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SoSASTasks.generated.h"
 
-class ASoSProjectileBase;
 class USoSAbilityBase;
 class USoSCombatComponent;
-class ACharacter;
+class ASoSAbilityActor;
+class ASoSProjectileBase;
 class UWorld;
+class ACharacter;
 class UAnimMontage;
 enum class ERootMotionFinishVelocityMode : uint8;
 
@@ -41,6 +42,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);
+
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
+	static bool SpawnAbilityActor(AActor* Source, TSubclassOf<ASoSAbilityActor> AbilityActor, const FTransform &SpawnTransform);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed);
