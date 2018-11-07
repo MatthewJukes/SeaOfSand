@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ASoSPlayerController;
+class ASoSPlayerAbilityTarget;
 class USoSAbilityBase;
 
 
@@ -152,6 +153,11 @@ protected:
 
 	USoSAbilityBase* CurrentAbilityTargeting;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Targeting")
+	TSubclassOf<ASoSPlayerAbilityTarget> BP_AbilityTarget;
+
+	ASoSPlayerAbilityTarget* AbilityTarget;
+
 	bool UseAbility(USoSAbilityBase* Ability, bool bReleased = false);
 
 	void MoveForward(float AxisValue);
@@ -193,6 +199,8 @@ public:
 	/* Getters and Setters */
 
 	ASoSPlayerController* GetPlayerController() const;
+
+	UCameraComponent* GetFollowCamera();
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	FPlayerAbilitiesData& GetASAbilityBar();

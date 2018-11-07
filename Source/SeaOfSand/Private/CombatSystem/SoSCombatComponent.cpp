@@ -638,12 +638,6 @@ ESoSTeam USoSCombatComponent::GetTeam() const
 }
 
 
-FVector* USoSCombatComponent::GetAimHitLocation() const
-{
-	return AimHitLocation;
-}
-
-
 void USoSCombatComponent::SetOwnerState(EOwnerState NewState)
 {
 	OwnerState = NewState;
@@ -653,12 +647,6 @@ void USoSCombatComponent::SetOwnerState(EOwnerState NewState)
 void USoSCombatComponent::SetWeaponProjectileOriginSocketName(FName SocketName)
 {
 	WeaponProjectileOriginSocketName = SocketName;
-}
-
-
-void USoSCombatComponent::SetAimHitLocation(FVector* AimHitLocationReference)
-{
-	AimHitLocation = AimHitLocationReference;
 }
 
 

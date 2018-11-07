@@ -18,6 +18,8 @@ class SEAOFSAND_API ASoSPlayerController : public APlayerController
 		
 public:
 
+	ASoSPlayerController();
+
 	virtual void SetupInputComponent() override;
 
 protected:
@@ -30,7 +32,7 @@ public:
 
 	void ToggleVehicleHud();
 
-	FVector GetCrosshairHitLocation(bool bOffsetFromCamera = false, FVector OffsetTarget = FVector(0, 0, 0)) const;
+	bool GetCrosshairHitResult(FHitResult &OutHitResult, bool bOffsetFromCamera = false, FVector OffsetTarget = FVector(0, 0, 0)) const;
 
 	// Get Pitch/Yaw from current pawn camera
 	UFUNCTION(BlueprintCallable, Category = "Targeting")
@@ -47,13 +49,13 @@ protected:
 	ASoSPlayerHUD* PlayerHUD;
 
 	UPROPERTY(EditDefaultsOnly)
-	float CrossHairXLocation = 0.5;
+	float CrosshairXLocation;
 
 	UPROPERTY(EditDefaultsOnly)
-	float CrosshairYLocation = 0.5;
+	float CrosshairYLocation;
 
 	UPROPERTY(EditDefaultsOnly)
-	float CrosshairTraceRange = 100000.f;
+	float CrosshairTraceRange;
 
 	void PrimaryAttackStart();
 
@@ -74,7 +76,7 @@ protected:
 	// Get crosshair world hit location
 	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
 
-	FVector GetLookVectorHitLocation(FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const;
+	bool GetLookVectorHitResult(FHitResult &OutHitResult, FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const;
 
 public:
 

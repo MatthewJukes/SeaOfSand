@@ -165,16 +165,16 @@ bool USoSASTasks::AddValueToTargetsAttribute(const AActor* Target, const AActor*
 }
 
 
-FVector USoSASTasks::GetAimHitLocation(const AActor* Target)
+FHitResult USoSASTasks::GetAimHitResult(AActor* Target)
 {
-	USoSCombatComponent* CombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
+	ASoSCharacterBase* Character = Cast<ASoSCharacterBase>(Target);
 
-	if (CombatComp == nullptr)
+	if (Character == nullptr)
 	{
-		return FVector::ZeroVector;
+		return FHitResult(ForceInitToZero);
 	}
 
-	return *CombatComp->GetAimHitLocation();
+	return Character->GetAimHitResult();
 }
 
 
@@ -255,7 +255,7 @@ bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase>
 bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread)
 {
 	FHitResult Hit;
-	FVector EndLocation = GetAimHitLocation(Source);
+	FVector EndLocation = GetAimHitResult(Source).Location;
 	if (WeaponTrace(Source, Hit, SocketLocation, EndLocation))
 	{
 		EndLocation = Hit.Location;

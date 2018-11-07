@@ -9,6 +9,13 @@
 #include "Engine/World.h"
 #include "GameFramework/HUD.h"
 
+ASoSPlayerController::ASoSPlayerController()
+{
+	CrosshairXLocation = 0.5f;
+	CrosshairYLocation = 0.5f;
+	CrosshairTraceRange = 10000;
+}
+
 void ASoSPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -119,21 +126,19 @@ void ASoSPlayerController::PrevWeapon()
 }
 
 
-FVector ASoSPlayerController::GetCrosshairHitLocation(bool bOffsetFromCamera, FVector OffsetTarget) const
+bool ASoSPlayerController::GetCrosshairHitResult(FHitResult &OutHitResult, bool bOffsetFromCamera, FVector OffsetTarget) const
 {
 	// Find the crosshair position in pixel coordinates
 	int32 ViewportSizeX, ViewPortSizeY;
 	GetViewportSize(ViewportSizeX, ViewPortSizeY);
-	FVector2D ScreenLocation = FVector2D(ViewportSizeX * CrossHairXLocation, ViewPortSizeY * CrosshairYLocation);
+	FVector2D ScreenLocation = FVector2D(ViewportSizeX * CrosshairXLocation, ViewPortSizeY * CrosshairYLocation);
 
 	// "De-project" the screen position of the crosshair to a world direction
 	FVector LookDirection;
-	if (GetLookDirection(ScreenLocation, LookDirection))
-	{
-		// Line-trace along LookDirection, and see what we hit (up to max range)
-		return GetLookVectorHitLocation(LookDirection, bOffsetFromCamera, OffsetTarget);
-	}
-	return FVector(0.f,0.f,0.f);
+	GetLookDirection(ScreenLocation, LookDirection);
+
+	// Line-trace along LookDirection, and see what we hit (up to max range)
+	return GetLookVectorHitResult(OutHitResult, LookDirection, bOffsetFromCamera, OffsetTarget);
 }
 
 
@@ -144,7 +149,7 @@ bool ASoSPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& L
 }
 
 
-FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const
+bool ASoSPlayerController::GetLookVectorHitResult(FHitResult &OutHitResult, FVector LookDirection, bool bOffsetFromCamera, FVector OffsetTarget) const
 {
 	const FName TraceTag("CrosshairTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
@@ -154,8 +159,6 @@ FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection, bo
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	TraceParams.TraceTag = TraceTag;
-
-	FHitResult Hit;
 
 	float Offset = 0.0f;
 
@@ -167,12 +170,13 @@ FVector ASoSPlayerController::GetLookVectorHitLocation(FVector LookDirection, bo
 	FVector StartLocation = PlayerCameraManager->GetCameraLocation() + (LookDirection * Offset);
 	FVector EndLocation = StartLocation + (LookDirection * CrosshairTraceRange);
 
-	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, COLLISION_CROSSHAIR, TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(OutHitResult, StartLocation, EndLocation, COLLISION_CROSSHAIR, TraceParams))
 	{
-		// Set hit location
-		return Hit.Location;
+		return true;
 	}
-	return EndLocation; // return end location if nothing hit
+
+	OutHitResult.Location = EndLocation;
+	return false;
 }
 
 

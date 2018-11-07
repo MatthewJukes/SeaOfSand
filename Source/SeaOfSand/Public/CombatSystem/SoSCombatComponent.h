@@ -106,8 +106,6 @@ protected:
 
 	FName WeaponProjectileOriginSocketName;
 
-	FVector* AimHitLocation;
-
 	UDataTable* DamageTypeDataTable;
 
 	UPROPERTY(EditAnywhere, Category = "Character | Stats")
@@ -176,13 +174,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	ESoSTeam GetTeam() const;
 
-	FVector* GetAimHitLocation() const;
-
 	void SetOwnerState(EOwnerState NewState);
 
 	void SetWeaponProjectileOriginSocketName(FName SocketName);
-
-	void SetAimHitLocation(FVector* AimHitLocationReference);
 
 	void SetLastAbilityToStartMontage(USoSAbilityBase* Ability);
 };

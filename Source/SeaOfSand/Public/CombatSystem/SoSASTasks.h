@@ -38,7 +38,7 @@ public:
 	static bool AddValueToTargetsAttribute(const AActor* Target, const AActor* Source, EAttributeName Attribute, float Value);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static FVector GetAimHitLocation(const AActor* Target);
+	static FHitResult GetAimHitResult(AActor* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);

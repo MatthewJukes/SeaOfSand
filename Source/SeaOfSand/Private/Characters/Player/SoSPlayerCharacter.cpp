@@ -5,6 +5,7 @@
 #include "SoSASTasks.h"
 #include "SoSCombatComponent.h"
 #include "SoSAbilityBase.h"
+#include "SoSPlayerAbilityTarget.h"
 #include "SoSInventoryComponent.h"
 #include "BaseVehicle.h"
 #include "SoSRangedWeapon.h"
@@ -89,6 +90,12 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
+	AbilityTarget = GetWorld()->SpawnActor<ASoSPlayerAbilityTarget>(BP_AbilityTarget, GetActorTransform());
+	if (AbilityTarget)
+	{
+		AbilityTarget->SetPlayerCharacter(this);
+	}
+
 	AbilityBar.AbilitySprint = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintClass, CombatComp);
 	AbilityBar.AbilitySprintEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilitySprintEndClass, CombatComp);
 	AbilityBar.AbilityAimEnd = USoSASTasks::CreateAbilityInstance(AbilityBar.AbilityAimEndClass, CombatComp);
@@ -100,7 +107,12 @@ void ASoSPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimHitLocation = PlayerController->GetCrosshairHitLocation(true, GetActorLocation());
+	PlayerController->GetCrosshairHitResult(AimHitResult, true, GetActorLocation());
+
+	if (AbilityTarget && bTargetingModeActive)
+	{
+		AbilityTarget->GetTargetLocation();
+	}
 
 	if (!GetCharacterMovement()->IsFalling())
 	{
@@ -277,12 +289,26 @@ void ASoSPlayerCharacter::DashStart()
 void ASoSPlayerCharacter::TargetingModeStart()
 {
 	bTargetingModeActive = true;
+	
+	if (AbilityTarget == nullptr)
+	{
+		return;
+	}
+
+	AbilityTarget->Activate();
 }
 
 
 void ASoSPlayerCharacter::TargetingModeEnd()
 {
 	bTargetingModeActive = false;
+
+	if (AbilityTarget == nullptr)
+	{
+		return;
+	}
+
+	AbilityTarget->Deactivate();
 }
 
 
@@ -346,6 +372,8 @@ void ASoSPlayerCharacter::AlternateAttackStart()
 	{
 		return;
 	}
+
+	AimStart();
 }
 
 
@@ -355,6 +383,8 @@ void ASoSPlayerCharacter::AlternateAttackEnd()
 	{
 		TargetingModeEnd();
 	}
+
+	AimEnd();
 }
 
 
@@ -482,7 +512,9 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 {
 	if (PlayerController)
 	{
-		FVector TraceDirection = PlayerController->GetCrosshairHitLocation() - StartLocation;
+		FHitResult Hit;
+		PlayerController->GetCrosshairHitResult(Hit);
+		FVector TraceDirection = Hit.Location - StartLocation;
 		TraceDirection.Normalize();
 		return TraceDirection;
 	}
@@ -493,6 +525,12 @@ FVector ASoSPlayerCharacter::GetTraceDirection(FVector StartLocation) const
 ASoSPlayerController * ASoSPlayerCharacter::GetPlayerController() const
 {
 	return PlayerController;
+}
+
+
+UCameraComponent* ASoSPlayerCharacter::GetFollowCamera()
+{
+	return FollowCamera;
 }
 
 

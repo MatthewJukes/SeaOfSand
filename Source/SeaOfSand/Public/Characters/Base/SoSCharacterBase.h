@@ -34,7 +34,7 @@ public:
 
 protected:
 
-	FVector AimHitLocation;
+	FHitResult AimHitResult;
 
 public:
 
@@ -45,6 +45,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	USoSCombatComponent* GetCharacterCombatComponent() const;
+
+	FHitResult GetAimHitResult() const;
 
 	void SetCharacterMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 };

@@ -21,7 +21,6 @@ ASoSCharacterBase::ASoSCharacterBase()
 
 	// Setup combat component
 	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
-	CombatComp->SetAimHitLocation(&AimHitLocation);
 
    // Configure character movement 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -65,6 +64,11 @@ USoSCombatComponent* ASoSCharacterBase::GetCharacterCombatComponent() const
 	return CombatComp;
 }
 
+
+FHitResult ASoSCharacterBase::GetAimHitResult() const
+{
+	return AimHitResult;
+}
 
 void ASoSCharacterBase::SetCharacterMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)
 {
