@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSCharacterBase.h"
+#include "SeaOfSand.h"
 #include "SoSCombatComponent.h"
 #include "SoSInventoryComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -15,6 +16,8 @@ ASoSCharacterBase::ASoSCharacterBase()
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_ABILITY, ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Ignore);
 
 	// Setup inventory
 	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
@@ -22,7 +25,7 @@ ASoSCharacterBase::ASoSCharacterBase()
 	// Setup combat component
 	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
 
-   // Configure character movement 
+	// Configure character movement 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = CombatComp->GetAttributeTotalValue(EAttributeName::Speed);
@@ -68,6 +71,12 @@ USoSCombatComponent* ASoSCharacterBase::GetCharacterCombatComponent() const
 FHitResult ASoSCharacterBase::GetAimHitResult() const
 {
 	return AimHitResult;
+}
+
+
+FVector ASoSCharacterBase::GetTargetedLocation() const
+{
+	return TargetedLocation;
 }
 
 void ASoSCharacterBase::SetCharacterMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation)

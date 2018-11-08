@@ -116,6 +116,24 @@ USoSCombatComponent* USoSAbilityBase::GetOwningCombatComp() const
 }
 
 
+float USoSAbilityBase::GetTargetRadius() const
+{
+	return TargetRadius;
+}
+
+
+float USoSAbilityBase::GetMaxRange()
+{
+	return MaxRange;
+}
+
+
+bool USoSAbilityBase::GetSnapToGround()
+{
+	return bSnapToGround;
+}
+
+
 void USoSAbilityBase::SetLastTimeActivated(float NewTime)
 {
 	LastTimeActivated = NewTime;

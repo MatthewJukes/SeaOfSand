@@ -41,6 +41,9 @@ public:
 	static FHitResult GetAimHitResult(AActor* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
+	static FVector GetTargetedLocation(AActor* Target);
+
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")

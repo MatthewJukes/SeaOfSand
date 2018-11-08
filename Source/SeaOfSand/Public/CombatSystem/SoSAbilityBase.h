@@ -81,11 +81,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	EAbilityCastType CastType;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001"))
-	float Cooldown;
+	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	EAbilityResourceType ResourceType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	float Cost;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "0.001", UIMin = "0.001"))
+	float Cooldown;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ability")
 	bool bHasCharges;
@@ -96,11 +99,17 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability", meta = (ClampMin = "1", UIMin = "1", EditCondition = "bHasCharges"))
 	int32 MaxCharges;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
-	EAbilityResourceType ResourceType;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Ability")
+	UPROPERTY(EditDefaultsOnly, Category = "Ability | Visual")
 	UTexture2D* AbilityIcon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability | Targeting")
+	float TargetRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability | Targeting")
+	float MaxRange;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability | Targeting")
+	bool bSnapToGround;
 
 public:
 
@@ -134,7 +143,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	int32 GetCurrentCharges() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Ability")
+	UFUNCTION(BlueprintCallable, Category = "Ability | Visual")
 	UTexture2D* GetAbilityIcon() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
@@ -142,6 +151,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	USoSCombatComponent* GetOwningCombatComp() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability | Targeting")
+	float GetTargetRadius() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Ability | Targeting")
+	float GetMaxRange();
+
+	UFUNCTION(BlueprintCallable, Category = "Ability | Targeting")
+	bool GetSnapToGround();
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	void SetComboReady(bool bNewComboReady);

@@ -111,7 +111,7 @@ void ASoSPlayerCharacter::Tick(float DeltaTime)
 
 	if (AbilityTarget && bTargetingModeActive)
 	{
-		AbilityTarget->GetTargetLocation();
+		TargetedLocation = AbilityTarget->GetTargetLocation();
 	}
 
 	if (!GetCharacterMovement()->IsFalling())
@@ -296,6 +296,9 @@ void ASoSPlayerCharacter::TargetingModeStart()
 	}
 
 	AbilityTarget->Activate();
+	AbilityTarget->SetTargetRadius(CurrentAbilityTargeting->GetTargetRadius());
+	AbilityTarget->SetMaxTargetRange(CurrentAbilityTargeting->GetMaxRange());
+	AbilityTarget->SetSnapToGround(CurrentAbilityTargeting->GetSnapToGround());
 }
 
 
@@ -436,14 +439,14 @@ bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability, bool bReleased)
 	}
 	else if (Ability->GetCastType() == EAbilityCastType::AimedCharge && bReleased == true)
 	{
-		TargetingModeStart();
 		CurrentAbilityTargeting = Ability;
+		TargetingModeStart();
 		return CombatComp->UseAbility(Ability, false, ClassSpecificFloat);
 	}
 	else if (Ability->GetCastType() == EAbilityCastType::Aimed)
 	{
-		TargetingModeStart();
 		CurrentAbilityTargeting = Ability;
+		TargetingModeStart();
 		return true;
 	}
 

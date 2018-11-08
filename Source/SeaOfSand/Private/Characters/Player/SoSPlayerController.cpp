@@ -155,7 +155,7 @@ bool ASoSPlayerController::GetLookVectorHitResult(FHitResult &OutHitResult, FVec
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
 
 	FCollisionQueryParams TraceParams = FCollisionQueryParams(FName(TEXT("Trace")), true, this);
-	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceComplex = false;
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	TraceParams.TraceTag = TraceTag;

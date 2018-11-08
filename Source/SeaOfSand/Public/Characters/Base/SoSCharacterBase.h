@@ -36,6 +36,8 @@ protected:
 
 	FHitResult AimHitResult;
 
+	FVector TargetedLocation;
+
 public:
 
 	/* Getters and Setters */
@@ -47,6 +49,8 @@ public:
 	USoSCombatComponent* GetCharacterCombatComponent() const;
 
 	FHitResult GetAimHitResult() const;
+
+	FVector GetTargetedLocation() const;
 
 	void SetCharacterMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
 };

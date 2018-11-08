@@ -178,6 +178,19 @@ FHitResult USoSASTasks::GetAimHitResult(AActor* Target)
 }
 
 
+FVector USoSASTasks::GetTargetedLocation(AActor* Target)
+{
+	ASoSCharacterBase* Character = Cast<ASoSCharacterBase>(Target);
+
+	if (Character == nullptr)
+	{
+		return FVector::ZeroVector;
+	}
+
+	return Character->GetTargetedLocation();
+}
+
+
 bool USoSASTasks::WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation)
 {
 	if (Source == nullptr)
