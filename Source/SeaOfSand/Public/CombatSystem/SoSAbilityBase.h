@@ -29,6 +29,14 @@ enum class EAbilityCastType : uint8
 };
 
 
+UENUM()
+enum class EAbilityTargetingShape : uint8
+{
+	Tube,
+	Sphere
+};
+
+
 UCLASS(BlueprintType, Blueprintable)
 class SEAOFSAND_API USoSAbilityBase : public UObject
 {
@@ -111,6 +119,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Ability | Targeting")
 	bool bSnapToGround;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Ability | Targeting")
+	EAbilityTargetingShape TargetingShape;
+
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
@@ -160,6 +171,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability | Targeting")
 	bool GetSnapToGround();
+
+	EAbilityTargetingShape GetTargetingShape();
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	void SetComboReady(bool bNewComboReady);

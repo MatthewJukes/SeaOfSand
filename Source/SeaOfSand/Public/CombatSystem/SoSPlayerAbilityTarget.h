@@ -7,6 +7,7 @@
 #include "SoSPlayerAbilityTarget.generated.h"
 
 class ASoSPlayerCharacter;
+enum class EAbilityTargetingShape : uint8;
 
 UCLASS()
 class SEAOFSAND_API ASoSPlayerAbilityTarget : public ADecalActor
@@ -21,9 +22,15 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UStaticMeshComponent* TubeTargetShape;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UStaticMeshComponent* SphereTargetShape;
+
 public:
 
-	void Activate();
+	void Activate(EAbilityTargetingShape TargetingShape);
 
 	void Deactivate();
 

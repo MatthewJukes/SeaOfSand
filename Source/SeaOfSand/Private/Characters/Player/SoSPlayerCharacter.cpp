@@ -90,6 +90,8 @@ void ASoSPlayerCharacter::BeginPlay()
 	// Get controller
 	PlayerController = Cast<ASoSPlayerController>(GetController());
 
+	InventoryComp->OnWeaponSwitch.AddDynamic(this, &ASoSPlayerCharacter::TargetingModeEnd);
+
 	AbilityTarget = GetWorld()->SpawnActor<ASoSPlayerAbilityTarget>(BP_AbilityTarget, GetActorTransform());
 	if (AbilityTarget)
 	{
@@ -295,15 +297,20 @@ void ASoSPlayerCharacter::TargetingModeStart()
 		return;
 	}
 
-	AbilityTarget->Activate();
 	AbilityTarget->SetTargetRadius(CurrentAbilityTargeting->GetTargetRadius());
 	AbilityTarget->SetMaxTargetRange(CurrentAbilityTargeting->GetMaxRange());
 	AbilityTarget->SetSnapToGround(CurrentAbilityTargeting->GetSnapToGround());
+	AbilityTarget->Activate(CurrentAbilityTargeting->GetTargetingShape());
 }
 
 
 void ASoSPlayerCharacter::TargetingModeEnd()
 {
+	if (!bTargetingModeActive)
+	{
+		return;
+	}
+
 	bTargetingModeActive = false;
 
 	if (AbilityTarget == nullptr)
@@ -433,6 +440,21 @@ void ASoSPlayerCharacter::UseAbilityActionBinding(int32 index, bool bReleased)
 
 bool ASoSPlayerCharacter::UseAbility(USoSAbilityBase* Ability, bool bReleased)
 {
+	if (Ability == nullptr)
+	{
+		return false;
+	}
+
+	if (!CombatComp->CheckAbilityCanCast(Ability))
+	{
+		return false;
+	}
+
+	if (bTargetingModeActive && Ability->GetCastType() != EAbilityCastType::Instant)
+	{
+		TargetingModeEnd();
+	}
+
 	if (Ability->GetCastType() == EAbilityCastType::Default || Ability->GetCastType() == EAbilityCastType::Instant)
 	{
 		return CombatComp->UseAbility(Ability, bReleased, ClassSpecificFloat);

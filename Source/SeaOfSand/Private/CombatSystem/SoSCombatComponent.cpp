@@ -251,7 +251,6 @@ void USoSCombatComponent::DamageCalculation(float Damage, ESoSDamageTypeName Dam
 	AddValueToAttributeBaseValues(EAttributeName::ArmourCurrent, -ArmourDamage);
 }
 
-
 void USoSCombatComponent::AddValueToAttributeData(FAttributeData& AttributeData, EAttributeName Attribute, float Value)
 {
 	switch (Attribute)
@@ -410,11 +409,11 @@ void USoSCombatComponent::EndEffect(FEffectData& EffectToEnd)
 }
 
 
-bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, bool bReleased, float ClassSpecificFloatValue /*= 0*/)
+bool USoSCombatComponent::CheckAbilityCanCast(USoSAbilityBase* Ability, bool bTriggerCooldownAndResource)
 {
 	if (Ability == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Ability Cast is NULL"));
+		UE_LOG(LogTemp, Warning, TEXT("Ability is NULL"));
 		return false;
 	}
 
@@ -423,13 +422,24 @@ bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, bool bReleased, f
 		return false;
 	}
 
-	if (!AbilityCheckCooldownAndCharges(Ability, bReleased))
+	if (!AbilityCheckCooldownAndCharges(Ability, bTriggerCooldownAndResource))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability %s on cooldown"), *Ability->GetName());
 		return false;
 	}
 
-	if (AbilityHandleResource(Ability->GetResourceType(), Ability->GetCost(), bReleased))
+	if (AbilityCheckResource(Ability->GetResourceType(), Ability->GetCost(), bTriggerCooldownAndResource))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+
+bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, bool bReleased, float ClassSpecificFloatValue /*= 0*/)
+{
+	if (CheckAbilityCanCast(Ability, bReleased))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability Cast: %s"), *Ability->GetName());
 
@@ -468,7 +478,7 @@ void USoSCombatComponent::AbilityActionComplete()
 }
 
 
-bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck, bool bReleased)
+bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* AbilityToCheck, bool bTriggerCooldown)
 {
 	if (GetWorld()->GetTimeSeconds() - AbilityToCheck->GetLastTimeActivated() < AbilityToCheck->GetCooldown())
 	{
@@ -490,7 +500,7 @@ bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* Abilit
 		return false;
 	}
 
-	if (bReleased)
+	if (bTriggerCooldown)
 	{
 		AbilityToCheck->SetLastChargeRemainder(NewCharges - FMath::TruncToInt(NewCharges));
 		AbilityToCheck->SetCurrentCharges(AbilityToCheck->GetCurrentCharges() - 1);
@@ -499,7 +509,7 @@ bool USoSCombatComponent::AbilityCheckCooldownAndCharges(USoSAbilityBase* Abilit
 }
 
 
-bool USoSCombatComponent::AbilityHandleResource(EAbilityResourceType Type, float Cost, bool bReleased)
+bool USoSCombatComponent::AbilityCheckResource(EAbilityResourceType Type, float Cost, bool bUseResources)
 {
 	switch (Type)
 	{
@@ -509,7 +519,7 @@ bool USoSCombatComponent::AbilityHandleResource(EAbilityResourceType Type, float
 			return false;
 		}
 
-		if (bReleased)
+		if (bUseResources)
 		{
 			AddValueToAttributeData(AttributeBaseValues, EAttributeName::EnergyCurrent, -Cost);
 		}
@@ -520,7 +530,7 @@ bool USoSCombatComponent::AbilityHandleResource(EAbilityResourceType Type, float
 			return false;
 		}
 
-		if (bReleased)
+		if (bUseResources)
 		{
 			AddValueToAttributeData(AttributeBaseValues, EAttributeName::HealthCurrent, -Cost);
 		}

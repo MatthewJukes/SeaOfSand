@@ -113,12 +113,13 @@ public:
 	void AlternateAttackStart();
 
 	void AlternateAttackEnd();
-
-	void TargetingModeEnd();
 	
 	void SprintEnd(); // stop/interrupt sprinting
 
 	void AimEnd(); // stop/interrupt aiming
+
+	UFUNCTION()
+	void TargetingModeEnd();
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = OffsetCamera))
 	void OffsetCamera(bool Forward);

@@ -134,6 +134,11 @@ bool USoSAbilityBase::GetSnapToGround()
 }
 
 
+EAbilityTargetingShape USoSAbilityBase::GetTargetingShape()
+{
+	return TargetingShape;
+}
+
 void USoSAbilityBase::SetLastTimeActivated(float NewTime)
 {
 	LastTimeActivated = NewTime;

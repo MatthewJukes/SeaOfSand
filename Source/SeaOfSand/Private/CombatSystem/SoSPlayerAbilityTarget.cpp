@@ -1,15 +1,26 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSPlayerAbilityTarget.h"
+#include "SoSAbilityBase.h"
 #include "SoSCharacterBase.h"
 #include "SoSPlayerCharacter.h"
 #include "Components/DecalComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 
 
 ASoSPlayerAbilityTarget::ASoSPlayerAbilityTarget()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	TubeTargetShape = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TubeTargetShape"));
+	TubeTargetShape->SetupAttachment(GetDecal());
+	TubeTargetShape->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SphereTargetShape = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SphereTargetShape"));
+	SphereTargetShape->SetupAttachment(GetDecal());
+	SphereTargetShape->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 
 	bSnapToGround = true;
 	MaxTargetRange = 1500;
@@ -19,13 +30,25 @@ ASoSPlayerAbilityTarget::ASoSPlayerAbilityTarget()
 
 void ASoSPlayerAbilityTarget::BeginPlay()
 {
-	GetDecal()->SetVisibility(false, true);
+	Deactivate();
 }
 
 
-void ASoSPlayerAbilityTarget::Activate()
+void ASoSPlayerAbilityTarget::Activate(EAbilityTargetingShape TargetingShape)
 {
-	GetDecal()->SetVisibility(true, true);
+	switch (TargetingShape)
+	{
+	case EAbilityTargetingShape::Tube:
+		GetDecal()->SetVisibility(true);
+		TubeTargetShape->SetVisibility(true);
+		break;
+	case EAbilityTargetingShape::Sphere:
+		SphereTargetShape->SetVisibility(true);
+		break;
+	default:
+		break;
+	}
+
 }
 
 
@@ -136,7 +159,7 @@ void ASoSPlayerAbilityTarget::SetMaxTargetRange(float Value)
 void ASoSPlayerAbilityTarget::SetTargetRadius(float Value)
 {
 	TargetRadius = Value;
-	GetDecal()->DecalSize = FVector(TargetRadius);
+	SetActorRelativeScale3D(FVector(TargetRadius));
 }
 
 
