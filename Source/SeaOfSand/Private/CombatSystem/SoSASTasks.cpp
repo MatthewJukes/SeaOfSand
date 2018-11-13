@@ -3,6 +3,7 @@
 #include "SoSASTasks.h"
 #include "SeaOfSand.h"
 #include "SoSAbilityBase.h"
+#include "SoSOnCombatEventAbility.h"
 #include "SoSCombatComponent.h"
 #include "SoSAbilityActor.h"
 #include "SoSProjectileBase.h"
@@ -17,9 +18,9 @@
 #include "DrawDebugHelpers.h"
 
 
-bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
+bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, USoSCombatComponent* SourceCombatComp, FEffectData& EffectToApply, int32 StackToApply, float EffectDuration)
 { 
-	if (Target == nullptr || Source == nullptr)
+	if (Target == nullptr)
 	{
 		return false;
 	}
@@ -51,26 +52,32 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, AActor* Source, FEff
 	}
 
 	// Set effect source
-	EffectToApply.Source = Source;
+	EffectToApply.SourceCombatComp = SourceCombatComp;
 
 	// Set duration to infinite for effects with no duration
 	EffectToApply.EffectDuration = EffectDuration == 0.0f ? INFINITY : EffectDuration;
 
 	// Check to see if effect already exists on target
-	float ApplicationTime = AbilityGetWorldFromContextObject(Source)->GetTimeSeconds();
+	float ApplicationTime = AbilityGetWorldFromContextObject(Target)->GetTimeSeconds();
 	TArray<FEffectData>& TargetCurrentEffectsArray = TargetCombatComp->GetCurrentEffectsArray();
 	if (CheckIfTargetHasEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
-		TargetCombatComp->OnEffectUpdate.Broadcast(TargetCombatComp, TargetCurrentEffectsArray[EffectIndex], EEffectUpdateEventType::Reapplied);
+		TargetCombatComp->OnEffectUpdate.Broadcast(TargetCurrentEffectsArray[EffectIndex], EEffectUpdateEventType::Reapplied);
 	}
 	else // Apply effect to target
 	{
 		// Create ability instances
-		USoSCombatComponent* SourceCombatComp = Cast<USoSCombatComponent>(Source->GetComponentByClass(USoSCombatComponent::StaticClass()));
-		for (FEffectAbilityModule& Module : EffectToApply.AbilityModules)
+		for (FEffectOnTickAbilityModule& Module : EffectToApply.OnTickAbilityModules)
 		{
 			Module.Ability = CreateAbilityInstance(Module.AbilityClass, SourceCombatComp);
+		}
+
+		for (FEffectOnCombatEventAbilityModule& Module : EffectToApply.OnEventAbilityModules)
+		{
+			Module.MaxTriggers = Module.MaxTriggers == 0 ? INFINITY : Module.MaxTriggers;
+			Module.OnCombatEventAbility = Cast<USoSOnCombatEventAbility>(CreateAbilityInstance(Module.OnCombatEventAbilityClass, SourceCombatComp));
+			Module.OnCombatEventAbility->BindCombatEvent(TargetCombatComp, Module.AbilityTriggerType);
 		}
 
 		// Set effect status trackers
@@ -124,23 +131,36 @@ bool USoSASTasks::CheckIfTargetHasEffectActive(const AActor* Target, FName Effec
 }
 
 
-bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float Value, ESoSDamageTypeName DamageType)
+bool USoSASTasks::DamageTarget(const AActor* Target, const AActor* Source, float BaseDamage, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageType)
 {
-	if (Target == nullptr || Value <= 0.0f)
+	if (Target == nullptr || BaseDamage <= 0.0f)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invalid Target"))
 		return false;
 	}
 
-	USoSCombatComponent* CombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
+	USoSCombatComponent* TargetCombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
+	USoSCombatComponent* SourceCombatComp = nullptr;
 
-	if (CombatComp == nullptr)
+	if (Source != nullptr)
+	{
+		SourceCombatComp = Cast<USoSCombatComponent>(Source->GetComponentByClass(USoSCombatComponent::StaticClass()));
+	}
+
+	if (TargetCombatComp == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Target has no CombatComp"))
 		return false;
 	}
 
-	CombatComp->DamageCalculation(Value, DamageType);
+	TargetCombatComp->DamageCalculation(BaseDamage, OutHealthDamage, OutArmourDamage, DamageType);
+	TargetCombatComp->OnDamageReceived.Broadcast(SourceCombatComp, BaseDamage, OutHealthDamage, OutArmourDamage);
+
+	if (SourceCombatComp != nullptr)
+	{
+		SourceCombatComp->OnDamageDealt.Broadcast(TargetCombatComp, BaseDamage, OutHealthDamage, OutArmourDamage);
+	}
+
 	return true;
 }
 
@@ -491,14 +511,14 @@ float USoSASTasks::GetTimeSeconds(const UObject* WorldContextObject)
 }
 
 
-bool USoSASTasks::CalculateEclipsePoints(AActor* Source, float EclipseRatio, int32 &SunPoints, int32 &MoonPoints)
+bool USoSASTasks::CalculateEclipsePoints(USoSCombatComponent* SourceCombatComp, float EclipseRatio, int32 &SunPoints, int32 &MoonPoints)
 { 
-	if (Source == nullptr)
+	if (SourceCombatComp == nullptr)
 	{
 		return false;
 	}
 
-	ASoSPlayerEclipseClass* EclipseClass = Cast<ASoSPlayerEclipseClass>(Source);
+	ASoSPlayerEclipseClass* EclipseClass = Cast<ASoSPlayerEclipseClass>(SourceCombatComp->GetOwningCharacter());
 	if (EclipseClass == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Source NOT Eclipse class"))

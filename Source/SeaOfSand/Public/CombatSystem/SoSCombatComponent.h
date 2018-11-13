@@ -43,8 +43,13 @@ enum class ETagUpdateEventType : uint8
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnEffectUpdate, USoSCombatComponent*, CombatComp, const FEffectData&, Effect, EEffectUpdateEventType, EventType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEffectUpdate, const FEffectData&, Effect, EEffectUpdateEventType, EventType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagUpdate, const EAbilityTag&, Tag, ETagUpdateEventType, EventType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageReceived, USoSCombatComponent*, SourceCombatComp, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageDealt, USoSCombatComponent*, TargetCombatComp, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnBasicAttackExecuted, AActor*, SourceActor, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnBasicAttackReceived, AActor*, SourceActor, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SEAOFSAND_API USoSCombatComponent : public UActorComponent
@@ -67,7 +72,7 @@ public:
 
 	void AddValueToAttributeBaseValues(EAttributeName Attribute, float Value);
 
-	void DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName);
+	void DamageCalculation(float DamageBase, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageTypeName);
 
 	UFUNCTION(BlueprintCallable, Category = "CombatComponent")
 	bool CheckAbilityCanCast(USoSAbilityBase* Ability, bool bTriggerCooldownAndResource = false);
@@ -86,6 +91,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnTagUpdate OnTagUpdate;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnDamageDealt OnDamageDealt;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnDamageReceived OnDamageReceived;
 
 protected:
 
@@ -130,7 +141,7 @@ protected:
 
 	void HandleEffectAttributeModifierValue(FEffectData& Effect, FEffectAttributeModifierModule& Module, bool bUseTotalValue);
 
-	void HandleEffectAbility(FEffectData& Effect, FEffectAbilityModule& Module);
+	void HandleEffectOnTickAbility(FEffectData& Effect, FEffectOnTickAbilityModule& Module);
 
 	UFUNCTION()
 	void TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType EventType);

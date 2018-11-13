@@ -24,9 +24,9 @@ protected:
 
 	int32 MoonPoints;
 
-	virtual bool StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
+	virtual bool StartAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue) override;
 
-	virtual bool ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue) override;
+	virtual bool ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue) override;
 	
 public:
 

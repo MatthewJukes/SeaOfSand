@@ -16,13 +16,13 @@ USoSAbilityBase::USoSAbilityBase()
 }
 
 
-bool USoSAbilityBase::StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+bool USoSAbilityBase::StartAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue)
 {
 	return true;
 }
 
 
-bool USoSAbilityBase::ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+bool USoSAbilityBase::ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue)
 {
 	return true;
 }

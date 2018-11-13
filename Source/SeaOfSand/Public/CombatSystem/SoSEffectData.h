@@ -7,6 +7,7 @@
 #include "SoSEffectData.generated.h"
 
 class USoSAbilityBase;
+class USoSOnCombatEventAbility;
 enum class EAttributeName : uint8;
 enum class ESoSDamageTypeName : uint8;
 enum class EAbilityTag : uint8;
@@ -36,6 +37,15 @@ enum class EEffectAbilityTickType : uint8
 	EveryTick,
 	FirstTick,
 	LastTick
+};
+
+
+UENUM(BlueprintType)
+enum class EEffectCombatEventTriggerType : uint8
+{
+	OnDamageDealt,
+	OnDamageReceived,
+	OnEffectUpdate
 };
 
 
@@ -76,7 +86,7 @@ struct FEffectDamageModule
 
 
 USTRUCT(BlueprintType)
-struct FEffectAbilityModule
+struct FEffectOnTickAbilityModule
 {
 	GENERATED_BODY()
 
@@ -84,10 +94,29 @@ struct FEffectAbilityModule
 	TSubclassOf<USoSAbilityBase> AbilityClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
-	EEffectAbilityTickType UseAbilityOn;
+	EEffectAbilityTickType AbilityTickType;
 
 	UPROPERTY()
 	USoSAbilityBase* Ability;
+};
+
+
+USTRUCT(BlueprintType)
+struct FEffectOnCombatEventAbilityModule
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	TSubclassOf<USoSOnCombatEventAbility> OnCombatEventAbilityClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	EEffectCombatEventTriggerType AbilityTriggerType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
+	int32 MaxTriggers;
+
+	UPROPERTY()
+	USoSOnCombatEventAbility* OnCombatEventAbility;
 };
 
 
@@ -140,7 +169,10 @@ struct FEffectData : public FTableRowBase
 	TArray<FEffectDamageModule> DamageModules;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
-	TArray<FEffectAbilityModule> AbilityModules;
+	TArray<FEffectOnTickAbilityModule> OnTickAbilityModules;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Modules")
+	TArray<FEffectOnCombatEventAbilityModule> OnEventAbilityModules;
 
 	// Tags to apply to target
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
@@ -156,7 +188,7 @@ struct FEffectData : public FTableRowBase
 
 	// Effect status trackers
 
-	AActor* Source;
+	USoSCombatComponent* SourceCombatComp;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Effect")
 	float EffectDuration; 

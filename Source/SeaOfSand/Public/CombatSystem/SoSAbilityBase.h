@@ -7,7 +7,6 @@
 #include "SoSAbilityBase.generated.h"
 
 
-class ASoSWeaponBase;
 class USoSCombatComponent;
 
 
@@ -52,12 +51,12 @@ public:
 	void InitializeAbility();
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
-	bool StartAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
-	virtual bool StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+	bool StartAbility(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue);
+	virtual bool StartAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
-	bool ReleaseAbility(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
-	virtual bool ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue);
+	bool ReleaseAbility(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue);
+	virtual bool ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
 	void ReadyCombo();

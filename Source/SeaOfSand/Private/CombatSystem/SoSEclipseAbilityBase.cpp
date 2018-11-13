@@ -12,15 +12,15 @@ USoSEclipseAbilityBase::USoSEclipseAbilityBase()
 	MoonPoints = 3;
 }
 
-bool USoSEclipseAbilityBase::StartAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+bool USoSEclipseAbilityBase::StartAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue)
 {
-	return USoSASTasks::CalculateEclipsePoints(Source, ClassSpecificFloatValue, SunPoints, MoonPoints);	
+	return USoSASTasks::CalculateEclipsePoints(SourceCombatComp, ClassSpecificFloatValue, SunPoints, MoonPoints);
 } 
 
 
-bool USoSEclipseAbilityBase::ReleaseAbility_Implementation(AActor* Source, ASoSWeaponBase* Weapon, float ClassSpecificFloatValue)
+bool USoSEclipseAbilityBase::ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue)
 {
-	return USoSASTasks::CalculateEclipsePoints(Source, ClassSpecificFloatValue, SunPoints, MoonPoints);
+	return USoSASTasks::CalculateEclipsePoints(SourceCombatComp, ClassSpecificFloatValue, SunPoints, MoonPoints);
 }  
 
 

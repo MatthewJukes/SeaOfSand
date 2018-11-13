@@ -26,13 +26,13 @@ class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool ApplyEffectToTarget(const AActor* Target, AActor* Source, UPARAM(ref) FEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
+	static bool ApplyEffectToTarget(const AActor* Target, USoSCombatComponent* SourceCombatComp, UPARAM(ref) FEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool CheckIfTargetHasEffectActive(const AActor* Target, FName EffectName, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool DamageTarget(const AActor* Target, const AActor* Source, float Value, ESoSDamageTypeName DamageType);
+	static bool DamageTarget(const AActor* Target, const AActor* Source, float BaseDamage, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageType);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool AddValueToTargetsAttribute(const AActor* Target, const AActor* Source, EAttributeName Attribute, float Value);
@@ -80,7 +80,7 @@ public:
 	static float GetTimeSeconds(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool CalculateEclipsePoints(AActor* Source, float EclipseRatio, int32 &SunPoints, int32 &MoonPoints);
+	static bool CalculateEclipsePoints(USoSCombatComponent* SourceCombatComp, float EclipseRatio, int32 &SunPoints, int32 &MoonPoints);
 
 	static USoSAbilityBase* CreateAbilityInstance(TSubclassOf<USoSAbilityBase> Ability, USoSCombatComponent* OwningCombatComp);
 

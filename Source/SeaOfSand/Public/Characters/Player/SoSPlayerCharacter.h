@@ -215,5 +215,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	bool GetTargetingModeActive() const;
 
+	float GetClassSpecificFloat() const;
+
 	void SetInVehicle(bool NewBool);
 };

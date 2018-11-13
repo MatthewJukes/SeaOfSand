@@ -583,6 +583,11 @@ bool ASoSPlayerCharacter::GetTargetingModeActive() const
 }
 
 
+float ASoSPlayerCharacter::GetClassSpecificFloat() const
+{
+	return ClassSpecificFloat;
+}
+
 void ASoSPlayerCharacter::SetInVehicle(bool NewBool)
 {
 	bInVehicle = NewBool;

@@ -75,10 +75,6 @@ void USoSCombatComponent::LoopOverCurrentEffectsArray()
 	RemoveEffectFromArrayByIndexArray(EffectIndexToRemove);
 
 	CalculateAttributeTotalValues();
-	//UE_LOG(LogTemp, Warning, TEXT("CombatComp: %s, MaxHealth: %f"), *this->GetFName().ToString(), ASAttributeTotalValues.HealthMaxValue);
-	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealth: %f"), ASAttributeTotalValues.HealthCurrentValue);
-	//UE_LOG(LogTemp, Warning, TEXT("CurrentHealthBase: %f"), ASAttributeBaseValues.HealthCurrentValue);
-	//UE_LOG(LogTemp, Warning, TEXT("Speed: %f"), ASAttributeTotalValues.SpeedValue);
 }
 
 
@@ -103,15 +99,23 @@ void USoSCombatComponent::CheckEffectStatus(FEffectData& Effect)
 			HandleEffectAttributeModifierValue(Effect, Module, false);
 		}
 
-		for (FEffectAbilityModule& Module : Effect.AbilityModules)
+		for (FEffectOnTickAbilityModule& Module : Effect.OnTickAbilityModules)
 		{
-			HandleEffectAbility(Effect, Module);
+			HandleEffectOnTickAbility(Effect, Module);
 		}
 
 		for (FEffectDamageModule& Module : Effect.DamageModules)
 		{
 			FString RowString;
-			DamageCalculation(Module.DamageValue * Effect.CurrentStacks, Module.DamageType);
+			float HealthDamage;
+			float ArmourDamage;
+			DamageCalculation(Module.DamageValue * Effect.CurrentStacks, HealthDamage, ArmourDamage, Module.DamageType);
+			OnDamageReceived.Broadcast(Effect.SourceCombatComp, Module.DamageValue * Effect.CurrentStacks, HealthDamage, ArmourDamage);
+
+			if (Effect.SourceCombatComp != nullptr)
+			{
+				Effect.SourceCombatComp->OnDamageDealt.Broadcast(this, Module.DamageValue * Effect.CurrentStacks, HealthDamage, ArmourDamage);
+			}
 		}
 
 		Effect.bFirstTick = false;
@@ -167,7 +171,7 @@ void USoSCombatComponent::HandleEffectAttributeModifierValue(FEffectData& Effect
 }
 
 
-void USoSCombatComponent::HandleEffectAbility(FEffectData& Effect, FEffectAbilityModule& Module)
+void USoSCombatComponent::HandleEffectOnTickAbility(FEffectData& Effect, FEffectOnTickAbilityModule& Module)
 {
 	if (Module.Ability == nullptr)
 	{
@@ -175,12 +179,12 @@ void USoSCombatComponent::HandleEffectAbility(FEffectData& Effect, FEffectAbilit
 		return;
 	}
 
-	if (Module.UseAbilityOn == EEffectAbilityTickType::FirstTick && !Effect.bFirstTick)
+	if (Module.AbilityTickType == EEffectAbilityTickType::FirstTick && !Effect.bFirstTick)
 	{
 		return;
 	}
 
-	if (Module.UseAbilityOn == EEffectAbilityTickType::LastTick)
+	if (Module.AbilityTickType == EEffectAbilityTickType::LastTick)
 	{
 		float EffectTimeRemaining = Effect.EffectDuration - (GetWorld()->GetTimeSeconds() - Effect.EffectStartTime);
 		if (EffectTimeRemaining > Effect.TickRate)
@@ -189,8 +193,13 @@ void USoSCombatComponent::HandleEffectAbility(FEffectData& Effect, FEffectAbilit
 		}
 	}
 
-	USoSInventoryComponent* SourceInventory = Cast<USoSInventoryComponent>(Effect.Source->GetComponentByClass(USoSInventoryComponent::StaticClass()));
-	Module.Ability->StartAbility(Effect.Source, SourceInventory->GetCurrentWeapon(), 0); // TODO get value from source
+	ASoSPlayerCharacter* PlayerCharacter = Cast<ASoSPlayerCharacter>(Effect.SourceCombatComp->GetOwningCharacter());
+	float ClassSpecificFloat = 0;
+	if (PlayerCharacter != nullptr)
+	{
+		ClassSpecificFloat = PlayerCharacter->GetClassSpecificFloat();
+	}
+	Module.Ability->StartAbility(Effect.SourceCombatComp, ClassSpecificFloat);
 }
 
 
@@ -215,7 +224,7 @@ void USoSCombatComponent::TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType 
 }
 
 
-void USoSCombatComponent::DamageCalculation(float Damage, ESoSDamageTypeName DamageTypeName)
+void USoSCombatComponent::DamageCalculation(float DamageBase, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageTypeName)
 {
 	FSoSDamageType* DamageType = new FSoSDamageType;
 	DamageType->ArmourPenetration = 0;
@@ -241,14 +250,14 @@ void USoSCombatComponent::DamageCalculation(float Damage, ESoSDamageTypeName Dam
 	float MaxRawDamageReductionByArmour = FMath::Max(1.0f, AttributeTotalValues.ArmourCurrentValue * 0.1f); // 10% of current armour
 	
 	// Calculate armour penetration
-	float HealthDamage = Damage * (DamageType->ArmourPenetration * 0.01f);
-	HealthDamage += (Damage - HealthDamage) - FMath::Min(MaxRawDamageReductionByArmour, (Damage - HealthDamage));
+	OutHealthDamage = DamageBase * (DamageType->ArmourPenetration * 0.01f);
+	OutHealthDamage += (DamageBase - OutHealthDamage) - FMath::Min(MaxRawDamageReductionByArmour, (DamageBase - OutHealthDamage));
 
 	// Calculate armour damage
-	float ArmourDamage = (Damage - HealthDamage) * (DamageType->ArmourDamage * 0.01f);
+	OutArmourDamage = (DamageBase - OutHealthDamage) * (DamageType->ArmourDamage * 0.01f);
 
-	AddValueToAttributeBaseValues(EAttributeName::HealthCurrent, -HealthDamage);
-	AddValueToAttributeBaseValues(EAttributeName::ArmourCurrent, -ArmourDamage);
+	AddValueToAttributeBaseValues(EAttributeName::HealthCurrent, -OutHealthDamage);
+	AddValueToAttributeBaseValues(EAttributeName::ArmourCurrent, -OutArmourDamage);
 }
 
 void USoSCombatComponent::AddValueToAttributeData(FAttributeData& AttributeData, EAttributeName Attribute, float Value)
@@ -361,13 +370,13 @@ void USoSCombatComponent::AddEffectToArray(FEffectData& EffectToAdd)
 		OnTagUpdate.Broadcast(Tag, ETagUpdateEventType::Added);
 	}
 
-	OnEffectUpdate.Broadcast(this, EffectToAdd, EEffectUpdateEventType::Added);
+	OnEffectUpdate.Broadcast(EffectToAdd, EEffectUpdateEventType::Added);
 }
 
 
 void USoSCombatComponent::RemoveEffectFromArrayByIndex(int32 Index)
 {
-	OnEffectUpdate.Broadcast(this, CurrentEffects[Index], EEffectUpdateEventType::Removed);
+	OnEffectUpdate.Broadcast(CurrentEffects[Index], EEffectUpdateEventType::Removed);
 
 	UE_LOG(LogTemp, Warning, TEXT("Effect Removed: %s"), *CurrentEffects[Index].EffectName.ToString())
 	CurrentEffects.RemoveAt(Index);
@@ -399,6 +408,11 @@ void USoSCombatComponent::EndEffect(FEffectData& EffectToEnd)
 			Module.TotalValue = -Module.TotalValue;
 			HandleEffectAttributeModifierValue(EffectToEnd, Module, true);
 		}
+	}
+
+	for (FEffectOnCombatEventAbilityModule& Module : EffectToEnd.OnEventAbilityModules)
+	{
+		Module.OnCombatEventAbility->UnbindCombatEvent(EffectToEnd.SourceCombatComp, Module.AbilityTriggerType);
 	}
 
 	for (EAbilityTag Tag : EffectToEnd.EffectAppliesTags)
@@ -449,8 +463,7 @@ bool USoSCombatComponent::UseAbility(USoSAbilityBase* Ability, bool bReleased, f
 		{
 			Ability->SetLastTimeActivated(World->GetTimeSeconds());
 		}
-		return bReleased == false ? Ability->StartAbility(GetOwner(), OwningCharacter->GetCharacterInventory()->GetCurrentWeapon(), ClassSpecificFloatValue) 
-			                       : Ability->ReleaseAbility(GetOwner(), OwningCharacter->GetCharacterInventory()->GetCurrentWeapon(), ClassSpecificFloatValue);
+		return bReleased == false ? Ability->StartAbility(this, ClassSpecificFloatValue) : Ability->ReleaseAbility(this, ClassSpecificFloatValue);
 	}
 
 	return false;
