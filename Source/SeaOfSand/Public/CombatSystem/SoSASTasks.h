@@ -18,6 +18,17 @@ class ACharacter;
 class UAnimMontage;
 enum class ERootMotionFinishVelocityMode : uint8;
 
+
+UENUM()
+enum class ETeamCheckResult : uint8
+{
+	Allied,
+	Enemy,
+	Self,
+	Invalid
+};
+
+
 UCLASS()
 class SEAOFSAND_API USoSASTasks : public UBlueprintFunctionLibrary
 {
@@ -29,7 +40,7 @@ public:
 	static bool ApplyEffectToTarget(const AActor* Target, USoSCombatComponent* SourceCombatComp, UPARAM(ref) FEffectData& EffectToApply, int32 StackToApply, float EffectDuration);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool CheckIfTargetHasEffectActive(const AActor* Target, FName EffectName, int32& OutIndex);
+	static bool CheckIfTargetHasEffectActive(USoSCombatComponent* TargetCombatComp, FName EffectName, int32& OutIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool DamageTarget(const AActor* Target, const AActor* Source, float BaseDamage, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageType);
@@ -47,16 +58,19 @@ public:
 	static bool WeaponTrace(const AActor* Source, FHitResult& OutHit, const FVector& StartLocation, const FVector& EndLocation);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool SpawnAbilityActor(AActor* Source, TSubclassOf<ASoSAbilityActor> AbilityActor, const FTransform &SpawnTransform);
+	static bool SpawnAbilityActor(USoSCombatComponent* SourceCombatComp, TSubclassOf<ASoSAbilityActor> AbilityActor, const FTransform &SpawnTransform);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed);
+	static bool FireProjectile(USoSCombatComponent* SourceCombatComp, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread = 0);
+	static bool FireProjectileFromWeaponAtAimLocation(USoSCombatComponent* SourceCombatComp, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread = 0);
+
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask", meta = (ExpandEnumAsExecs = Branches))
+	static void BasicAttackHit(AActor* Target, const USoSCombatComponent* SourceCombatComp, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors, ETeamCheckResult& Branches);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool MeleeHitCheck(AActor* Target, const AActor* Source, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
+	static bool SingleHitCheck(AActor* Target, const AActor* Source, UPARAM(ref) TArray<AActor*>& PreviouslyHitActors);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool GetTargetsInRadius(const AActor* Source, TArray<FHitResult> &OutHitResults, const FVector &Origin, float Radius);
@@ -64,8 +78,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static ESoSTeam GetTeamFromTarget(const AActor* Target);
 
-	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
-	static bool TeamCheck(const AActor* ActorOne, const AActor* ActorTwo);
+	UFUNCTION(BlueprintCallable, Category = "AbilityTask", meta = (ExpandEnumAsExecs = Branches))
+	static void BranchOnTeamCheck(const AActor* ActorOne, const AActor* ActorTwo, ETeamCheckResult& Branches);
 
 	UFUNCTION(BlueprintCallable, Category = "AbilityTask")
 	static bool ApplyRootMotionConstantForce(const ACharacter* TargetCharacter, FVector Direction, float Strength, float Duration, bool bIsAdditive, UCurveFloat* StrengthOverTime, ERootMotionFinishVelocityMode VelocityOnFinishMode, const FVector &SetVelocityOnFinish, float ClampVelocityOnFinish);

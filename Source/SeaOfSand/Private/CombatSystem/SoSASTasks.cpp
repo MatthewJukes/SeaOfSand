@@ -60,7 +60,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, USoSCombatComponent*
 	// Check to see if effect already exists on target
 	float ApplicationTime = AbilityGetWorldFromContextObject(Target)->GetTimeSeconds();
 	TArray<FEffectData>& TargetCurrentEffectsArray = TargetCombatComp->GetCurrentEffectsArray();
-	if (CheckIfTargetHasEffectActive(Target, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
+	if (CheckIfTargetHasEffectActive(TargetCombatComp, EffectToApply.EffectName, EffectIndex)) // Reapply effect and add stacks if appropriate
 	{
 		ReapplyEffect(TargetCurrentEffectsArray[EffectIndex], EffectToApply, StackToApply, ApplicationTime);
 		TargetCombatComp->OnEffectUpdate.Broadcast(TargetCurrentEffectsArray[EffectIndex], EEffectUpdateEventType::Reapplied);
@@ -78,6 +78,7 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, USoSCombatComponent*
 			Module.MaxTriggers = Module.MaxTriggers == 0 ? INFINITY : Module.MaxTriggers;
 			Module.OnCombatEventAbility = Cast<USoSOnCombatEventAbility>(CreateAbilityInstance(Module.OnCombatEventAbilityClass, SourceCombatComp));
 			Module.OnCombatEventAbility->BindCombatEvent(TargetCombatComp, Module.AbilityTriggerType);
+			Module.OnCombatEventAbility->SetRemainingTriggers(Module.MaxTriggers);
 		}
 
 		// Set effect status trackers
@@ -100,15 +101,8 @@ bool USoSASTasks::ApplyEffectToTarget(const AActor* Target, USoSCombatComponent*
 } 
 
 
-bool USoSASTasks::CheckIfTargetHasEffectActive(const AActor* Target, FName EffectName, int32& OutIndex)
+bool USoSASTasks::CheckIfTargetHasEffectActive(USoSCombatComponent* TargetCombatComp, FName EffectName, int32& OutIndex)
 {
-	if (Target == nullptr)
-	{
-		OutIndex = -1;
-		return false;
-	}
-
-	USoSCombatComponent* TargetCombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
 	if (TargetCombatComp == nullptr)
 	{
 		OutIndex = -1;
@@ -117,6 +111,7 @@ bool USoSASTasks::CheckIfTargetHasEffectActive(const AActor* Target, FName Effec
 
 	OutIndex = 0;
 	TArray<FEffectData>& TargetCurrentEffectsArray = TargetCombatComp->GetCurrentEffectsArray();
+
 	for (FEffectData& Effect : TargetCurrentEffectsArray)
 	{
 		if (Effect.EffectName == EffectName)
@@ -241,42 +236,42 @@ bool USoSASTasks::WeaponTrace(const AActor* Source, FHitResult& OutHit, const FV
 }
 
 
-bool USoSASTasks::SpawnAbilityActor(AActor* Source, TSubclassOf<ASoSAbilityActor> AbilityActor, const FTransform &SpawnTransform)
+bool USoSASTasks::SpawnAbilityActor(USoSCombatComponent* SourceCombatComp, TSubclassOf<ASoSAbilityActor> AbilityActor, const FTransform &SpawnTransform)
 {
-	if (AbilityActor == nullptr || Source == nullptr)
+	if (AbilityActor == nullptr || SourceCombatComp == nullptr)
 	{
 		return false;
 	}
 
-	UWorld* World = AbilityGetWorldFromContextObject(Source);
+	UWorld* World = AbilityGetWorldFromContextObject(SourceCombatComp);
 	if (World == nullptr)
 	{
 		return false;
 	}
 
-	ASoSAbilityActor* NewAbilityActor = World->SpawnActorDeferred<ASoSAbilityActor>(AbilityActor, SpawnTransform, Source, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	NewAbilityActor->SetAbilityActorSource(Source);
+	ASoSAbilityActor* NewAbilityActor = World->SpawnActorDeferred<ASoSAbilityActor>(AbilityActor, SpawnTransform, SourceCombatComp->GetOwningCharacter(), nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	NewAbilityActor->SetSourceCombatComp(SourceCombatComp);
 	NewAbilityActor->FinishSpawning(SpawnTransform);
 
 	return NewAbilityActor != nullptr;
 }
 
 
-bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed)
+bool USoSASTasks::FireProjectile(USoSCombatComponent* SourceCombatComp, TSubclassOf<ASoSProjectileBase> Projectile, const FTransform &SpawnTransform, float ProjectileDamage, float ProjectileSpeed)
 {
-	if (Projectile == nullptr || Source == nullptr)
+	if (Projectile == nullptr || SourceCombatComp == nullptr)
 	{
 		return false;
 	}
 
-	UWorld* World = AbilityGetWorldFromContextObject(Source);
+	UWorld* World = AbilityGetWorldFromContextObject(SourceCombatComp->GetOwningCharacter());
 	if (World == nullptr)
 	{
 		return false;
 	}
 
-	ASoSProjectileBase* NewProjectile = World->SpawnActorDeferred<ASoSProjectileBase>(Projectile, SpawnTransform, Source, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-	NewProjectile->SetAbilityActorSource(Source);
+	ASoSProjectileBase* NewProjectile = World->SpawnActorDeferred<ASoSProjectileBase>(Projectile, SpawnTransform, SourceCombatComp->GetOwningCharacter(), nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	NewProjectile->SetSourceCombatComp(SourceCombatComp);
 	NewProjectile->SetProjectileDamage(ProjectileDamage);
 	NewProjectile->SetProjectileSpeed(ProjectileSpeed);
 	NewProjectile->FinishSpawning(SpawnTransform);
@@ -285,11 +280,11 @@ bool USoSASTasks::FireProjectile(AActor* Source, TSubclassOf<ASoSProjectileBase>
 }
 
 
-bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread)
+bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(USoSCombatComponent* SourceCombatComp, TSubclassOf<ASoSProjectileBase> Projectile, const FVector &SocketLocation, float ProjectileDamage, float ProjectileSpeed, float ProjectileSpread)
 {
 	FHitResult Hit;
-	FVector EndLocation = GetAimHitResult(Source).Location;
-	if (WeaponTrace(Source, Hit, SocketLocation, EndLocation))
+	FVector EndLocation = GetAimHitResult(SourceCombatComp->GetOwningCharacter()).Location;
+	if (WeaponTrace(SourceCombatComp->GetOwningCharacter(), Hit, SocketLocation, EndLocation))
 	{
 		EndLocation = Hit.Location;
 	}
@@ -300,7 +295,7 @@ bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclas
 	EndLocation = FMath::VRandCone(EndLocation, FMath::DegreesToRadians(ProjectileSpread));
 
 	FTransform ProjectileTransform = FTransform(FRotator(EndLocation.ToOrientationRotator()), SocketLocation);
-	if (!FireProjectile(Source, Projectile, ProjectileTransform, ProjectileDamage, ProjectileSpeed))
+	if (!FireProjectile(SourceCombatComp, Projectile, ProjectileTransform, ProjectileDamage, ProjectileSpeed))
 	{
 		return false;
 	}
@@ -309,7 +304,34 @@ bool USoSASTasks::FireProjectileFromWeaponAtAimLocation(AActor* Source, TSubclas
 }
 
 
-bool USoSASTasks::MeleeHitCheck(AActor* Target, const AActor* Source, TArray<AActor*>& PreviouslyHitActors)
+void USoSASTasks::BasicAttackHit(AActor* Target, const USoSCombatComponent* SourceCombatComp, TArray<AActor*>& PreviouslyHitActors, ETeamCheckResult& Branches)
+{
+	if (SourceCombatComp == nullptr)
+	{
+		Branches = ETeamCheckResult::Invalid;
+		return;
+	}
+
+	USoSCombatComponent* TargetCombatComp = Cast<USoSCombatComponent>(Target->GetComponentByClass(USoSCombatComponent::StaticClass()));
+	if (TargetCombatComp == nullptr)
+	{
+		Branches = ETeamCheckResult::Invalid;
+		return;
+	}
+
+	if (SingleHitCheck(Target, SourceCombatComp->GetOwningCharacter(), PreviouslyHitActors))
+	{
+		BranchOnTeamCheck(Target, SourceCombatComp->GetOwningCharacter(), Branches);
+		SourceCombatComp->OnBasicAttackHit.Broadcast(TargetCombatComp, Branches);
+		TargetCombatComp->OnBasicAttackReceived.Broadcast(SourceCombatComp, Branches);
+		return;
+	}
+
+	Branches = ETeamCheckResult::Invalid;
+}
+
+
+bool USoSASTasks::SingleHitCheck(AActor* Target, const AActor* Source, TArray<AActor*>& PreviouslyHitActors)
 {
 	if (Source == nullptr || Target == nullptr)
 	{
@@ -380,31 +402,36 @@ ESoSTeam USoSASTasks::GetTeamFromTarget(const AActor* Target)
 }
 
 
-bool USoSASTasks::TeamCheck(const AActor* ActorOne, const AActor* ActorTwo)
+void USoSASTasks::BranchOnTeamCheck(const AActor* ActorOne, const AActor* ActorTwo, ETeamCheckResult& Branches)
 {
 	if (ActorOne == ActorTwo)
 	{
-		return true;
+		Branches = ETeamCheckResult::Self;
+		return;
 	}
 
 	if (ActorOne == nullptr || ActorTwo == nullptr)
 	{
-		return false;
+		Branches = ETeamCheckResult::Invalid;
+		return;
 	}
 
 	USoSCombatComponent* CombatCompOne = Cast<USoSCombatComponent>(ActorOne->GetComponentByClass(USoSCombatComponent::StaticClass()));
 	USoSCombatComponent* CombatCompTwo = Cast<USoSCombatComponent>(ActorTwo->GetComponentByClass(USoSCombatComponent::StaticClass()));
 	if (CombatCompOne == nullptr || CombatCompTwo == nullptr)
 	{
-		return false;
+		Branches = ETeamCheckResult::Invalid;
+		return;
 	}
 
 	if (CombatCompOne->GetTeam() == CombatCompTwo->GetTeam())
 	{
-		return true;
+		Branches = ETeamCheckResult::Allied;
+		return;
 	}
 
-	return false;
+	Branches = ETeamCheckResult::Enemy;
+	return;
 }
 
 
@@ -589,6 +616,11 @@ void USoSASTasks::ReapplyEffect(FEffectData& ExistingEffect, FEffectData& NewEff
 	{
 		ExistingEffect.TickRate = ExistingEffect.EffectDuration;
 		ExistingEffect.LastTickTime = ExistingEffect.bDelayFirstTick ? ApplicationTime : ApplicationTime - ExistingEffect.TickRate;
+	}
+
+	for (FEffectOnCombatEventAbilityModule& Module : ExistingEffect.OnEventAbilityModules)
+	{
+		Module.OnCombatEventAbility->SetRemainingTriggers(Module.MaxTriggers);
 	}
 
 	ExistingEffect.NewStacks = FMath::Clamp(StackToApply, 0, ExistingEffect.MaxStacks - ExistingEffect.CurrentStacks);

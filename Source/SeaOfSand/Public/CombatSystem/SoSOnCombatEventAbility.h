@@ -9,8 +9,8 @@
 
 class USoSCombatComponent;
 enum class EEffectCombatEventTriggerType : uint8;
+enum class ETeamCheckResult : uint8;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_();
 
 UCLASS()
 class SEAOFSAND_API USoSOnCombatEventAbility : public USoSAbilityBase
@@ -25,16 +25,48 @@ public:
 
 protected:	
 
-	UFUNCTION(BlueprintNativeEvent, Category = "CombatEventAbility")
-	void OnDamageDealt(USoSCombatComponent* TargetCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
-	void OnDamageDealt_Implementation(USoSCombatComponent* TargetCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
+	int32 RemainingTriggers;
 
+	UFUNCTION()
+	void HandleOnDamageDealt(const USoSCombatComponent* TargetCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "CombatEventAbility")
-	void OnDamageReceived(USoSCombatComponent* SourceCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
-	void OnDamageReceived_Implementation(USoSCombatComponent* SourceCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
+	UFUNCTION()
+	void HandleOnDamageReceived(const USoSCombatComponent* SourceCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "CombatEventAbility")
+	UFUNCTION()
+	void HandleOnEffectUpdate(const FEffectData& Effect, EEffectUpdateEventType EventType);
+
+	UFUNCTION()
+	void HandleOnBasicAttackExecuted();
+
+	UFUNCTION()
+	void HandleOnBasicAttackHit(const USoSCombatComponent* TargetCombatComp, ETeamCheckResult TeamCheckResult);
+
+	UFUNCTION()
+	void HandleOnBasicAttackRecieved(const USoSCombatComponent* SourceCombatComp, ETeamCheckResult TeamCheckResult);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability | CombatEvent")
+	void OnDamageDealt(const USoSCombatComponent* TargetCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability | CombatEvent")
+	void OnDamageReceived(const USoSCombatComponent* SourceCombatComp, float BaseDamage, float HealthDamage, float ArmourDamage);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability | CombatEvent")
 	void OnEffectUpdate(const FEffectData& Effect, EEffectUpdateEventType EventType);
-	void OnEffectUpdate_Implementation(const FEffectData& Effect, EEffectUpdateEventType EventType);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability | CombatEvent")
+	void OnBasicAttackExecuted();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability | CombatEvent")
+	void OnBasicAttackHit(const USoSCombatComponent* TargetCombatComp, ETeamCheckResult TeamCheckResult);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Ability | CombatEvent")
+	void OnBasicAttackRecieved(const USoSCombatComponent* SourceCombatComp, ETeamCheckResult TeamCheckResult);
+
+public:
+
+	int32 GetRemainingTriggers();
+
+	void SetRemainingTriggers(int32 Value);
+
 };

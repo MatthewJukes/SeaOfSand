@@ -47,8 +47,9 @@ protected:
 
 public:
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
+	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
 	void InitializeAbility();
+	virtual void InitializeAbility_Implementation();
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Ability")
 	bool StartAbility(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue);
@@ -67,11 +68,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Ability")
 	void ActionComplete();
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Ability")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
 	void HitboxActivate();
+	virtual void HitboxActivate_Implementation();
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Ability")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Ability")
 	void HitboxDeactivate();
+	virtual void HitboxDeactivate_Implementation();
 
 protected:
 

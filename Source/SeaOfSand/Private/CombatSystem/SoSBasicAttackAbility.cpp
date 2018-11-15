@@ -1,16 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSBasicAttackAbility.h"
-//#include "SoSOnHitAbility.h"
+#include "SoSCombatComponent.h"
 
-/*
-USoSOnHitAbility* USoSBasicAttackAbility::GetCurrentOnHitAbility() const
+
+bool USoSBasicAttackAbility::ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue)
 {
-	return CurrentOnHitAbility;
+	GetOwningCombatComp()->OnBasicAttackExecuted.Broadcast();
+	return true;
 }
-
-
-void USoSBasicAttackAbility::SetCurrentOnHitAbility(USoSOnHitAbility* Ability)
-{
-	CurrentOnHitAbility = Ability;
-} */

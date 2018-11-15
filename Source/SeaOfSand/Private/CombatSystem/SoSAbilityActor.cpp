@@ -29,14 +29,14 @@ void ASoSAbilityActor::EndAbilityActor_Implementation()
 }
 
 
-AActor * ASoSAbilityActor::GetAbilityActorSource() const
+USoSCombatComponent * ASoSAbilityActor::GetSourceCombatComp() const
 {
-	return AbilityActorSource;
+	return SourceCombatComp;
 }
 
 
-void ASoSAbilityActor::SetAbilityActorSource(AActor* Source)
+void ASoSAbilityActor::SetSourceCombatComp(USoSCombatComponent* Source)
 {
-	AbilityActorSource = Source;
+	SourceCombatComp = Source;
 }
 

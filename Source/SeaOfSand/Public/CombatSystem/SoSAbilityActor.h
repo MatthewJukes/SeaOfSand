@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "SoSAbilityActor.generated.h"
 
+
+class USoSCombatComponent;
+
+
 UCLASS()
 class SEAOFSAND_API ASoSAbilityActor : public AActor
 {
@@ -24,10 +28,13 @@ public:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "AbilityActor")
-	AActor* AbilityActorSource;
+	USoSCombatComponent* SourceCombatComp;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AbilityActor")
 	float MaxLifetime;
+
+	UPROPERTY(BlueprintReadWrite, Category = "AbilityActor")
+	TArray<AActor*> IgnoreTargets;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "AbilityActor")
 	void EndAbilityActor();
@@ -37,7 +44,7 @@ protected:
 
 public:
 
-	AActor * GetAbilityActorSource() const;
+	USoSCombatComponent* GetSourceCombatComp() const;
 
-	void SetAbilityActorSource(AActor* Source);
+	void SetSourceCombatComp(USoSCombatComponent* Source);
 };

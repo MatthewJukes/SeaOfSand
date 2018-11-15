@@ -7,9 +7,6 @@
 #include "SoSBasicAttackAbility.generated.h"
 
 
-//class USoSOnHitAbility;
-
-
 UCLASS()
 class SEAOFSAND_API USoSBasicAttackAbility : public USoSAbilityBase
 {
@@ -17,12 +14,8 @@ class SEAOFSAND_API USoSBasicAttackAbility : public USoSAbilityBase
 	
 protected:
 
-	//USoSOnHitAbility * CurrentOnHitAbility;
+	virtual bool ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue) override;
 	
 public:
 
-	//UPROPERTY(BlueprintCallable, Category = "Ability")
-	//USoSOnHitAbility* GetCurrentOnHitAbility() const;
-
-	//void SetCurrentOnHitAbility(USoSOnHitAbility* Ability);
 };

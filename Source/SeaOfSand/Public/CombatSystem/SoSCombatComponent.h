@@ -13,6 +13,7 @@ class USoSAbilityBase;
 class ASoSCharacterBase;
 class ASoSWeaponBase;
 enum class EAbilityResourceType : uint8;
+enum class ETeamCheckResult : uint8;
 
 
 UENUM(BlueprintType)
@@ -45,10 +46,11 @@ enum class ETagUpdateEventType : uint8
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEffectUpdate, const FEffectData&, Effect, EEffectUpdateEventType, EventType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTagUpdate, const EAbilityTag&, Tag, ETagUpdateEventType, EventType);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageReceived, USoSCombatComponent*, SourceCombatComp, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageDealt, USoSCombatComponent*, TargetCombatComp, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnBasicAttackExecuted, AActor*, SourceActor, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnBasicAttackReceived, AActor*, SourceActor, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageReceived, const USoSCombatComponent*, SourceCombatComp, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamageDealt, const USoSCombatComponent*, TargetCombatComp, float, BaseDamage, float, HealthDamage, float, ArmourDamage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBasicAttackExecuted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBasicAttackHit, const USoSCombatComponent*, TargetCombatComp, ETeamCheckResult, TeamCheckResult);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBasicAttackReceived, const USoSCombatComponent*, SourceCombatComp, ETeamCheckResult, TeamCheckResult);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -98,8 +100,18 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnDamageReceived OnDamageReceived;
 
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnBasicAttackExecuted OnBasicAttackExecuted;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnBasicAttackHit OnBasicAttackHit;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnBasicAttackReceived OnBasicAttackReceived;
+
 protected:
 
+	UPROPERTY()
 	TArray<FEffectData> CurrentEffects;
 
 	TArray<EAbilityTag> CurrentEffectTags;
@@ -142,6 +154,9 @@ protected:
 	void HandleEffectAttributeModifierValue(FEffectData& Effect, FEffectAttributeModifierModule& Module, bool bUseTotalValue);
 
 	void HandleEffectOnTickAbility(FEffectData& Effect, FEffectOnTickAbilityModule& Module);
+
+	UFUNCTION()
+	void HandleEffectOnEventAbility(FEffectData& Effect, FEffectOnCombatEventAbilityModule& EffectModule);
 
 	UFUNCTION()
 	void TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType EventType);

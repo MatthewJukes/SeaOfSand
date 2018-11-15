@@ -45,7 +45,9 @@ enum class EEffectCombatEventTriggerType : uint8
 {
 	OnDamageDealt,
 	OnDamageReceived,
-	OnEffectUpdate
+	OnEffectUpdate,
+	OnBasicAttackExecuted,
+	OnBasicAttackRecieved
 };
 
 

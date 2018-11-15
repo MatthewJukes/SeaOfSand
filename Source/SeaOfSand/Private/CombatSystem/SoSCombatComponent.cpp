@@ -80,6 +80,12 @@ void USoSCombatComponent::LoopOverCurrentEffectsArray()
 
 void USoSCombatComponent::CheckEffectStatus(FEffectData& Effect)
 {
+	// Check if On Event Ability has hit max triggers
+	for (FEffectOnCombatEventAbilityModule& Module : Effect.OnEventAbilityModules)
+	{
+		HandleEffectOnEventAbility(Effect, Module);
+	}
+
 	// Check if effect should expire
 	float EffectElapsedTime = GetWorld()->GetTimeSeconds() - Effect.EffectStartTime;
 	if (EffectElapsedTime >= Effect.EffectDuration)
@@ -203,6 +209,14 @@ void USoSCombatComponent::HandleEffectOnTickAbility(FEffectData& Effect, FEffect
 }
 
 
+void USoSCombatComponent::HandleEffectOnEventAbility(FEffectData& Effect, FEffectOnCombatEventAbilityModule& EffectModule)
+{
+	if (EffectModule.OnCombatEventAbility->GetRemainingTriggers() == 0)
+	{
+		EndEffect(Effect);
+	}
+}
+
 void USoSCombatComponent::TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType EventType)
 {
 	switch (EventType)
@@ -259,6 +273,7 @@ void USoSCombatComponent::DamageCalculation(float DamageBase, float &OutHealthDa
 	AddValueToAttributeBaseValues(EAttributeName::HealthCurrent, -OutHealthDamage);
 	AddValueToAttributeBaseValues(EAttributeName::ArmourCurrent, -OutArmourDamage);
 }
+
 
 void USoSCombatComponent::AddValueToAttributeData(FAttributeData& AttributeData, EAttributeName Attribute, float Value)
 {

@@ -16,6 +16,11 @@ USoSAbilityBase::USoSAbilityBase()
 }
 
 
+void USoSAbilityBase::InitializeAbility_Implementation()
+{
+
+}
+
 bool USoSAbilityBase::StartAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue)
 {
 	return true;
@@ -27,6 +32,16 @@ bool USoSAbilityBase::ReleaseAbility_Implementation(USoSCombatComponent* SourceC
 	return true;
 }
 
+
+void USoSAbilityBase::HitboxActivate_Implementation()
+{
+
+}
+
+void USoSAbilityBase::HitboxDeactivate_Implementation()
+{
+
+}
 
 void USoSAbilityBase::ReadyCombo_Implementation()
 {
