@@ -25,12 +25,12 @@ public:
 	USoSInventoryComponent();
 
 protected:
-	virtual void OnComponentCreated() override;
 
 	virtual void BeginPlay() override;
 
 public:
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void HolsterUnholster(bool bQuickSwitch = false);
 
 	void CycleWeapons(bool bNextWeapon = true);

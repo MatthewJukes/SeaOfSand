@@ -28,8 +28,10 @@ protected:
 
 public:	
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void StartAttack() override;
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void EndAttack() override;
 
 	void StartReload();

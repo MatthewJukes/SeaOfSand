@@ -21,23 +21,18 @@ USoSInventoryComponent::USoSInventoryComponent()
 	RightHipAttachPoint = TEXT("RightHipSocket");
 }
 
-void USoSInventoryComponent::OnComponentCreated()
+// Called when the game starts
+void USoSInventoryComponent::BeginPlay()
 {
-	Super::OnComponentCreated();
+	Super::BeginPlay();
 
 	// Get the player character
 	OwningCharacter = Cast<ASoSCharacterBase>(GetOwner());
 	if (OwningCharacter)
 	{
-		SpawnWeapon(RangedWeaponClass);
 		SpawnWeapon(MeleeWeaponClass);
+		SpawnWeapon(RangedWeaponClass);
 	}
-}
-
-// Called when the game starts
-void USoSInventoryComponent::BeginPlay()
-{
-	Super::BeginPlay();
 
 	if (OwningCharacter)
 	{
@@ -77,6 +72,8 @@ void USoSInventoryComponent::SpawnWeapon(TSubclassOf<ASoSWeaponBase> WeaponToSpa
 		default:
 			break;
 		}
+
+		NewWeapon->CreateWeaponAbilityInstances();
 	}
 }
 

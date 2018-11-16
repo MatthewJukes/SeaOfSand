@@ -27,13 +27,16 @@ void ASoSWeaponBase::BeginPlay()
 	Super::BeginPlay();
 
 	OwningCharacter = Cast<ASoSCharacterBase>(GetOwner());
+}
 
+
+void ASoSWeaponBase::CreateWeaponAbilityInstances()
+{
 	WeaponAbilities.AbilityWeaponDraw = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponDrawClass, OwningCharacter->GetCharacterCombatComponent());
 	WeaponAbilities.AbilityWeaponHolster = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponHolsterClass, OwningCharacter->GetCharacterCombatComponent());
 	WeaponAbilities.AbilityWeaponPrimary = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponPrimaryClass, OwningCharacter->GetCharacterCombatComponent());
 	WeaponAbilities.AbilityWeaponAlt = USoSASTasks::CreateAbilityInstance(WeaponAbilities.AbilityWeaponAltClass, OwningCharacter->GetCharacterCombatComponent());
 }
-
 
 void ASoSWeaponBase::StartAttack()
 {

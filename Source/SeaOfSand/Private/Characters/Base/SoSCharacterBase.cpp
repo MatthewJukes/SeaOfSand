@@ -19,11 +19,11 @@ ASoSCharacterBase::ASoSCharacterBase()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_ABILITY, ECR_Block);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Ignore);
 
-	// Setup inventory
-	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
-
 	// Setup combat component
 	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
+
+	// Setup inventory
+	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
 
 	// Configure character movement 
 	GetCharacterMovement()->bOrientRotationToMovement = true;

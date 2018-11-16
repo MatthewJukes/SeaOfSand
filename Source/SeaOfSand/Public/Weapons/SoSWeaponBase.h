@@ -74,6 +74,8 @@ protected:
 
 public:	
 
+	void CreateWeaponAbilityInstances();
+
 	virtual void StartAttack();
 
 	virtual void EndAttack();

@@ -14,6 +14,10 @@ class SEAOFSAND_API USoSBasicAttackAbility : public USoSAbilityBase
 	
 protected:
 
+	bool bOnBasicAttackTriggered;
+
+	virtual bool StartAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue) override;
+
 	virtual bool ReleaseAbility_Implementation(USoSCombatComponent* SourceCombatComp, float ClassSpecificFloatValue) override;
 	
 public:
