@@ -21,7 +21,7 @@ ASoSCharacterBase::ASoSCharacterBase()
 
 	// Setup combat component
 	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
-
+	
 	// Setup inventory
 	InventoryComp = CreateDefaultSubobject<USoSInventoryComponent>(TEXT("PlayerInventory"));
 
