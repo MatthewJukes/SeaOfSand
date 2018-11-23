@@ -14,7 +14,12 @@
 				"CoreUObject",
 				"UMGEditor"
 			]
-		}
+		},
+        {
+           "Name": "SeaOfSandEditor",
+           "Type": "Editor",
+           "LoadingPhase":  "PostEngineInit"
+        }
 	],
 	"Plugins": [
 		{

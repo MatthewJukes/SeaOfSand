@@ -14,7 +14,9 @@ class SEAOFSAND_API ASeaOfSandGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
-	
+protected:
+
+	ASeaOfSandGameModeBase();
 	
 	
 };

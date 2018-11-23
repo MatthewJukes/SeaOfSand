@@ -9,36 +9,17 @@
 ****/
 
 #include "SoSUtilityAI.h"
+#include "SoSAIDecision.h"
 #include "SoSCharacterBase.h"
 #include "SoSCombatComponent.h"
 #include "Curves/CurveFloat.h"
 
 
-float SoSUtilityAI::ScoreDecision(FDecision& Decision)
-{
-	float FinalScore = 1;
-	float ModificationFactor = 1 - (1 / Decision.Considerations.Num());
-	
-	for (FDecisionConsideration& Consideration : Decision.Considerations)
-	{
-		float Score = NormalizeParam(Consideration.Parameter, Decision.DecisionContext);
-		float Response = ComputeResponseCurve(Score, Consideration.ResponseCurve);
-
-		float MakeUpValue = (1 - Response) * ModificationFactor;
-		Response = Response + (MakeUpValue * Response);
-
-		FinalScore *= FMath::Clamp(Response, 0.0f, 1.0f);
-	}
-	
-	return FinalScore; // TODO adjust for multiple considerations
-}
-
-
-float SoSUtilityAI::NormalizeParam(FConsiderationParameter& Parameter, FDecisionContext& Context)
+float SoSUtilityAI::NormalizeParam(FConsiderationParameter* Parameter, FDecisionContext* Context)
 {
 	float NormalizedParamValue = 0.0f;
 
-	switch (Parameter.ConsiderationParameter)
+	switch (Parameter->ConsiderationParameter)
 	{
 	default:
 		break;
@@ -60,35 +41,35 @@ float SoSUtilityAI::NormalizeParam(FConsiderationParameter& Parameter, FDecision
 }
 
 
-float SoSUtilityAI::ConsiderationMyHealthPercent(FConsiderationParameter& Parameter, FDecisionContext& Context)
+float SoSUtilityAI::ConsiderationMyHealthPercent(FConsiderationParameter* Parameter, FDecisionContext* Context)
 {
-	if (Context.Character == nullptr)
+	if (Context->Character == nullptr)
 	{
 		return 0.0f;
 	}
 
-	return Context.Character->GetCharacterCombatComponent()->GetAttributeTotalValue(EAttributeName::HealthCurrent) / Context.Character->GetCharacterCombatComponent()->GetAttributeTotalValue(EAttributeName::HealthMax);
+	return Context->Character->GetCharacterCombatComponent()->GetAttributeTotalValue(EAttributeName::HealthCurrent) / Context->Character->GetCharacterCombatComponent()->GetAttributeTotalValue(EAttributeName::HealthMax);
 }
 
 
-float SoSUtilityAI::ConsiderationDistanceToTarget(FConsiderationParameter& Parameter, FDecisionContext& Context)
+float SoSUtilityAI::ConsiderationDistanceToTarget(FConsiderationParameter* Parameter, FDecisionContext* Context)
 {
-	if (Context.Character == nullptr || Context.Target == nullptr)
+	if (Context->Character == nullptr || Context->Target == nullptr)
 	{
 		return 0.0f;
 	}
 
-	FVector StartLocation = Context.Character->GetActorLocation();
-	FVector TargetLocation = Context.Target->GetActorLocation();
+	FVector StartLocation = Context->Character->GetActorLocation();
+	FVector TargetLocation = Context->Target->GetActorLocation();
 	float Distance = (TargetLocation - StartLocation).Size();
 
-	return FMath::Clamp((Distance - Parameter.RangeMin) / (Parameter.RangeMax - Parameter.RangeMin), 0.0f, 1.0f);
+	return FMath::Clamp((Distance - Parameter->RangeMin) / (Parameter->RangeMax - Parameter->RangeMin), 0.0f, 1.0f);
 }
 
 
-float SoSUtilityAI::ComputeResponseCurve(float Score, FResponseCurveData& Curve)
+float SoSUtilityAI::ComputeResponseCurve(float Score, FResponseCurveData* Curve)
 {
 	float Response = 1.0f;
-	Response = Curve.Curve->GetFloatValue(Score); //TODO expand functionality 
+	Response = Curve->Curve->GetFloatValue(Score); //TODO expand functionality 
 	return Response;
 }

@@ -3,5 +3,6 @@
 #include "SeaOfSandGameModeBase.h"
 
 
-
-
+ASeaOfSandGameModeBase::ASeaOfSandGameModeBase()
+{
+}

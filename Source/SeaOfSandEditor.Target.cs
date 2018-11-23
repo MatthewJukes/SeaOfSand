@@ -10,5 +10,6 @@ public class SeaOfSandEditorTarget : TargetRules
 		Type = TargetType.Editor;
 
 		ExtraModuleNames.AddRange( new string[] { "SeaOfSand" } );
+		ExtraModuleNames.AddRange( new string[] { "SeaOfSandEditor" } );
 	}
 }

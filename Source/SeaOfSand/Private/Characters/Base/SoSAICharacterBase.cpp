@@ -10,6 +10,7 @@
 
 
 #include "SoSAICharacterBase.h"
+#include "SoSUtilityAI.h"
 
 
 ASoSAICharacterBase::ASoSAICharacterBase()
@@ -24,7 +25,21 @@ void ASoSAICharacterBase::BeginPlay()
 }
 
 
-TArray<FDecision>& ASoSAICharacterBase::GetDecisions()
+void ASoSAICharacterBase::CreateDecisionObjects()
+{
+	for (TSubclassOf<USoSAIDecision> DecisionClass : BP_Decisions)
+	{
+		if (DecisionClass == nullptr)
+		{
+			return;
+		}
+
+		Decisions.Add(NewObject<USoSAIDecision>(DecisionClass, DecisionClass.Get()));
+	}
+}
+
+
+TArray<USoSAIDecision*>& ASoSAICharacterBase::GetDecisions()
 {
 	return Decisions;
 }

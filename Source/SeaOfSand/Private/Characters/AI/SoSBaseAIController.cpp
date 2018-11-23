@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoSBaseAIController.h"
+#include "SoSUtilityAI.h"
+#include "SoSAIDecision.h"
 #include "SoSCharacterBase.h"
 #include "SoSAICharacterBase.h"
 #include "Public/TimerManager.h"
@@ -16,15 +18,19 @@ ASoSBaseAIController::ASoSBaseAIController()
 
 void ASoSBaseAIController::BeginPlay()
 {
+	Super::BeginPlay();
+
 	AICharacter = Cast<ASoSAICharacterBase>(GetPawn());
 	
 	if (AICharacter)
 	{
-		TArray<FDecision>& Decisions = AICharacter->GetDecisions();
-		for (FDecision& Decision : Decisions)
+		AICharacter->CreateDecisionObjects();
+
+		TArray<USoSAIDecision*>& Decisions = AICharacter->GetDecisions();
+		for (USoSAIDecision* Decision : Decisions)
 		{
-			Decision.DecisionContext.Character = AICharacter;
-			Decision.DecisionContext.Target = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(AICharacter, 0));
+			//Decision->GetDecisionContext().Character = AICharacter;
+			//Decision->GetDecisionContext().Target = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(AICharacter, 0));
 		}
 	} 
 
@@ -34,23 +40,67 @@ void ASoSBaseAIController::BeginPlay()
 
 void ASoSBaseAIController::ScoreAllDecisions()
 { 
-	FDecision* NewDecision = nullptr;
+	USoSAIDecision* NewDecision = nullptr;
 
 	if (AICharacter)
 	{
-		TArray<FDecision>& Decisions = AICharacter->GetDecisions();
-		for (FDecision& Decision : Decisions)
+		TArray<USoSAIDecision*>& Decisions = AICharacter->GetDecisions();
+		float BestScore = 0;
+		for (USoSAIDecision* Decision : Decisions)
 		{
-			Decision.Score = SoSUtilityAI::ScoreDecision(Decision);
+			float NewScore = Decision->ScoreDecision();
 
-			if (NewDecision == nullptr || NewDecision->Score < Decision.Score)
+			if (NewDecision == nullptr || NewScore > BestScore)
 			{
-				NewDecision = &Decision;
+				NewDecision = Decision;
+				BestScore = NewScore;
 			}
 		}
 			
-		UE_LOG(LogTemp, Warning, TEXT("%s wins with a score of :%f"), *NewDecision->DecisionName.ToString(), NewDecision->Score);
+		ExecuteDecision(NewDecision);
+		if (NewDecision != nullptr)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("%s wins with a score of :%f"), *NewDecision->GetDecisionName().ToString(), BestScore);
+		}
 	} 
 	
+}
+
+
+void ASoSBaseAIController::ExecuteDecision(USoSAIDecision* Decision)
+{
+	if (Decision == nullptr)
+	{
+		return;
+	}
+
+	/*
+	switch (Decision->GetAction())
+	{
+	case EDecisionAction::MoveToActor:
+		//ActionMoveToActor(Decision->GetDecisionContext().Target);
+		break;
+	case EDecisionAction::MoveToLocation:
+		break;
+	default:
+		break;
+	} */
+}
+
+
+void ASoSBaseAIController::ActionMoveToActor(AActor* Target)
+{
+	if (Target == nullptr)
+	{
+		return;
+	}
+
+	MoveToActor(Target);
+}
+
+
+void ASoSBaseAIController::ActionMoveToLocation(const FVector& Location)
+{
+	MoveToLocation(Location);
 }
 

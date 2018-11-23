@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "SoSUtilityAI.h"
 #include "SoSBaseAIController.generated.h"
 
 
 class ASoSAICharacterBase;
+class USoSAIDecision;
 
 
 UCLASS()
@@ -31,6 +31,12 @@ protected:
 
 	UFUNCTION()
 	void ScoreAllDecisions();
+
+	void ExecuteDecision(USoSAIDecision* Decision);
+
+	void ActionMoveToActor(AActor* Target);
+
+	void ActionMoveToLocation(const FVector& Location);
 
 	FTimerHandle TimerHandle_ScoreAllDecisions;
 };

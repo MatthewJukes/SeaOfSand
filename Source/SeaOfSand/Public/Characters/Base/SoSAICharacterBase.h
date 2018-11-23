@@ -12,12 +12,12 @@
 
 #include "CoreMinimal.h"
 #include "Characters/Base/SoSCharacterBase.h"
-#include "SoSUtilityAI.h"
 #include "SoSAICharacterBase.generated.h"
 
-/**
- * 
- */
+
+class USoSAIDecision;
+
+
 UCLASS()
 class SEAOFSAND_API ASoSAICharacterBase : public ASoSCharacterBase
 {
@@ -33,12 +33,16 @@ protected:
 
 public:
 
+	void CreateDecisionObjects();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UtilityAI")
-	TArray<FDecision> Decisions;
+	TArray<TSubclassOf<USoSAIDecision>> BP_Decisions;
+
+	TArray<USoSAIDecision*> Decisions;
 
 public:
 
-	TArray<FDecision>& GetDecisions();	
+	TArray<USoSAIDecision*>& GetDecisions();
 };
