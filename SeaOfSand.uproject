@@ -15,11 +15,14 @@
 				"UMGEditor"
 			]
 		},
-        {
-           "Name": "SeaOfSandEditor",
-           "Type": "Editor",
-           "LoadingPhase":  "PostEngineInit"
-        }
+		{
+			"Name": "SeaOfSandEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
 	],
 	"Plugins": [
 		{

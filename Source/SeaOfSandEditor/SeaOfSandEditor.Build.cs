@@ -8,13 +8,27 @@ public class SeaOfSandEditor : ModuleRules
 	{
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] 
+        {
+            "Core",
+            "CoreUObject",
+            "Engine",
+            "Slate",
+            "UnrealEd",
+            "SeaOfSand" });
+
+        PrivateDependencyModuleNames.AddRange(new string[] 
+        {
+             "InputCore",
+             "SlateCore",
+             "PropertyEditor",
+             "LevelEditor"
+        });
+
 
         PublicIncludePaths.AddRange(new string[] { "SeaOfSandEditor/Public" });
         PrivateIncludePaths.AddRange(new string[] { "SeaOfSandEditor/Private" });
-        PublicDependencyModuleNames.AddRange(new string[] { "SeaOfSand" });
-        PrivateDependencyModuleNames.AddRange(new string[] {  });
-        PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "UnrealEd", "PropertyEditor" });
+
         PrivateIncludePathModuleNames.AddRange(new string[] {  });
         DynamicallyLoadedModuleNames.AddRange(new string[] {  });
 	}

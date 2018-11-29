@@ -22,44 +22,46 @@ USoSAIDecision::USoSAIDecision()
 float USoSAIDecision::ScoreDecision()
 {
 	float FinalScore = 1;
-	/*
-	if (Considerations.Num() == 0)
+	
+	if (DecisionData.Considerations.Num() == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s contains no considerations"), *GetDecisionName().ToString());
+		//UE_LOG(LogTemp, Warning, TEXT("%s contains no considerations"), *GetDecisionName().ToString());
 		return 0;
 	}
 
-	float ModificationFactor = 1 - (1.0f / Considerations.Num());
+	float ModificationFactor = 1 - (1.0f / DecisionData.Considerations.Num());
+	FString ReferenceString = FString("");
 
-	for (FDecisionConsideration& Consideration : Considerations)
+	for (FDataTableRowHandle& DataTableRowConsideration : DecisionData.Considerations)
 	{
-		float ParamScore = SoSUtilityAI::NormalizeParam(&Consideration.Parameter, &DecisionContext);
-		float Response = SoSUtilityAI::ComputeResponseCurve(ParamScore, &Consideration.ResponseCurve);
+		FDecisionConsideration* Consideration = DataTableRowConsideration.DataTable->FindRow<FDecisionConsideration>(DataTableRowConsideration.RowName, ReferenceString);
+		float ParamScore = SoSUtilityAI::NormalizeParam(&Consideration->Parameter, &DecisionData.DecisionContext);
+		float Response = SoSUtilityAI::ComputeResponseCurve(ParamScore, &Consideration->ResponseCurve);
 
 		float MakeUpValue = (1 - Response) * ModificationFactor;
 		Response = Response + (MakeUpValue * Response);
 
 		FinalScore *= FMath::Clamp(Response, 0.0f, 1.0f);
-	} */
+	} 
 
 	return FinalScore;
 }
 
-/*
+
 
 EDecisionAction USoSAIDecision::GetAction() const
 {
-	return Action;
+	return  DecisionData.Action;
 }
 
 
 FDecisionContext& USoSAIDecision::GetDecisionContext() 
 {
-	return DecisionContext;
+	return DecisionData.DecisionContext;
 }
 
 
-TArray<FDecisionConsideration>& USoSAIDecision::GetConsiderations() 
+TArray<FDataTableRowHandle>& USoSAIDecision::GetConsiderations() 
 {
-	return Considerations;
-} */
+	return DecisionData.Considerations;
+} 
