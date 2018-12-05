@@ -5,6 +5,7 @@
 
 #define LOCTEXT_NAMESPACE "FConsiderationPresetCustomization"
 
+
 TSharedPtr<FString> FConsiderationPresetCustomization::InitWidgetContent()
 {
 	TSharedPtr<FString> InitialValue = MakeShareable(new FString(LOCTEXT("DataTable_None", "None").ToString()));;
@@ -72,7 +73,6 @@ void FConsiderationPresetCustomization::CustomizeChildren(TSharedRef<class IProp
 	{
 		/** Queue up a refresh of the selected item, not safe to do from here */
 		StructCustomizationUtils.GetPropertyUtilities()->EnqueueDeferredAction(FSimpleDelegate::CreateSP(this, &FConsiderationPresetCustomization::OnDataTableChanged));
-		StructCustomizationUtils.GetPropertyUtilities()->EnqueueDeferredAction(FSimpleDelegate::CreateSP(this, &FConsiderationPresetCustomization::OnPresetChanged));
 
 		/** Setup Change callback */
 		FSimpleDelegate OnDataTableChangedDelegate = FSimpleDelegate::CreateSP(this, &FConsiderationPresetCustomization::OnDataTableChanged);
@@ -105,7 +105,7 @@ void FConsiderationPresetCustomization::CustomizeChildren(TSharedRef<class IProp
 			]
 		];
 
-		StructBuilder.AddProperty(ConsiderationPropertyHandle.ToSharedRef());
+		StructBuilder.AddProperty(ConsiderationPropertyHandle.ToSharedRef());		
 	}
 }
 
@@ -159,6 +159,48 @@ void FConsiderationPresetCustomization::OnDataTableChanged()
 	}
 }
 
+
+TSharedPtr<IPropertyHandle> FConsiderationPresetCustomization::GetChildProperty(const TSharedPtr<IPropertyHandle>& ParentHandle, const FName Property)
+{
+	return ParentHandle->IsValidHandle() ? ParentHandle->GetChildHandle(Property) : nullptr;
+}
+
+
+void FConsiderationPresetCustomization::SetDecisionConsiderationChildProperty(const TSharedPtr<IPropertyHandle>& ChildHandle, uint8 PropertyIndex, FDecisionConsideration* StructPreset)
+{
+	if (StructPreset == nullptr)
+	{
+		return;
+	}
+
+	if (ChildHandle->IsValidHandle())
+	{
+		switch (PropertyIndex)
+		{
+		case 0:
+			ChildHandle->SetValue(StructPreset->ResponseCurve.Curve);
+			break;
+		case 1:
+			ChildHandle->SetValue(StructPreset->ResponseCurve.OffsetX);
+			break;
+		case 2:
+			ChildHandle->SetValue(StructPreset->ResponseCurve.OffsetY);
+			break;
+		case 3:
+			ChildHandle->SetValue((uint8)StructPreset->Parameter.ConsiderationParameter);
+			break;
+		case 4:
+			ChildHandle->SetValue(StructPreset->Parameter.RangeMin);
+			break;
+		case 5:
+			ChildHandle->SetValue(StructPreset->Parameter.RangeMax);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void FConsiderationPresetCustomization::OnPresetChanged()
 {
 	if (ConsiderationPropertyHandle.IsValid())
@@ -176,8 +218,18 @@ void FConsiderationPresetCustomization::OnPresetChanged()
 		FName RowName;
 		RowNamePropertyHandle->GetValue(RowName);
 		FString ReferenceString = FString("");
-		auto Struct = DataTable->FindRow<FDecisionConsideration>(RowName, ReferenceString);
-		FPropertyAccess::Result Result = ConsiderationPropertyHandle->SetValue(Struct);
+		FDecisionConsideration* StructPreset = DataTable->FindRow<FDecisionConsideration>(RowName, ReferenceString);
+
+		TSharedPtr<IPropertyHandle> ResponseCurvePropertyHandle = GetChildProperty(ConsiderationPropertyHandle, "ResponseCurve");
+		TSharedPtr<IPropertyHandle> ParameterCurvePropertyHandle = GetChildProperty(ConsiderationPropertyHandle, "Parameter");
+
+
+		SetDecisionConsiderationChildProperty(GetChildProperty(ResponseCurvePropertyHandle, "Curve"), 0, StructPreset);
+		SetDecisionConsiderationChildProperty(GetChildProperty(ResponseCurvePropertyHandle, "OffsetX"), 1, StructPreset);
+		SetDecisionConsiderationChildProperty(GetChildProperty(ResponseCurvePropertyHandle, "OffsetY"), 2, StructPreset);
+		SetDecisionConsiderationChildProperty(GetChildProperty(ParameterCurvePropertyHandle, "ConsiderationParameter"), 3, StructPreset);
+		SetDecisionConsiderationChildProperty(GetChildProperty(ParameterCurvePropertyHandle, "RangeMin"), 4, StructPreset);
+		SetDecisionConsiderationChildProperty(GetChildProperty(ParameterCurvePropertyHandle, "RangeMax"), 5, StructPreset);
 	}
 }
 

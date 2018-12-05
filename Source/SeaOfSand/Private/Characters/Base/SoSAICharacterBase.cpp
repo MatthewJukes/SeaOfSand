@@ -10,7 +10,9 @@
 
 
 #include "SoSAICharacterBase.h"
+#include "SoSAIDecision.h"
 #include "SoSUtilityAI.h"
+#include "SoSASTasks.h"
 
 
 ASoSAICharacterBase::ASoSAICharacterBase()
@@ -27,19 +29,31 @@ void ASoSAICharacterBase::BeginPlay()
 
 void ASoSAICharacterBase::CreateDecisionObjects()
 {
-	for (TSubclassOf<USoSAIDecision> DecisionClass : BP_Decisions)
+	for (FAIActionDecision& ActionDecisionData : ActionDecisions)
 	{
-		if (DecisionClass == nullptr)
-		{
-			return;
-		}
+		USoSAIDecision* NewDecision = NewObject<USoSAIDecision>();
+		FString ReferenceString = FString("");
+		NewDecision->SetActionDecisionData(ActionDecisionData.DataTable->FindRow<FActionDecisionData>(ActionDecisionData.RowName, ReferenceString));
+		DecisionObjects.Add(NewDecision);
+	}
 
-		Decisions.Add(NewObject<USoSAIDecision>(DecisionClass, DecisionClass.Get()));
+	for (FAbilityDecisionPair& AbilityDecisionPair : AbilityDecisionPairs)
+	{
+		USoSAIDecision* NewDecision = NewObject<USoSAIDecision>();
+		FString ReferenceString = FString("");
+		NewDecision->SetAbilityDecisionData(AbilityDecisionPair.AbilityDecision.DataTable->FindRow<FAbilityDecisionData>(AbilityDecisionPair.AbilityDecision.RowName, ReferenceString));
+
+		USoSAbilityBase* NewAbility = USoSASTasks::CreateAbilityInstance(AbilityDecisionPair.Ability, CombatComp);
+		NewDecision->SetAbility(NewAbility);
+
+		NewDecision->SetIsAbilityDecision(true);
+
+		DecisionObjects.Add(NewDecision);
 	}
 }
 
 
 TArray<USoSAIDecision*>& ASoSAICharacterBase::GetDecisions()
 {
-	return Decisions;
+	return DecisionObjects;
 }

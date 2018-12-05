@@ -98,10 +98,11 @@ public:
 
 	static USoSAbilityBase* CreateAbilityInstance(TSubclassOf<USoSAbilityBase> Ability, USoSCombatComponent* OwningCombatComp);
 
+	UFUNCTION(meta = (WorldContext = "Instigator"), Category = "AbilityTask")
+	static UWorld* AbilityGetWorldFromContextObject(const UObject* WorldContextObject);
+
 private:
 
 	static void ReapplyEffect(FEffectData& ExistingEffect, FEffectData& NewEffect, int32 StackToApply, float ApplicationTime);
 
-	UFUNCTION(meta = (WorldContext = "Instigator"), Category = "AbilityTask")
-	static UWorld* AbilityGetWorldFromContextObject(const UObject* WorldContextObject);
 };

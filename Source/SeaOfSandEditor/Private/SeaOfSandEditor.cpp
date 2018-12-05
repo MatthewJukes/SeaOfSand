@@ -2,6 +2,8 @@
 
 #include "SeaOfSandEditor.h"
 #include "ConsiderationPresetCustomization.h"
+#include "AIActionDecisionCustomization.h"
+#include "AIAbilityDecisionCustomization.h"
 #include "Modules/ModuleManager.h"
 #include "Modules/ModuleInterface.h"
 #include "PropertyEditorModule.h" 
@@ -19,6 +21,8 @@ void FSeaOfSandEditorModule::StartupModule()
 
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	PropertyModule.RegisterCustomPropertyTypeLayout("ConsiderationPreset", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FConsiderationPresetCustomization::MakeInstance));
+	PropertyModule.RegisterCustomPropertyTypeLayout("AIActionDecision", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FAIActionDecisionCustomization::MakeInstance));
+	PropertyModule.RegisterCustomPropertyTypeLayout("AIAbilityDecision", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FAIAbilityDecisionCustomization::MakeInstance));
 }
 
 void FSeaOfSandEditorModule::ShutdownModule()

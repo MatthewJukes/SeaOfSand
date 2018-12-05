@@ -5,6 +5,7 @@
 #include "SoSAIDecision.h"
 #include "SoSCharacterBase.h"
 #include "SoSAICharacterBase.h"
+#include "SoSCombatComponent.h"
 #include "Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
@@ -29,8 +30,8 @@ void ASoSBaseAIController::BeginPlay()
 		TArray<USoSAIDecision*>& Decisions = AICharacter->GetDecisions();
 		for (USoSAIDecision* Decision : Decisions)
 		{
-			//Decision->GetDecisionContext().Character = AICharacter;
-			//Decision->GetDecisionContext().Target = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(AICharacter, 0));
+			Decision->GetDecisionContext()->SourceCharacter = AICharacter; //TODO this is placeholder for getting context data
+			Decision->GetDecisionContext()->Target = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(AICharacter, 0));
 		}
 	} 
 
@@ -60,10 +61,9 @@ void ASoSBaseAIController::ScoreAllDecisions()
 		ExecuteDecision(NewDecision);
 		if (NewDecision != nullptr)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("%s wins with a score of :%f"), *NewDecision->GetDecisionName().ToString(), BestScore);
+			UE_LOG(LogTemp, Warning, TEXT("%s wins with a score of :%f"), *NewDecision->GetFName().ToString(), BestScore);
 		}
-	} 
-	
+	}
 }
 
 
@@ -73,18 +73,25 @@ void ASoSBaseAIController::ExecuteDecision(USoSAIDecision* Decision)
 	{
 		return;
 	}
+	
 
-	/*
+	if (Decision->GetIsAbilityDecision())
+	{
+		AICharacter->GetCharacterCombatComponent()->UseAbility(Decision->GetAbility());
+		return;
+	}
+
+
 	switch (Decision->GetAction())
 	{
 	case EDecisionAction::MoveToActor:
-		//ActionMoveToActor(Decision->GetDecisionContext().Target);
+		ActionMoveToActor(Decision->GetDecisionContext()->Target);
 		break;
 	case EDecisionAction::MoveToLocation:
 		break;
 	default:
 		break;
-	} */
+	} 
 }
 
 

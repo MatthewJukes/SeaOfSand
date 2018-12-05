@@ -370,7 +370,6 @@ void USoSCombatComponent::CalculateAttributeTotalValues()
 
 void USoSCombatComponent::AddValueToAttributeBaseValues(EAttributeName Attribute, float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Effect Added: %f"), Value)
 	AddValueToAttributeData(AttributeBaseValues, Attribute, Value);
 }
 

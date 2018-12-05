@@ -19,6 +19,8 @@ ASoSCharacterBase::ASoSCharacterBase()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_ABILITY, ECR_Block);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Ignore);
 
+	
+
 	// Setup combat component
 	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
 	

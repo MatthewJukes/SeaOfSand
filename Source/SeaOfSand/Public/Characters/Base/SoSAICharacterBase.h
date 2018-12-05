@@ -11,11 +11,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/Base/SoSCharacterBase.h"
+#include "SoSCharacterBase.h"
+#include "SoSAIDecisionData.h"
 #include "SoSAICharacterBase.generated.h"
 
 
 class USoSAIDecision;
+
+
+USTRUCT(BlueprintType)
+struct FAbilityDecisionPair
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, Category = "Utility AI")
+	TSubclassOf<USoSAbilityBase> Ability;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Utility AI")
+	FAIAbilityDecision AbilityDecision;
+};
 
 
 UCLASS()
@@ -38,9 +52,13 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "UtilityAI")
-	TArray<TSubclassOf<USoSAIDecision>> BP_Decisions;
+	TArray<FAbilityDecisionPair> AbilityDecisionPairs;
 
-	TArray<USoSAIDecision*> Decisions;
+	UPROPERTY(EditDefaultsOnly, Category = "UtilityAI")
+	TArray<FAIActionDecision> ActionDecisions;
+
+	UPROPERTY()
+	TArray<USoSAIDecision*> DecisionObjects;
 
 public:
 

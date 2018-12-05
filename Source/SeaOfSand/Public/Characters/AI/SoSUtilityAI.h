@@ -27,7 +27,15 @@ public:
 
 	static float ConsiderationMyHealthPercent(FConsiderationParameter* Parameter, FDecisionContext* Context);
 
-	static float ConsiderationDistanceToTarget(FConsiderationParameter* Parameter, FDecisionContext* Context);
+	static float ConsiderationMyDistanceToTarget(FConsiderationParameter* Parameter, FDecisionContext* Context);
+
+	static float ConsiderationMyDirectionOffsetToTarget(FConsiderationParameter* Parameter, FDecisionContext* Context);
+
+	static float ConsiderationMyLineOfSightToTarget(FConsiderationParameter* Parameter, FDecisionContext* Context);
+
+	static float ConsiderationTargetHealthPercent(FConsiderationParameter* Parameter, FDecisionContext* Context);
+
+	static float ConsiderationTargetDirectionOffsetToMe(FConsiderationParameter* Parameter, FDecisionContext* Context);
 
 	static float ComputeResponseCurve(float Score, FResponseCurveData* Curve);
 };

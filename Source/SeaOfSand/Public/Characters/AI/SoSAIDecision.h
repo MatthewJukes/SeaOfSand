@@ -34,13 +34,30 @@ public:
 
 protected:
 
-	FDecisionData DecisionData;
+	// Is this a ability decision? otherwise an action decision
+	bool bAbilityDecision;
+
+	FActionDecisionData* ActionDecisionData;
+
+	FAbilityDecisionData* AbilityDecisionData;
 
 public:
 
+	bool GetIsAbilityDecision() const;
+
 	EDecisionAction GetAction() const;
 
-	FDecisionContext& GetDecisionContext();
+	USoSAbilityBase* GetAbility() const;
 
-	TArray<FDataTableRowHandle>& GetConsiderations();
+	FDecisionContext* GetDecisionContext() const;
+
+	TArray<FConsiderationPreset>* GetConsiderations() const;
+
+	void SetIsAbilityDecision(bool NewValue);
+
+	void SetActionDecisionData(FActionDecisionData* NewDecisionData);
+
+	void SetAbilityDecisionData(FAbilityDecisionData* NewDecisionData);
+
+	void SetAbility(USoSAbilityBase* NewAbility);
 };

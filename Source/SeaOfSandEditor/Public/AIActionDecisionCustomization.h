@@ -15,23 +15,21 @@
 #include "Widgets/Views/STableRow.h"
 #include "Widgets/Views/SListView.h"
 #include "Engine/DataTable.h"
-#include "IDetailCustomization.h"
 #include "SoSAIDecisionData.h"
 
-#define LOCTEXT_NAMESPACE "FConsiderationPresetCustomization"
+#define LOCTEXT_NAMESPACE "FAIActionDecisionCustomization"
 
 struct FAssetData;
-
 
 /**
 * Customizes a DataTable asset to use a dropdown
 */
-class FConsiderationPresetCustomization : public IPropertyTypeCustomization
+class FAIActionDecisionCustomization : public IPropertyTypeCustomization
 {
 public:
 	static TSharedRef<IPropertyTypeCustomization> MakeInstance()
 	{
-		return MakeShareable(new FConsiderationPresetCustomization);
+		return MakeShareable(new FAIActionDecisionCustomization);
 	}
 
 	/** IPropertyTypeCustomization interface */
@@ -51,13 +49,6 @@ private:
 
 	/** Delegate to refresh the drop down when the datatable changes */
 	void OnDataTableChanged();
-
-	TSharedPtr<IPropertyHandle> GetChildProperty(const TSharedPtr<IPropertyHandle>& ParentHandle, const FName Property);
-
-	void SetDecisionConsiderationChildProperty(const TSharedPtr<IPropertyHandle>& ChildHandle, uint8 PropertyIndex, FDecisionConsideration* StructPreset);
-
-	/** Delegate to refresh the consideration struct when the preset changes */
-	void OnPresetChanged();
 
 	/** Return the representation of the the row names to display */
 	TSharedRef<ITableRow> HandleRowNameComboBoxGenarateWidget(TSharedPtr<FString> InItem, const TSharedRef<STableViewBase>& OwnerTable);
@@ -83,11 +74,11 @@ private:
 	TSharedPtr<IPropertyHandle> StructPropertyHandle;
 	TSharedPtr<IPropertyHandle> DataTablePropertyHandle;
 	TSharedPtr<IPropertyHandle> RowNamePropertyHandle;
-	TSharedPtr<IPropertyHandle> ConsiderationPropertyHandle;
 
 	/** A cached copy of strings to populate the combo box */
 	TArray<TSharedPtr<FString> > RowNames;
 	/** The MetaData derived filter for the row type */
 	FName RowTypeFilter;
 };
+
 #undef LOCTEXT_NAMESPACE
