@@ -21,19 +21,7 @@ void ASoSBaseAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AICharacter = Cast<ASoSAICharacterBase>(GetPawn());
-	
-	if (AICharacter)
-	{
-		AICharacter->CreateDecisionObjects();
-
-		TArray<USoSAIDecision*>& Decisions = AICharacter->GetDecisions();
-		for (USoSAIDecision* Decision : Decisions)
-		{
-			Decision->GetDecisionContext()->SourceCharacter = AICharacter; //TODO this is placeholder for getting context data
-			Decision->GetDecisionContext()->Target = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(AICharacter, 0));
-		}
-	} 
+	AICharacter = Cast<ASoSAICharacterBase>(GetPawn());	
 
 	GetWorldTimerManager().SetTimer(TimerHandle_ScoreAllDecisions, this, &ASoSBaseAIController::ScoreAllDecisions, 0.5f, true);
 }
@@ -41,6 +29,8 @@ void ASoSBaseAIController::BeginPlay()
 
 void ASoSBaseAIController::ScoreAllDecisions()
 { 
+	CreateDecisions();
+
 	USoSAIDecision* NewDecision = nullptr;
 
 	if (AICharacter)
@@ -66,6 +56,29 @@ void ASoSBaseAIController::ScoreAllDecisions()
 	}
 }
 
+// TODO placeholder until system is more fully implemented
+void ASoSBaseAIController::CreateDecisions()
+{
+	if (bCreatedDecisions)
+	{
+		return;
+	}
+
+	if (AICharacter)
+	{
+		AICharacter->CreateDecisionObjects();
+
+		TArray<USoSAIDecision*>& Decisions = AICharacter->GetDecisions();
+		for (USoSAIDecision* Decision : Decisions)
+		{
+			Decision->GetDecisionContext().SourceCharacter = AICharacter; //TODO this is placeholder for getting context data
+			Decision->GetDecisionContext().Target = Cast<AActor>(UGameplayStatics::GetPlayerCharacter(AICharacter, 0));
+		}
+	}
+
+	bCreatedDecisions = true;
+}
+
 
 void ASoSBaseAIController::ExecuteDecision(USoSAIDecision* Decision)
 {
@@ -77,7 +90,8 @@ void ASoSBaseAIController::ExecuteDecision(USoSAIDecision* Decision)
 
 	if (Decision->GetIsAbilityDecision())
 	{
-		AICharacter->GetCharacterCombatComponent()->UseAbility(Decision->GetAbility());
+		AICharacter->GetCharacterCombatComponent()->UseAbility(Decision->GetAbility()); // Start
+		AICharacter->GetCharacterCombatComponent()->UseAbility(Decision->GetAbility(), true); // Release
 		return;
 	}
 
@@ -85,7 +99,7 @@ void ASoSBaseAIController::ExecuteDecision(USoSAIDecision* Decision)
 	switch (Decision->GetAction())
 	{
 	case EDecisionAction::MoveToActor:
-		ActionMoveToActor(Decision->GetDecisionContext()->Target);
+		ActionMoveToActor(Decision->GetDecisionContext().Target);
 		break;
 	case EDecisionAction::MoveToLocation:
 		break;

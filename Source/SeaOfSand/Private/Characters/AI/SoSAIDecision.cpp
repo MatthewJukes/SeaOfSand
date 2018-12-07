@@ -11,6 +11,8 @@
 
 #include "SoSAIDecision.h"
 #include "SoSUtilityAI.h"
+#include "SoSAICharacterBase.h"
+#include "SoSCombatComponent.h"
 
 
 USoSAIDecision::USoSAIDecision()
@@ -23,13 +25,24 @@ float USoSAIDecision::ScoreDecision()
 {
 	float FinalScore = 1;
 	
-	TArray<FConsiderationPreset>* Considerations = bAbilityDecision ? &AbilityDecisionData->Considerations : &ActionDecisionData->Considerations;
-	FDecisionContext* DecisionContext = bAbilityDecision ? &AbilityDecisionData->DecisionContext : &ActionDecisionData->DecisionContext;
+	TArray<FConsiderationPreset>* Considerations = bAbilityDecision ? &AbilityDecisionData.Considerations : &ActionDecisionData.Considerations;
+	FDecisionContext* DecisionContext = bAbilityDecision ? &AbilityDecisionData.DecisionContext : &ActionDecisionData.DecisionContext;
 
 	if (Considerations->Num() == 0)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("%s contains no considerations"), *GetDecisionName().ToString());
 		return 0;
+	}
+
+	if (bAbilityDecision)
+	{
+		if (AbilityDecisionData.Ability != nullptr)
+		{
+			if (!AbilityDecisionData.DecisionContext.SourceCharacter->GetCharacterCombatComponent()->CheckAbilityCanCast(AbilityDecisionData.Ability))
+			{
+				return 0;
+			}
+		}
 	}
 
 	float ModificationFactor = 1 - (1.0f / Considerations->Num());
@@ -62,61 +75,35 @@ bool USoSAIDecision::GetIsAbilityDecision() const
 
 EDecisionAction USoSAIDecision::GetAction() const
 {
-	if (ActionDecisionData == nullptr)
-	{
-		return EDecisionAction::NoAction;
-	}
-
-	return  ActionDecisionData->Action;
+	return  ActionDecisionData.Action;
 }
 
 
 USoSAbilityBase* USoSAIDecision::GetAbility() const
 {
-	return AbilityDecisionData->Ability;
+	return AbilityDecisionData.Ability;
 }
 
 
-FDecisionContext* USoSAIDecision::GetDecisionContext() const
+FDecisionContext& USoSAIDecision::GetDecisionContext()
 {
 	if (bAbilityDecision)
 	{
-		if (AbilityDecisionData == nullptr)
-		{
-			return nullptr;
-		}
-
-		return &AbilityDecisionData->DecisionContext;
+		return AbilityDecisionData.DecisionContext;
 	}
 
-	if (ActionDecisionData == nullptr)
-	{
-		return nullptr;
-	}
-
-	return &ActionDecisionData->DecisionContext;
+	return ActionDecisionData.DecisionContext;
 }
 
 
-TArray<FConsiderationPreset>* USoSAIDecision::GetConsiderations() const
+TArray<FConsiderationPreset>& USoSAIDecision::GetConsiderations()
 {
 	if (bAbilityDecision)
 	{
-
-		if (AbilityDecisionData == nullptr)
-		{
-			return nullptr;
-		}
-
-		return &AbilityDecisionData->Considerations;
+		return AbilityDecisionData.Considerations;
 	}
 
-	if (ActionDecisionData == nullptr)
-	{
-		return nullptr;
-	}
-
-	return &ActionDecisionData->Considerations;
+	return ActionDecisionData.Considerations;
 } 
 
 
@@ -128,33 +115,33 @@ void USoSAIDecision::SetIsAbilityDecision(bool NewValue)
 
 void USoSAIDecision::SetActionDecisionData(FActionDecisionData* NewDecisionData)
 {
-	if (ActionDecisionData == nullptr)
+	if (NewDecisionData == nullptr)
 	{
 		return;
 	}
 
-	ActionDecisionData = NewDecisionData;
+	ActionDecisionData = *NewDecisionData;
 }
 
 
 void USoSAIDecision::SetAbilityDecisionData(FAbilityDecisionData* NewDecisionData)
 {
-	if (AbilityDecisionData == nullptr)
+	if (NewDecisionData == nullptr)
 	{
 		return;
 	}
 
-	AbilityDecisionData = NewDecisionData;
+	AbilityDecisionData = *NewDecisionData;
 }
 
 
 void USoSAIDecision::SetAbility(USoSAbilityBase* NewAbility)
 {
-	if (AbilityDecisionData == nullptr)
+	if (NewAbility == nullptr)
 	{
 		return;
 	}
 
-	AbilityDecisionData->Ability = NewAbility;
+	AbilityDecisionData.Ability = NewAbility;
 }
 

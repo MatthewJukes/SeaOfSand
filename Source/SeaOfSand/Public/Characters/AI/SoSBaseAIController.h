@@ -27,10 +27,14 @@ public:
 
 protected:
 
+	bool bCreatedDecisions;
+
 	ASoSAICharacterBase * AICharacter;
 
 	UFUNCTION()
 	void ScoreAllDecisions();
+
+	void CreateDecisions();
 
 	void ExecuteDecision(USoSAIDecision* Decision);
 

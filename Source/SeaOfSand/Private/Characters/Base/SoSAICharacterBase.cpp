@@ -13,11 +13,12 @@
 #include "SoSAIDecision.h"
 #include "SoSUtilityAI.h"
 #include "SoSASTasks.h"
+#include "Perception/AIPerceptionComponent.h"
 
 
 ASoSAICharacterBase::ASoSAICharacterBase()
 {
-
+	PerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComp"));
 }
 
 

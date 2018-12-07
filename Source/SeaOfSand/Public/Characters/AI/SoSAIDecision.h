@@ -18,6 +18,9 @@
 #include "SoSAIDecision.generated.h"
 
 
+class ASoSAICharacterBase;
+
+
 UCLASS(BlueprintType, Blueprintable)
 class SEAOFSAND_API USoSAIDecision : public UObject
 {
@@ -37,9 +40,11 @@ protected:
 	// Is this a ability decision? otherwise an action decision
 	bool bAbilityDecision;
 
-	FActionDecisionData* ActionDecisionData;
+	UPROPERTY()
+	FActionDecisionData ActionDecisionData;
 
-	FAbilityDecisionData* AbilityDecisionData;
+	UPROPERTY()
+	FAbilityDecisionData AbilityDecisionData;
 
 public:
 
@@ -49,9 +54,9 @@ public:
 
 	USoSAbilityBase* GetAbility() const;
 
-	FDecisionContext* GetDecisionContext() const;
+	FDecisionContext& GetDecisionContext();
 
-	TArray<FConsiderationPreset>* GetConsiderations() const;
+	TArray<FConsiderationPreset>& GetConsiderations();
 
 	void SetIsAbilityDecision(bool NewValue);
 

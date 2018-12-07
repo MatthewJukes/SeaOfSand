@@ -217,6 +217,7 @@ void USoSCombatComponent::HandleEffectOnEventAbility(FEffectData& Effect, FEffec
 	}
 }
 
+
 void USoSCombatComponent::TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType EventType)
 {
 	switch (EventType)
@@ -238,7 +239,7 @@ void USoSCombatComponent::TagUpdate(const EAbilityTag& Tag, ETagUpdateEventType 
 }
 
 
-void USoSCombatComponent::DamageCalculation(float DamageBase, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageTypeName)
+void USoSCombatComponent::DamageCalculation(float BaseDamage, float &OutHealthDamage, float &OutArmourDamage, ESoSDamageTypeName DamageTypeName)
 {
 	FSoSDamageType* DamageType = new FSoSDamageType;
 	DamageType->ArmourPenetration = 0;
@@ -260,15 +261,17 @@ void USoSCombatComponent::DamageCalculation(float DamageBase, float &OutHealthDa
 	default:
 		break;
 	}
-
-	float MaxRawDamageReductionByArmour = FMath::Max(1.0f, AttributeTotalValues.ArmourCurrentValue * 0.1f); // 10% of current armour
 	
 	// Calculate armour penetration
-	OutHealthDamage = DamageBase * (DamageType->ArmourPenetration * 0.01f);
-	OutHealthDamage += (DamageBase - OutHealthDamage) - FMath::Min(MaxRawDamageReductionByArmour, (DamageBase - OutHealthDamage));
+	float HealthDamageFromArPen = BaseDamage * DamageType->ArmourPenetration;
+
+	// Calculate 
+	float DamageAbsorbedByArmour = FMath::Min(BaseDamage - HealthDamageFromArPen, AttributeTotalValues.ArmourCurrentValue / (DamageType->ArmourDamage * 0.01f));
+
+	OutHealthDamage = HealthDamageFromArPen + ((BaseDamage - HealthDamageFromArPen) - DamageAbsorbedByArmour);
 
 	// Calculate armour damage
-	OutArmourDamage = (DamageBase - OutHealthDamage) * (DamageType->ArmourDamage * 0.01f);
+	OutArmourDamage = DamageAbsorbedByArmour * (DamageType->ArmourDamage * 0.01f);
 
 	AddValueToAttributeBaseValues(EAttributeName::HealthCurrent, -OutHealthDamage);
 	AddValueToAttributeBaseValues(EAttributeName::ArmourCurrent, -OutArmourDamage);

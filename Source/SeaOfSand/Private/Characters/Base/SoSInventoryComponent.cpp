@@ -111,7 +111,7 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 	{
 		if (!bQuickSwitch)
 		{
-			if (!OwningCharacter->GetCharacterCombatComponent()->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDraw))
+			if (!OwningCharacter->GetCharacterCombatComponent()->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponDraw, true))
 			{
 				return;
 			}
@@ -131,7 +131,7 @@ void USoSInventoryComponent::HolsterUnholster(bool bQuickSwitch) // TODO less sp
 	{
 		if (!bQuickSwitch)
 		{
-			if (!OwningCharacter->GetCharacterCombatComponent()->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolster))
+			if (!OwningCharacter->GetCharacterCombatComponent()->UseAbility(CurrentWeapon->GetWeaponAbilities().AbilityWeaponHolster, true))
 			{
 				return;
 			}

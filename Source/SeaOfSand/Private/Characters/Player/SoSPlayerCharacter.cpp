@@ -171,7 +171,7 @@ void ASoSPlayerCharacter::SprintStart()
 		return;
 	}
 
-	if (UseAbility(AbilityBar.AbilitySprint))
+	if (UseAbility(AbilityBar.AbilitySprint, true))
 	{
 		AimEnd();
 		SprintZoom(true);
@@ -195,7 +195,7 @@ void ASoSPlayerCharacter::SprintEnd()
 		return;
 	}
 
-	if (UseAbility(AbilityBar.AbilitySprintEnd))
+	if (UseAbility(AbilityBar.AbilitySprintEnd, true))
 	{
 		SprintZoom(false);
 		CombatComp->SetOwnerState(EOwnerState::Normal);
