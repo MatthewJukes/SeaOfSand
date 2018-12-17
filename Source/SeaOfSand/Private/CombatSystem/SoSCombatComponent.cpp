@@ -364,9 +364,20 @@ void USoSCombatComponent::CalculateAttributeTotalValues()
 		return;
 	}
 
+	if (AttributeTotalValues.HealthCurrentValue == 0.0f)
+	{
+		OwnerState = EOwnerState::Dead;
+	}
+
 	if (UCharacterMovementComponent* CharacterMovement = OwningCharacter->GetCharacterMovement())
 	{
 		CharacterMovement->MaxWalkSpeed = AttributeTotalValues.SpeedValue;
+
+
+		if (OwnerState == EOwnerState::Dead)
+		{
+			CharacterMovement->DisableMovement();
+		}
 	}
 }
 

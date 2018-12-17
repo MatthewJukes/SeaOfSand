@@ -17,9 +17,7 @@ ASoSCharacterBase::ASoSCharacterBase()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_ABILITY, ECR_Block);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Ignore);
-
-	
+	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Ignore);	
 
 	// Setup combat component
 	CombatComp = CreateDefaultSubobject<USoSCombatComponent>(TEXT("CombatComp"));
@@ -90,4 +88,9 @@ void ASoSCharacterBase::SetCharacterMovementType(bool bOrientRotationToMovement,
 	}
 }
 
+
+FGenericTeamId ASoSCharacterBase::GetGenericTeamId() const
+{
+	return FGenericTeamId((uint8)CombatComp->GetTeam());
+}
 

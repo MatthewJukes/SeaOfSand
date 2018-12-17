@@ -17,7 +17,6 @@
 
 
 class USoSAIDecision;
-class UAIPerceptionComponent;
 
 USTRUCT(BlueprintType)
 struct FAbilityDecisionPair
@@ -44,9 +43,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere, Category = "Component")
-	UAIPerceptionComponent* PerceptionComp;
 
 public:
 

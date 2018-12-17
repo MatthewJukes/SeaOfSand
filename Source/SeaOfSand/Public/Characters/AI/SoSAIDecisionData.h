@@ -38,7 +38,8 @@ enum class EDecisionAction : uint8
 {
 	NoAction,
 	MoveToActor,
-	MoveToLocation
+	MoveToLocation,
+	MoveToSpawnLocation
 };
 
 

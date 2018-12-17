@@ -9,6 +9,8 @@
 
 class ASoSAICharacterBase;
 class USoSAIDecision;
+class UAIPerceptionComponent;
+class UAISenseConfig_Sight;
 
 
 UCLASS()
@@ -23,13 +25,21 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	UAIPerceptionComponent* PerceptionComp;
+
 public:
 
 protected:
 
+	FVector SpawnLocation;
+
 	bool bCreatedDecisions;
 
 	ASoSAICharacterBase * AICharacter;
+
+	UPROPERTY()
+	UAISenseConfig_Sight* SightConfig;
 
 	UFUNCTION()
 	void ScoreAllDecisions();

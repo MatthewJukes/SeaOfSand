@@ -9,11 +9,21 @@
 #include "Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Perception/AISenseConfig_Sight.h"
 
 
 ASoSBaseAIController::ASoSBaseAIController()
 {
-	
+	PerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("PerceptionComp"));
+	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("SightConfig"));
+
+	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+
+	PerceptionComp->ConfigureSense(*SightConfig);
+	PerceptionComp->SetDominantSense(SightConfig->GetSenseImplementation());
 }
 
 
@@ -21,7 +31,9 @@ void ASoSBaseAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AICharacter = Cast<ASoSAICharacterBase>(GetPawn());	
+	AICharacter = Cast<ASoSAICharacterBase>(GetPawn());
+
+	SpawnLocation = AICharacter->GetActorLocation();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_ScoreAllDecisions, this, &ASoSBaseAIController::ScoreAllDecisions, 0.5f, true);
 }
@@ -29,6 +41,11 @@ void ASoSBaseAIController::BeginPlay()
 
 void ASoSBaseAIController::ScoreAllDecisions()
 { 
+	if (AICharacter->GetCharacterCombatComponent()->GetOwnerState() == EOwnerState::Dead)
+	{
+		return;
+	}
+
 	CreateDecisions();
 
 	USoSAIDecision* NewDecision = nullptr;
@@ -55,6 +72,7 @@ void ASoSBaseAIController::ScoreAllDecisions()
 		}
 	}
 }
+
 
 // TODO placeholder until system is more fully implemented
 void ASoSBaseAIController::CreateDecisions()
@@ -98,12 +116,17 @@ void ASoSBaseAIController::ExecuteDecision(USoSAIDecision* Decision)
 
 	switch (Decision->GetAction())
 	{
+	default:
+		break;
+	case EDecisionAction::NoAction:
+		break;
 	case EDecisionAction::MoveToActor:
 		ActionMoveToActor(Decision->GetDecisionContext().Target);
 		break;
 	case EDecisionAction::MoveToLocation:
 		break;
-	default:
+	case EDecisionAction::MoveToSpawnLocation:
+		ActionMoveToLocation(SpawnLocation);
 		break;
 	} 
 }

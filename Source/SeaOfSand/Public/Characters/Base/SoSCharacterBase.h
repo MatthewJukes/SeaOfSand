@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AIModule/Classes/GenericTeamAgentInterface.h"
 #include "SoSCharacterBase.generated.h"
 
 class USoSInventoryComponent;
 class USoSCombatComponent;
 
 UCLASS()
-class SEAOFSAND_API ASoSCharacterBase : public ACharacter
+class SEAOFSAND_API ASoSCharacterBase : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -53,4 +54,8 @@ public:
 	FVector GetTargetedLocation() const;
 
 	void SetCharacterMovementType(bool bOrientRotationToMovement, bool bUseControllerDesiredRotation);
+
+private:
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
 };
